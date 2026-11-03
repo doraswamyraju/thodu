@@ -15,11 +15,11 @@ export default function App() {
     <div className="web-layout">
       {/* Left Desktop Sidebar */}
       <aside className="web-sidebar">
-        <div className="sidebar-brand" style={{ padding: '20px 16px' }}>
+        <div className="sidebar-brand" style={{ padding: '16px 14px', background: 'rgba(255,255,255,0.04)' }}>
           <img 
-            src="/thodu_logo_dark_banner.png" 
-            alt="Thodu Elder Care Services" 
-            style={{ width: '100%', height: 'auto', borderRadius: '8px' }} 
+            src="/thodu_logo_horizontal.png" 
+            alt="Thodu Elder Care Services - Sri Divyang Seva Kendram Trust" 
+            style={{ width: '100%', height: 'auto', borderRadius: '8px', display: 'block' }} 
           />
         </div>
 
