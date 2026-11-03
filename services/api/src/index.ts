@@ -19,15 +19,32 @@ export interface Beneficiary {
   refNumber: string;
   fullName: string;
   category: 'Senior Citizen' | 'Person with Disability';
+  dateOfBirth?: string;
   age: number;
   gender: string;
+  bloodGroup?: string;
+  photoUrl?: string;
+  aadhaarNumber?: string;
+  udidNumber?: string; // Unique Disability ID
   relationship: string;
   primaryGuardian: string;
+  guardianPhone?: string;
   primaryContact: string;
+  alternateGuardianPhone?: string;
+  guardianEmail?: string;
   address: string;
+  zone?: string;
+  pincode?: string;
   latitude: number;
   longitude: number;
+  mobilityStatus?: 'Independent' | 'Assisted Walking' | 'Wheelchair Bound' | 'Bedridden';
+  medicalConditions?: string[];
+  allergies?: string;
   accessibilityNeeds: string;
+  emergencyDoctorName?: string;
+  emergencyDoctorPhone?: string;
+  subsidyTier?: '100% Trust Covered (BPL/White Card)' | '75% Trust Grant' | '50% Trust Grant' | 'Family Self-Funded';
+  rationCardNumber?: string;
   status: 'Active' | 'Inactive';
   avatarBg: string;
 }
@@ -280,9 +297,24 @@ let beneficiaries: Beneficiary[] = [
     relationship: 'Mother',
     primaryGuardian: 'Anita Sharma',
     primaryContact: '+91 98765 43210',
+    guardianPhone: '+91 98765 43210',
+    alternateGuardianPhone: '+91 91234 56789',
+    guardianEmail: 'anita.sharma@gmail.com',
+    dateOfBirth: '1958-05-14',
+    bloodGroup: 'B+',
+    aadhaarNumber: 'XXXX-XXXX-8912',
     address: '#14-2, T.T.D. Colony, Tirupati - 517501',
+    zone: 'T.T.D. Colony',
+    pincode: '517501',
     latitude: 13.6288,
     longitude: 79.4192,
+    mobilityStatus: 'Assisted Walking',
+    medicalConditions: ['Hypertension', 'Type 2 Diabetes', 'Osteoarthritis'],
+    allergies: 'Penicillin',
+    emergencyDoctorName: 'Dr. S. K. Raman (Apollo Tirupati)',
+    emergencyDoctorPhone: '+91 98480 11223',
+    subsidyTier: '100% Trust Covered (BPL/White Card)',
+    rationCardNumber: 'WAP-1082-99120',
     accessibilityNeeds: 'Walking support, knee pain care, diabetic diet',
     status: 'Active',
     avatarBg: '#E8F5E9'
@@ -314,9 +346,25 @@ let beneficiaries: Beneficiary[] = [
     relationship: 'Son',
     primaryGuardian: 'Anita Sharma',
     primaryContact: '+91 98765 43210',
+    guardianPhone: '+91 98765 43210',
+    alternateGuardianPhone: '+91 91234 56789',
+    guardianEmail: 'anita.sharma@gmail.com',
+    dateOfBirth: '2001-09-18',
+    bloodGroup: 'O+',
+    udidNumber: 'AP-DIS-2018-88124',
+    aadhaarNumber: 'XXXX-XXXX-3341',
     address: '#14-2, T.T.D. Colony, Tirupati - 517501',
+    zone: 'T.T.D. Colony',
+    pincode: '517501',
     latitude: 13.6288,
     longitude: 79.4192,
+    mobilityStatus: 'Wheelchair Bound',
+    medicalConditions: ['Cerebral Palsy', 'Motor Coordination Difficulty'],
+    allergies: 'None',
+    emergencyDoctorName: 'Dr. Preetha Rao (SVIMS Tirupati)',
+    emergencyDoctorPhone: '+91 98480 33445',
+    subsidyTier: '100% Trust Covered (BPL/White Card)',
+    rationCardNumber: 'WAP-1082-99120',
     accessibilityNeeds: 'Wheelchair assistance, companion care, speech encouragement',
     status: 'Active',
     avatarBg: '#EDE7F6'
@@ -950,16 +998,39 @@ app.patch('/api/v1/beneficiaries/:id', (req: Request, res: Response) => {
   const ben = beneficiaries.find(b => b.id === id);
   if (!ben) return res.status(404).json({ error: 'Beneficiary not found' });
 
-  const { fullName, category, age, gender, relationship, primaryGuardian, primaryContact, address, accessibilityNeeds, status } = req.body;
+  const { 
+    fullName, category, dateOfBirth, age, gender, bloodGroup, photoUrl,
+    aadhaarNumber, udidNumber, relationship, primaryGuardian, guardianPhone,
+    alternateGuardianPhone, guardianEmail, address, zone, pincode,
+    mobilityStatus, medicalConditions, allergies, accessibilityNeeds,
+    emergencyDoctorName, emergencyDoctorPhone, subsidyTier, rationCardNumber, status 
+  } = req.body;
+
   if (fullName !== undefined) ben.fullName = fullName;
   if (category !== undefined) ben.category = category;
+  if (dateOfBirth !== undefined) ben.dateOfBirth = dateOfBirth;
   if (age !== undefined) ben.age = Number(age);
   if (gender !== undefined) ben.gender = gender;
+  if (bloodGroup !== undefined) ben.bloodGroup = bloodGroup;
+  if (photoUrl !== undefined) ben.photoUrl = photoUrl;
+  if (aadhaarNumber !== undefined) ben.aadhaarNumber = aadhaarNumber;
+  if (udidNumber !== undefined) ben.udidNumber = udidNumber;
   if (relationship !== undefined) ben.relationship = relationship;
   if (primaryGuardian !== undefined) ben.primaryGuardian = primaryGuardian;
-  if (primaryContact !== undefined) ben.primaryContact = primaryContact;
+  if (guardianPhone !== undefined) { ben.guardianPhone = guardianPhone; ben.primaryContact = guardianPhone; }
+  if (alternateGuardianPhone !== undefined) ben.alternateGuardianPhone = alternateGuardianPhone;
+  if (guardianEmail !== undefined) ben.guardianEmail = guardianEmail;
   if (address !== undefined) ben.address = address;
+  if (zone !== undefined) ben.zone = zone;
+  if (pincode !== undefined) ben.pincode = pincode;
+  if (mobilityStatus !== undefined) ben.mobilityStatus = mobilityStatus;
+  if (medicalConditions !== undefined) ben.medicalConditions = Array.isArray(medicalConditions) ? medicalConditions : medicalConditions.split(',').map((s: string) => s.trim());
+  if (allergies !== undefined) ben.allergies = allergies;
   if (accessibilityNeeds !== undefined) ben.accessibilityNeeds = accessibilityNeeds;
+  if (emergencyDoctorName !== undefined) ben.emergencyDoctorName = emergencyDoctorName;
+  if (emergencyDoctorPhone !== undefined) ben.emergencyDoctorPhone = emergencyDoctorPhone;
+  if (subsidyTier !== undefined) ben.subsidyTier = subsidyTier;
+  if (rationCardNumber !== undefined) ben.rationCardNumber = rationCardNumber;
   if (status !== undefined) ben.status = status;
 
   auditLogs.unshift({
@@ -979,25 +1050,61 @@ app.get('/api/v1/beneficiaries', (req: Request, res: Response) => {
 });
 
 app.post('/api/v1/beneficiaries', (req: Request, res: Response) => {
-  const { fullName, category, age, gender, relationship, primaryGuardian, primaryContact, address, accessibilityNeeds, latitude, longitude } = req.body;
+  const { 
+    fullName, category, dateOfBirth, age, gender, bloodGroup, photoUrl,
+    aadhaarNumber, udidNumber, relationship, primaryGuardian, guardianPhone,
+    alternateGuardianPhone, guardianEmail, address, zone, pincode,
+    mobilityStatus, medicalConditions, allergies, accessibilityNeeds,
+    emergencyDoctorName, emergencyDoctorPhone, subsidyTier, rationCardNumber,
+    latitude, longitude
+  } = req.body;
+
   const newBen: Beneficiary = {
     id: `ben-${Date.now()}`,
     refNumber: `TH-BEN-${Math.floor(1000 + beneficiaries.length + 1)}`,
-    fullName,
+    fullName: fullName || 'New Beneficiary',
     category: category || 'Senior Citizen',
-    age: Number(age) || 65,
+    dateOfBirth: dateOfBirth || '1958-01-01',
+    age: Number(age) || 68,
     gender: gender || 'Female',
+    bloodGroup: bloodGroup || 'B+',
+    photoUrl: photoUrl || '',
+    aadhaarNumber: aadhaarNumber || 'XXXX-XXXX-0000',
+    udidNumber: udidNumber || '',
     relationship: relationship || 'Mother',
-    primaryGuardian: primaryGuardian || 'Anita Sharma',
-    primaryContact: primaryContact || '+91 98765 43210',
-    address: address || 'T.T.D. Colony, Tirupati',
+    primaryGuardian: primaryGuardian || 'Family Guardian',
+    primaryContact: guardianPhone || '+91 98765 43210',
+    guardianPhone: guardianPhone || '+91 98765 43210',
+    alternateGuardianPhone: alternateGuardianPhone || '',
+    guardianEmail: guardianEmail || '',
+    address: address || 'Tirupati, Andhra Pradesh',
+    zone: zone || 'Tirupati Urban',
+    pincode: pincode || '517501',
     latitude: latitude || 13.6288 + (Math.random() - 0.5) * 0.02,
     longitude: longitude || 79.4192 + (Math.random() - 0.5) * 0.02,
-    accessibilityNeeds: accessibilityNeeds || 'Standard Care',
+    mobilityStatus: mobilityStatus || 'Assisted Walking',
+    medicalConditions: medicalConditions || ['Routine Elder Care'],
+    allergies: allergies || 'None',
+    accessibilityNeeds: accessibilityNeeds || 'Standard Daily Living Support',
+    emergencyDoctorName: emergencyDoctorName || 'Dr. Raman (Tirupati)',
+    emergencyDoctorPhone: emergencyDoctorPhone || '+91 98480 00000',
+    subsidyTier: subsidyTier || '100% Trust Covered (BPL/White Card)',
+    rationCardNumber: rationCardNumber || '',
     status: 'Active',
-    avatarBg: '#E8F5E9'
+    avatarBg: category === 'Person with Disability' ? '#EDE7F6' : '#E8F5E9'
   };
+
   beneficiaries.unshift(newBen);
+
+  auditLogs.unshift({
+    id: `aud-${Date.now()}`,
+    adminUser: 'Raju Kumar (Super Admin)',
+    action: 'BENEFICIARY_REGISTERED',
+    module: 'Beneficiaries',
+    details: `Registered ${newBen.fullName} (${newBen.refNumber}) via 4-step wizard with ${newBen.subsidyTier}`,
+    timestamp: new Date().toLocaleString()
+  });
+
   res.status(201).json({ success: true, beneficiary: newBen });
 });
 

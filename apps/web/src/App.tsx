@@ -109,6 +109,37 @@ export default function App() {
 
 
   // Form State for Add Beneficiary
+  
+  // Beneficiary 4-Step Wizard State
+  const [benWizardStep, setBenWizardStep] = useState<number>(1);
+  const [benWizardForm, setBenWizardForm] = useState({
+    fullName: '',
+    category: 'Senior Citizen',
+    dateOfBirth: '1958-05-14',
+    age: 68,
+    gender: 'Female',
+    bloodGroup: 'B+',
+    photoUrl: '',
+    aadhaarNumber: 'XXXX-XXXX-8912',
+    udidNumber: '',
+    relationship: 'Mother',
+    primaryGuardian: 'Anita Sharma',
+    guardianPhone: '+91 98765 43210',
+    alternateGuardianPhone: '+91 91234 56789',
+    guardianEmail: 'anita.sharma@gmail.com',
+    address: '#14-2, T.T.D. Colony, Tirupati - 517501',
+    zone: 'T.T.D. Colony',
+    pincode: '517501',
+    mobilityStatus: 'Assisted Walking',
+    medicalConditions: ['Hypertension', 'Type 2 Diabetes', 'Osteoarthritis'],
+    allergies: 'Penicillin',
+    accessibilityNeeds: 'Walking support, routine knee compression, diabetic diet',
+    emergencyDoctorName: 'Dr. S. K. Raman (Apollo Tirupati)',
+    emergencyDoctorPhone: '+91 98480 11223',
+    subsidyTier: '100% Trust Covered (BPL/White Card)',
+    rationCardNumber: 'WAP-1082-99120'
+  });
+
   const [newBenForm, setNewBenForm] = useState({
     fullName: '',
     category: 'Senior Citizen',
@@ -1835,7 +1866,38 @@ export default function App() {
                 </div>
                 <button 
                   className="btn-primary" 
-                  onClick={() => setShowAddBenModal(true)}
+                  onClick={() => {
+    setEditingBeneficiary(null);
+    setBenWizardStep(1);
+    setBenWizardForm({
+      fullName: '',
+      category: 'Senior Citizen',
+      dateOfBirth: '1958-05-14',
+      age: 68,
+      gender: 'Female',
+      bloodGroup: 'B+',
+      photoUrl: '',
+      aadhaarNumber: '',
+      udidNumber: '',
+      relationship: 'Mother',
+      primaryGuardian: '',
+      guardianPhone: '',
+      alternateGuardianPhone: '',
+      guardianEmail: '',
+      address: '',
+      zone: 'T.T.D. Colony',
+      pincode: '517501',
+      mobilityStatus: 'Assisted Walking',
+      medicalConditions: ['Routine Elder Care'],
+      allergies: 'None',
+      accessibilityNeeds: 'Standard daily living assistance',
+      emergencyDoctorName: 'Dr. Raman',
+      emergencyDoctorPhone: '+91 98480 11223',
+      subsidyTier: '100% Trust Covered (BPL/White Card)',
+      rationCardNumber: ''
+    });
+    setShowAddBenModal(true);
+  }}
                   style={{ padding: '10px 20px', fontSize: '14px' }}
                 >
                   <Plus size={16} /> Add Beneficiary
@@ -2063,16 +2125,33 @@ export default function App() {
                               title="Edit Record"
                               onClick={() => {
     setEditingBeneficiary(ben);
-    setNewBenForm({
+    setBenWizardStep(1);
+    setBenWizardForm({
       fullName: ben.fullName,
       category: ben.category,
-      age: ben.age.toString(),
+      dateOfBirth: ben.dateOfBirth || '1958-05-14',
+      age: ben.age,
       gender: ben.gender,
+      bloodGroup: ben.bloodGroup || 'B+',
+      photoUrl: ben.photoUrl || '',
+      aadhaarNumber: ben.aadhaarNumber || '',
+      udidNumber: ben.udidNumber || '',
       relationship: ben.relationship,
       primaryGuardian: ben.primaryGuardian,
-      primaryContact: ben.primaryContact,
+      guardianPhone: ben.guardianPhone || ben.primaryContact,
+      alternateGuardianPhone: ben.alternateGuardianPhone || '',
+      guardianEmail: ben.guardianEmail || '',
       address: ben.address,
-      accessibilityNeeds: ben.accessibilityNeeds
+      zone: ben.zone || 'T.T.D. Colony',
+      pincode: ben.pincode || '517501',
+      mobilityStatus: ben.mobilityStatus || 'Assisted Walking',
+      medicalConditions: ben.medicalConditions || ['Routine Elder Care'],
+      allergies: ben.allergies || 'None',
+      accessibilityNeeds: ben.accessibilityNeeds,
+      emergencyDoctorName: ben.emergencyDoctorName || 'Dr. Raman',
+      emergencyDoctorPhone: ben.emergencyDoctorPhone || '+91 98480 11223',
+      subsidyTier: ben.subsidyTier || '100% Trust Covered (BPL/White Card)',
+      rationCardNumber: ben.rationCardNumber || ''
     });
     setShowAddBenModal(true);
   }}
@@ -2941,78 +3020,728 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 3: REGISTER NEW BENEFICIARY */}
+      
+      {/* ========================================================================= */}
+      {/* 4-STEP BENEFICIARY REGISTRATION & EDIT WIZARD (PIXEL-PERFECT DESIGN)      */}
+      {/* ========================================================================= */}
       {showAddBenModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 540, width: '100%', padding: 28 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ background: '#FFF', borderRadius: 24, maxWidth: 960, width: '100%', maxHeight: '92vh', overflowY: 'auto', padding: '28px 32px', boxShadow: '0 20px 50px rgba(0,0,0,0.25)' }}>
+            
+            {/* Top Bar with Back Arrow, Title & Subtitle */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>{editingBeneficiary ? `Edit Beneficiary: ${editingBeneficiary.fullName}` : 'Register New Beneficiary'}</h3>
-              <button onClick={() => setShowAddBenModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleSaveBeneficiary}>
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Full Name</label>
-                <input required value={newBenForm.fullName} onChange={e => setNewBenForm({...newBenForm, fullName: e.target.value})} placeholder="e.g. Saraswathi Garu" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <button 
+                  onClick={() => { setShowAddBenModal(false); setEditingBeneficiary(null); }}
+                  style={{ width: 38, height: 38, borderRadius: 10, border: '1px solid #E5E9E6', background: '#FAFBF9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                >
+                  <ChevronLeft size={20} color="#1E2D24" />
+                </button>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Category</label>
-                  <select value={newBenForm.category} onChange={e => setNewBenForm({...newBenForm, category: e.target.value as any})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
-                    <option value="Senior Citizen">Senior Citizen</option>
-                    <option value="Person with Disability">Person with Disability</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Age</label>
-                  <input required type="number" value={newBenForm.age} onChange={e => setNewBenForm({...newBenForm, age: e.target.value})} placeholder="68" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0B5D3B' }}>
+                    {editingBeneficiary ? `Edit Beneficiary: ${editingBeneficiary.fullName}` : 'Register Beneficiary & Family'}
+                  </h2>
+                  <p style={{ fontSize: '12px', color: '#6B7C72', marginTop: 2 }}>
+                    {editingBeneficiary ? 'Update care profile, guardian details, and subsidy tier' : 'Add a senior citizen or person with disability to trust registry'}
+                  </p>
                 </div>
               </div>
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Primary Contact Phone</label>
-                <input required value={newBenForm.primaryContact} onChange={e => setNewBenForm({...newBenForm, primaryContact: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
-              </div>
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Address</label>
-                <input required value={newBenForm.address} onChange={e => setNewBenForm({...newBenForm, address: e.target.value})} placeholder="T.T.D. Colony, Tirupati" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
-              </div>
-              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 12 }}>
-                {editingBeneficiary ? 'Save Profile Changes' : 'Confirm Registration'}
+
+              <button 
+                onClick={() => { setShowAddBenModal(false); setEditingBeneficiary(null); }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}
+              >
+                <X size={22} />
               </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 4: BENEFICIARY PROFILE DETAILS */}
-      {selectedBeneficiaryDetail && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 500, width: '100%', padding: 28 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>Beneficiary Profile Details</h3>
-              <button onClick={() => setSelectedBeneficiaryDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
-              <div style={{ width: 50, height: 50, borderRadius: '50%', background: selectedBeneficiaryDetail.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '18px', color: '#0B5D3B' }}>
-                {selectedBeneficiaryDetail.fullName.substring(0, 2).toUpperCase()}
+
+            {/* Stepper Navigation */}
+            <div className="stepper-header">
+              <div className={`step-item ${benWizardStep === 1 ? 'active' : ''}`} onClick={() => setBenWizardStep(1)}>
+                <span className={`step-badge ${benWizardStep > 1 ? 'completed' : ''}`}>1</span>
+                <span>Beneficiary Profile</span>
               </div>
+              <ChevronRight size={14} color="#9EAFA5" />
+
+              <div className={`step-item ${benWizardStep === 2 ? 'active' : ''}`} onClick={() => setBenWizardStep(2)}>
+                <span className={`step-badge ${benWizardStep > 2 ? 'completed' : ''}`}>2</span>
+                <span>Guardian & Family</span>
+              </div>
+              <ChevronRight size={14} color="#9EAFA5" />
+
+              <div className={`step-item ${benWizardStep === 3 ? 'active' : ''}`} onClick={() => setBenWizardStep(3)}>
+                <span className={`step-badge ${benWizardStep > 3 ? 'completed' : ''}`}>3</span>
+                <span>Medical & Care Needs</span>
+              </div>
+              <ChevronRight size={14} color="#9EAFA5" />
+
+              <div className={`step-item ${benWizardStep === 4 ? 'active' : ''}`} onClick={() => setBenWizardStep(4)}>
+                <span className="step-badge">4</span>
+                <span>Trust Subsidy Tier</span>
+              </div>
+            </div>
+
+            {/* STEP 1: BENEFICIARY PROFILE */}
+            {benWizardStep === 1 && (
               <div>
-                <h4 style={{ fontSize: '16px', fontWeight: 700 }}>{selectedBeneficiaryDetail.fullName}</h4>
-                <p style={{ fontSize: '12px', color: '#6B7C72' }}>{selectedBeneficiaryDetail.refNumber} • {selectedBeneficiaryDetail.category}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 28 }}>
+                  <div>
+                    <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Personal Information</h3>
+                    <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                      Enter personal and demographic details of the care recipient
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Full Name <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <input 
+                          required
+                          value={benWizardForm.fullName}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, fullName: e.target.value })}
+                          placeholder="e.g. Saraswathi Garu"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Care Category <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <select 
+                          value={benWizardForm.category}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, category: e.target.value as any })}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                        >
+                          <option value="Senior Citizen">Senior Citizen (Elderly Care)</option>
+                          <option value="Person with Disability">Person with Disability (Divyang)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Date of Birth
+                        </label>
+                        <input 
+                          type="date"
+                          value={benWizardForm.dateOfBirth}
+                          onChange={e => {
+                            const dob = e.target.value;
+                            const birthYear = new Date(dob).getFullYear();
+                            const currentYear = new Date().getFullYear();
+                            const calcAge = currentYear - birthYear;
+                            setBenWizardForm({ ...benWizardForm, dateOfBirth: dob, age: calcAge > 0 ? calcAge : 68 });
+                          }}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Age
+                        </label>
+                        <input 
+                          value={`${benWizardForm.age} yrs`}
+                          readOnly
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#F5F7F6', fontSize: '13px', color: '#4A5D52' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Gender
+                        </label>
+                        <select 
+                          value={benWizardForm.gender}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, gender: e.target.value })}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                        >
+                          <option value="Female">Female</option>
+                          <option value="Male">Male</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Blood Group
+                        </label>
+                        <select 
+                          value={benWizardForm.bloodGroup}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, bloodGroup: e.target.value })}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                        >
+                          <option value="A+">A+</option>
+                          <option value="A-">A-</option>
+                          <option value="B+">B+</option>
+                          <option value="B-">B-</option>
+                          <option value="O+">O+</option>
+                          <option value="O-">O-</option>
+                          <option value="AB+">AB+</option>
+                          <option value="AB-">AB-</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Aadhaar Number
+                        </label>
+                        <input 
+                          value={benWizardForm.aadhaarNumber}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, aadhaarNumber: e.target.value })}
+                          placeholder="XXXX-XXXX-8912"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                        />
+                      </div>
+                    </div>
+
+                    {benWizardForm.category === 'Person with Disability' && (
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          UDID (Unique Disability ID) Card No.
+                        </label>
+                        <input 
+                          value={benWizardForm.udidNumber}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, udidNumber: e.target.value })}
+                          placeholder="e.g. AP-DIS-2018-88124"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                        />
+                      </div>
+                    )}
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                        Full Residence Address <span style={{ color: '#D32F2F' }}>*</span>
+                      </label>
+                      <textarea 
+                        rows={2}
+                        required
+                        value={benWizardForm.address}
+                        onChange={e => setBenWizardForm({ ...benWizardForm, address: e.target.value })}
+                        placeholder="#14-2, T.T.D. Colony, Tirupati - 517501, Andhra Pradesh"
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', resize: 'none' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Service Zone <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <select 
+                          value={benWizardForm.zone}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, zone: e.target.value })}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                        >
+                          <option value="T.T.D. Colony">T.T.D. Colony</option>
+                          <option value="Tirupati Urban">Tirupati Urban</option>
+                          <option value="Tirupati West">Tirupati West</option>
+                          <option value="Alipiri & Kapilatheertham">Alipiri & Kapilatheertham</option>
+                          <option value="Renigunta Zone">Renigunta Zone</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Pincode
+                        </label>
+                        <input 
+                          value={benWizardForm.pincode}
+                          onChange={e => setBenWizardForm({ ...benWizardForm, pincode: e.target.value })}
+                          placeholder="517501"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Photo & Identity Box */}
+                  <div>
+                    <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#1E2D24', marginBottom: 12 }}>
+                      Beneficiary Photo
+                    </h3>
+
+                    <div style={{ display: 'flex', gap: 14, marginBottom: 20 }}>
+                      <div style={{ width: 110, height: 120, borderRadius: 14, overflow: 'hidden', border: '1px solid #E5E9E6', position: 'relative', background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: '32px', fontWeight: 800, color: '#0B5D3B' }}>
+                          {benWizardForm.fullName ? benWizardForm.fullName.substring(0, 2).toUpperCase() : 'BN'}
+                        </span>
+                      </div>
+
+                      <div className="photo-upload-box" style={{ flex: 1, padding: 16 }}>
+                        <Download size={22} color="#0B5D3B" style={{ transform: 'rotate(180deg)', margin: '0 auto 6px auto' }} />
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#1E2D24' }}>Upload ID Photo</div>
+                        <div style={{ fontSize: '10px', color: '#6B7C72', marginTop: 2 }}>JPG, PNG (Max 2MB)</div>
+                      </div>
+                    </div>
+
+                    <div style={{ background: '#F4F8F5', border: '1px solid #D1DDD5', borderRadius: 14, padding: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', fontWeight: 700, color: '#0B5D3B', marginBottom: 8 }}>
+                        <CheckCircle2 size={16} /> Trust Care Mission
+                      </div>
+                      <p style={{ fontSize: '11px', color: '#4A5D52', lineHeight: '1.5' }}>
+                        Sri Divyang Seva Kendram Trust provides prioritized daily living assistance, medical accompaniment, and 100% subsidized care for verified elder and disabled beneficiaries in Tirupati.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button 
+                    type="button" 
+                    onClick={() => { setShowAddBenModal(false); setEditingBeneficiary(null); }}
+                    style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setBenWizardStep(2)}
+                    className="btn-primary"
+                    style={{ padding: '10px 24px', fontSize: '13px' }}
+                  >
+                    Next: Guardian & Family →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: GUARDIAN & FAMILY */}
+            {benWizardStep === 2 && (
+              <div>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Primary Guardian & Emergency Contacts</h3>
+                <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                  Enter family guardian details who will manage bookings, approve care notes, and receive SOS alerts
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18, marginBottom: 18 }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Primary Guardian Name <span style={{ color: '#D32F2F' }}>*</span>
+                    </label>
+                    <input 
+                      required
+                      value={benWizardForm.primaryGuardian}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, primaryGuardian: e.target.value })}
+                      placeholder="e.g. Anita Sharma"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Relationship to Beneficiary <span style={{ color: '#D32F2F' }}>*</span>
+                    </label>
+                    <select 
+                      value={benWizardForm.relationship}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, relationship: e.target.value })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                    >
+                      <option value="Daughter">Daughter</option>
+                      <option value="Son">Son</option>
+                      <option value="Mother">Mother</option>
+                      <option value="Father">Father</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Brother">Brother</option>
+                      <option value="Sister">Sister</option>
+                      <option value="Legal Guardian">Legal Guardian</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Primary Contact Phone (WhatsApp) <span style={{ color: '#D32F2F' }}>*</span>
+                    </label>
+                    <input 
+                      required
+                      value={benWizardForm.guardianPhone}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, guardianPhone: e.target.value })}
+                      placeholder="+91 98765 43210"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Alternate Emergency Phone
+                    </label>
+                    <input 
+                      value={benWizardForm.alternateGuardianPhone}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, alternateGuardianPhone: e.target.value })}
+                      placeholder="+91 91234 56789"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                    Guardian Email Address (For Invoices & Reports)
+                  </label>
+                  <input 
+                    type="email"
+                    value={benWizardForm.guardianEmail}
+                    onChange={e => setBenWizardForm({ ...benWizardForm, guardianEmail: e.target.value })}
+                    placeholder="anita.sharma@gmail.com"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button type="button" onClick={() => setBenWizardStep(1)} style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ← Back: Profile
+                  </button>
+                  <button type="button" onClick={() => setBenWizardStep(3)} className="btn-primary" style={{ padding: '10px 24px', fontSize: '13px' }}>
+                    Next: Medical & Care Needs →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: MEDICAL & CARE NEEDS */}
+            {benWizardStep === 3 && (
+              <div>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Medical History & Daily Care Plan</h3>
+                <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                  Caregivers will adhere to these daily clinical routines, dietary instructions, and mobility aids
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Mobility Independence
+                    </label>
+                    <select 
+                      value={benWizardForm.mobilityStatus}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, mobilityStatus: e.target.value as any })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                    >
+                      <option value="Independent">Independent (Needs minimal assistance)</option>
+                      <option value="Assisted Walking">Assisted Walking (Walker / Stick / Escort)</option>
+                      <option value="Wheelchair Bound">Wheelchair Bound</option>
+                      <option value="Bedridden">Bedridden (Requires full hygiene & turn care)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Known Drug / Food Allergies
+                    </label>
+                    <input 
+                      value={benWizardForm.allergies}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, allergies: e.target.value })}
+                      placeholder="e.g. Penicillin, Peanuts (or None)"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                    Diagnosed Medical Conditions
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    {['Hypertension', 'Type 2 Diabetes', 'Osteoarthritis', 'Dementia / Memory Loss', 'Post-Stroke Rehab', 'Cardiovascular Disease', 'Cerebral Palsy', 'Visual Impairment', 'Hearing Impairment'].map(cond => (
+                      <label key={cond} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E9E6', background: benWizardForm.medicalConditions.includes(cond) ? '#E8F5E9' : '#FFF', cursor: 'pointer', fontSize: '12px' }}>
+                        <input 
+                          type="checkbox"
+                          checked={benWizardForm.medicalConditions.includes(cond)}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setBenWizardForm({ ...benWizardForm, medicalConditions: [...benWizardForm.medicalConditions, cond] });
+                            } else {
+                              setBenWizardForm({ ...benWizardForm, medicalConditions: benWizardForm.medicalConditions.filter(c => c !== cond) });
+                            }
+                          }}
+                        />
+                        <span>{cond}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18, marginBottom: 18 }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Emergency Attending Doctor Name & Hospital
+                    </label>
+                    <input 
+                      value={benWizardForm.emergencyDoctorName}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, emergencyDoctorName: e.target.value })}
+                      placeholder="e.g. Dr. S. K. Raman (Apollo Tirupati)"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Doctor's Phone
+                    </label>
+                    <input 
+                      value={benWizardForm.emergencyDoctorPhone}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, emergencyDoctorPhone: e.target.value })}
+                      placeholder="+91 98480 11223"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                    Specific Accessibility & Daily Living Needs
+                  </label>
+                  <textarea 
+                    rows={2}
+                    value={benWizardForm.accessibilityNeeds}
+                    onChange={e => setBenWizardForm({ ...benWizardForm, accessibilityNeeds: e.target.value })}
+                    placeholder="e.g. Walking assistance, routine knee compression, diabetic salt-free meal preparation"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', resize: 'none' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button type="button" onClick={() => setBenWizardStep(2)} style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ← Back: Guardian Details
+                  </button>
+                  <button type="button" onClick={() => setBenWizardStep(4)} className="btn-primary" style={{ padding: '10px 24px', fontSize: '13px' }}>
+                    Next: Trust Subsidy Tier →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: SUBSIDY TIER & FINALIZATION */}
+            {benWizardStep === 4 && (
+              <div>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Trust Sponsorship & Subsidy Allocation</h3>
+                <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                  Allocate financial subsidy tier under Sri Divyang Seva Kendram Trust charitable grant
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 20 }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      Subsidy Tier
+                    </label>
+                    <select 
+                      value={benWizardForm.subsidyTier}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, subsidyTier: e.target.value as any })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                    >
+                      <option value="100% Trust Covered (BPL/White Card)">100% Trust Covered (Below Poverty Line / White Card)</option>
+                      <option value="75% Trust Grant">75% Trust Grant (Family pays 25%)</option>
+                      <option value="50% Trust Grant">50% Trust Grant (Family pays 50%)</option>
+                      <option value="Family Self-Funded">Family Self-Funded (Standard Fee)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                      White Ration Card / BPL Certificate No.
+                    </label>
+                    <input 
+                      value={benWizardForm.rationCardNumber}
+                      onChange={e => setBenWizardForm({ ...benWizardForm, rationCardNumber: e.target.value })}
+                      placeholder="e.g. WAP-1082-99120"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ background: '#E8F5E9', borderRadius: 14, padding: 18, border: '1px solid #C8E6C9', marginBottom: 24 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <CheckCircle2 size={22} color="#0B5D3B" />
+                    <div>
+                      <strong style={{ fontSize: '14px', color: '#0B5D3B' }}>
+                        {editingBeneficiary ? 'Ready to Update Live Database' : 'Ready to Register Beneficiary'}
+                      </strong>
+                      <p style={{ fontSize: '12px', color: '#2E7D32', marginTop: 2 }}>
+                        Beneficiary <strong>{benWizardForm.fullName}</strong> will immediately appear in the Registry, Dispatch Map, and Care Bookings roster.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button type="button" onClick={() => setBenWizardStep(3)} style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ← Back: Medical Needs
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={async () => {
+                      try {
+                        if (editingBeneficiary) {
+                          const res = await fetch(`${API_BASE_URL}/api/v1/beneficiaries/${editingBeneficiary.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(benWizardForm)
+                          });
+                          if (res.ok) {
+                            setShowAddBenModal(false);
+                            setEditingBeneficiary(null);
+                            setBenWizardStep(1);
+                            fetchData();
+                          }
+                        } else {
+                          const res = await fetch(`${API_BASE_URL}/api/v1/beneficiaries`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(benWizardForm)
+                          });
+                          if (res.ok) {
+                            setShowAddBenModal(false);
+                            setBenWizardStep(1);
+                            fetchData();
+                          }
+                        }
+                      } catch (err) {
+                        alert('Error saving beneficiary record');
+                      }
+                    }} 
+                    className="btn-primary" 
+                    style={{ padding: '10px 28px', fontSize: '13px' }}
+                  >
+                    {editingBeneficiary ? 'Save Beneficiary Changes ✓' : 'Confirm Registration & Dispatch ✓'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+
+      
+      {/* ========================================================================= */}
+      {/* COMPREHENSIVE BENEFICIARY PROFILE MODAL WITH TABS & CARE CLINICAL DOSSIER */}
+      {/* ========================================================================= */}
+      {selectedBeneficiaryDetail && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#FFF', borderRadius: 24, maxWidth: 680, width: '100%', padding: '32px 36px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+            
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #E5E9E6', paddingBottom: 16, marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 54, height: 54, borderRadius: '50%', background: selectedBeneficiaryDetail.avatarBg || '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '20px', color: '#0B5D3B' }}>
+                  {selectedBeneficiaryDetail.fullName.substring(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1E2D24' }}>{selectedBeneficiaryDetail.fullName}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>{selectedBeneficiaryDetail.refNumber}</span>
+                    <span className="badge badge-success">{selectedBeneficiaryDetail.category}</span>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>• {selectedBeneficiaryDetail.age} yrs ({selectedBeneficiaryDetail.gender})</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button 
+                  onClick={() => {
+                    const ben = selectedBeneficiaryDetail;
+                    setSelectedBeneficiaryDetail(null);
+                    setEditingBeneficiary(ben);
+                    setBenWizardForm({
+                      fullName: ben.fullName,
+                      category: ben.category,
+                      dateOfBirth: ben.dateOfBirth || '1958-05-14',
+                      age: ben.age,
+                      gender: ben.gender,
+                      bloodGroup: ben.bloodGroup || 'B+',
+                      photoUrl: ben.photoUrl || '',
+                      aadhaarNumber: ben.aadhaarNumber || '',
+                      udidNumber: ben.udidNumber || '',
+                      relationship: ben.relationship,
+                      primaryGuardian: ben.primaryGuardian,
+                      guardianPhone: ben.guardianPhone || ben.primaryContact,
+                      alternateGuardianPhone: ben.alternateGuardianPhone || '',
+                      guardianEmail: ben.guardianEmail || '',
+                      address: ben.address,
+                      zone: ben.zone || 'T.T.D. Colony',
+                      pincode: ben.pincode || '517501',
+                      mobilityStatus: ben.mobilityStatus || 'Assisted Walking',
+                      medicalConditions: ben.medicalConditions || ['Routine Elder Care'],
+                      allergies: ben.allergies || 'None',
+                      accessibilityNeeds: ben.accessibilityNeeds,
+                      emergencyDoctorName: ben.emergencyDoctorName || 'Dr. Raman',
+                      emergencyDoctorPhone: ben.emergencyDoctorPhone || '+91 98480 11223',
+                      subsidyTier: ben.subsidyTier || '100% Trust Covered (BPL/White Card)',
+                      rationCardNumber: ben.rationCardNumber || ''
+                    });
+                    setShowAddBenModal(true);
+                  }}
+                  className="btn-primary"
+                  style={{ padding: '6px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Edit3 size={13} /> Edit Profile
+                </button>
+                <button onClick={() => setSelectedBeneficiaryDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}><X size={20} /></button>
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '13px', background: '#FAFBF9', padding: 16, borderRadius: 12, border: '1px solid #E5E9E6' }}>
-              <div><strong>Age / Gender:</strong> {selectedBeneficiaryDetail.age} yrs • {selectedBeneficiaryDetail.gender}</div>
-              <div><strong>Primary Guardian:</strong> {selectedBeneficiaryDetail.primaryGuardian} ({selectedBeneficiaryDetail.relationship})</div>
-              <div><strong>Phone Contact:</strong> {selectedBeneficiaryDetail.primaryContact}</div>
-              <div><strong>Address:</strong> {selectedBeneficiaryDetail.address}</div>
-              <div><strong>Care & Accessibility Needs:</strong> {selectedBeneficiaryDetail.accessibilityNeeds}</div>
-              <div><strong>Status:</strong> <span className={`badge ${selectedBeneficiaryDetail.status === 'Active' ? 'badge-success' : 'badge-danger'}`}>{selectedBeneficiaryDetail.status}</span></div>
+
+            {/* Subsidy Banner */}
+            <div style={{ background: '#FAFBF9', border: '1px solid #E5E9E6', borderRadius: 14, padding: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div>
+                <span style={{ fontSize: '11px', color: '#6B7C72', display: 'block' }}>TRUST SPONSORSHIP STATUS</span>
+                <strong style={{ fontSize: '14px', color: '#0B5D3B' }}>{selectedBeneficiaryDetail.subsidyTier || '100% Trust Covered (BPL/White Card)'}</strong>
+                {selectedBeneficiaryDetail.rationCardNumber && (
+                  <div style={{ fontSize: '11px', color: '#6B7C72', marginTop: 2 }}>White Card No: {selectedBeneficiaryDetail.rationCardNumber}</div>
+                )}
+              </div>
+              <span className="badge badge-success">Active Beneficiary</span>
+            </div>
+
+            {/* 3 Detail Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Card 1: Family & Contact */}
+              <div style={{ background: '#FAFBF9', padding: 16, borderRadius: 14, border: '1px solid #E5E9E6' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0B5D3B', marginBottom: 10 }}>Family Guardian & Residence</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: '12px' }}>
+                  <div><strong>Primary Guardian:</strong> {selectedBeneficiaryDetail.primaryGuardian} ({selectedBeneficiaryDetail.relationship})</div>
+                  <div><strong>Primary Phone:</strong> {selectedBeneficiaryDetail.guardianPhone || selectedBeneficiaryDetail.primaryContact}</div>
+                  <div><strong>Alternate Contact:</strong> {selectedBeneficiaryDetail.alternateGuardianPhone || 'Not specified'}</div>
+                  <div><strong>Service Zone:</strong> {selectedBeneficiaryDetail.zone || 'Tirupati Urban'}</div>
+                  <div style={{ gridColumn: 'span 2' }}><strong>Full Address:</strong> {selectedBeneficiaryDetail.address}</div>
+                </div>
+              </div>
+
+              {/* Card 2: Medical & Mobility */}
+              <div style={{ background: '#FAFBF9', padding: 16, borderRadius: 14, border: '1px solid #E5E9E6' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0B5D3B', marginBottom: 10 }}>Clinical Profile & Mobility Aid</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: '12px' }}>
+                  <div><strong>Blood Group:</strong> {selectedBeneficiaryDetail.bloodGroup || 'B+'}</div>
+                  <div><strong>Mobility Level:</strong> {selectedBeneficiaryDetail.mobilityStatus || 'Assisted Walking'}</div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <strong>Diagnosed Conditions:</strong>{' '}
+                    {selectedBeneficiaryDetail.medicalConditions ? selectedBeneficiaryDetail.medicalConditions.join(', ') : 'Routine Elder Care'}
+                  </div>
+                  <div><strong>Known Allergies:</strong> {selectedBeneficiaryDetail.allergies || 'None'}</div>
+                  <div><strong>Emergency Doctor:</strong> {selectedBeneficiaryDetail.emergencyDoctorName || 'Dr. Raman'} ({selectedBeneficiaryDetail.emergencyDoctorPhone || '+91 98480 11223'})</div>
+                  <div style={{ gridColumn: 'span 2' }}><strong>Daily Living Assistance:</strong> {selectedBeneficiaryDetail.accessibilityNeeds}</div>
+                </div>
+              </div>
+
+              {/* Card 3: Identification & Trust Compliance */}
+              <div style={{ background: '#FAFBF9', padding: 16, borderRadius: 14, border: '1px solid #E5E9E6' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0B5D3B', marginBottom: 10 }}>Verification & Identity Numbers</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: '12px' }}>
+                  <div><strong>Aadhaar Number:</strong> {selectedBeneficiaryDetail.aadhaarNumber || 'XXXX-XXXX-8912'}</div>
+                  <div><strong>UDID Disability Card:</strong> {selectedBeneficiaryDetail.udidNumber || 'N/A (Senior Citizen)'}</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+              <button 
+                onClick={() => setSelectedBeneficiaryDetail(null)}
+                style={{ padding: '10px 22px', borderRadius: 8, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Close Profile
+              </button>
             </div>
           </div>
         </div>
       )}
 
-            {/* MODAL: CAREGIVER DETAIL PROFILE */}
+
+      {/* MODAL: CAREGIVER DETAIL PROFILE */}
       {selectedCaregiverDetail && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 500, width: '100%', padding: 28 }}>
