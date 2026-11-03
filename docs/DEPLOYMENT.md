@@ -91,10 +91,21 @@ nginx -t
 systemctl reload nginx
 ```
 
-### Step 2.3: (Optional) Enable SSL with Certbot
+### Step 2.3: Free SSL Certificate Setup (Let's Encrypt / Certbot)
+
+Run this command to issue and automatically configure HTTPS for `thodu.sriddha.com`:
+
 ```bash
+# 1. Ensure certbot is installed
+apt-get update && apt-get install -y certbot python3-certbot-nginx
+
+# 2. Issue and attach SSL certificate directly to Nginx (Zero downtime for other domains)
 certbot --nginx -d thodu.sriddha.com --non-interactive --agree-tos -m rajugariventures@gmail.com
+
+# 3. Reload Nginx to apply HTTPS cleanly
+systemctl reload nginx
 ```
+> After this, `https://thodu.sriddha.com` will immediately have a valid green SSL padlock.
 
 ---
 
@@ -126,3 +137,4 @@ bash /var/www/thodu/scripts/deploy.sh
 3. Open in browser:
    - `http://thodu.sriddha.com` or `https://thodu.sriddha.com`
    - `http://thodu.sriddha.com:5089/health`
+
