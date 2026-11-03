@@ -757,6 +757,34 @@ app.get('/api/v1/analytics', (req: Request, res: Response) => {
 });
 
 // 2. Caregivers CRUD & 4-Step Registration
+
+// Update Caregiver Record
+app.patch('/api/v1/caregivers/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const cg = caregivers.find(c => c.id === id);
+  if (!cg) return res.status(404).json({ error: 'Caregiver not found' });
+
+  const { fullName, phone, employmentType, skills, zone, availability, verificationStatus } = req.body;
+  if (fullName !== undefined) cg.fullName = fullName;
+  if (phone !== undefined) cg.phone = phone;
+  if (employmentType !== undefined) cg.employmentType = employmentType;
+  if (skills !== undefined) cg.skills = Array.isArray(skills) ? skills : skills.split(',').map((s: string) => s.trim());
+  if (zone !== undefined) cg.zone = zone;
+  if (availability !== undefined) cg.availability = availability;
+  if (verificationStatus !== undefined) cg.verificationStatus = verificationStatus;
+
+  auditLogs.unshift({
+    id: `aud-${Date.now()}`,
+    adminUser: 'Raju Kumar (Super Admin)',
+    action: 'CAREGIVER_UPDATED',
+    module: 'Workforce',
+    details: `Updated profile for caregiver ${cg.fullName} (${cg.refNumber})`,
+    timestamp: new Date().toLocaleString()
+  });
+
+  res.json({ success: true, caregiver: cg });
+});
+
 app.get('/api/v1/caregivers', (req: Request, res: Response) => {
   res.json({ success: true, caregivers });
 });
@@ -915,6 +943,37 @@ app.delete('/api/v1/bookings/:id', (req: Request, res: Response) => {
 });
 
 // 4. Beneficiaries Endpoints
+
+// Update Beneficiary Record
+app.patch('/api/v1/beneficiaries/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const ben = beneficiaries.find(b => b.id === id);
+  if (!ben) return res.status(404).json({ error: 'Beneficiary not found' });
+
+  const { fullName, category, age, gender, relationship, primaryGuardian, primaryContact, address, accessibilityNeeds, status } = req.body;
+  if (fullName !== undefined) ben.fullName = fullName;
+  if (category !== undefined) ben.category = category;
+  if (age !== undefined) ben.age = Number(age);
+  if (gender !== undefined) ben.gender = gender;
+  if (relationship !== undefined) ben.relationship = relationship;
+  if (primaryGuardian !== undefined) ben.primaryGuardian = primaryGuardian;
+  if (primaryContact !== undefined) ben.primaryContact = primaryContact;
+  if (address !== undefined) ben.address = address;
+  if (accessibilityNeeds !== undefined) ben.accessibilityNeeds = accessibilityNeeds;
+  if (status !== undefined) ben.status = status;
+
+  auditLogs.unshift({
+    id: `aud-${Date.now()}`,
+    adminUser: 'Raju Kumar (Super Admin)',
+    action: 'BENEFICIARY_UPDATED',
+    module: 'Beneficiaries',
+    details: `Updated profile details for beneficiary ${ben.fullName} (${ben.refNumber})`,
+    timestamp: new Date().toLocaleString()
+  });
+
+  res.json({ success: true, beneficiary: ben });
+});
+
 app.get('/api/v1/beneficiaries', (req: Request, res: Response) => {
   res.json({ success: true, beneficiaries });
 });

@@ -103,6 +103,11 @@ export default function App() {
 
   const [editingBooking, setEditingBooking] = useState<any | null>(null);
 
+  const [editingBeneficiary, setEditingBeneficiary] = useState<any | null>(null);
+  const [editingCaregiver, setEditingCaregiver] = useState<any | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<any | null>(null);
+
+
   // Form State for Add Beneficiary
   const [newBenForm, setNewBenForm] = useState({
     fullName: '',
@@ -214,6 +219,38 @@ export default function App() {
 
   // Broadcast Booking to Gig Caregivers
   
+  
+  const exportToCsv = (filename: string, rows: object[]) => {
+    if (!rows || !rows.length) return;
+    const separator = ',';
+    const keys = Object.keys(rows[0]);
+    const csvContent =
+      keys.join(separator) +
+      '\n' +
+      rows.map(row => {
+        return keys.map(k => {
+          let cell = (row as any)[k] === null || (row as any)[k] === undefined ? '' : (row as any)[k];
+          cell = cell instanceof Date ? cell.toLocaleString() : cell.toString().replace(/"/g, '""');
+          if (cell.search(/("|,|\n)/g) >= 0) {
+            cell = `"${cell}"`;
+          }
+          return cell;
+        }).join(separator);
+      }).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   const handleBeneficiarySearch = (val: string) => {
     setBeneficiaryQuery(val);
     setBookingForm(prev => ({ ...prev, beneficiaryName: val }));
@@ -289,18 +326,32 @@ export default function App() {
   const handleSaveBeneficiary = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/beneficiaries`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newBenForm)
-      });
-      const data = await res.json();
-      if (data.beneficiary) {
-        setShowAddBenModal(false);
-        fetchData();
+      if (editingBeneficiary) {
+        const res = await fetch(`${API_BASE_URL}/api/v1/beneficiaries/${editingBeneficiary.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBenForm)
+        });
+        const data = await res.json();
+        if (data.beneficiary) {
+          setShowAddBenModal(false);
+          setEditingBeneficiary(null);
+          fetchData();
+        }
+      } else {
+        const res = await fetch(`${API_BASE_URL}/api/v1/beneficiaries`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBenForm)
+        });
+        const data = await res.json();
+        if (data.beneficiary) {
+          setShowAddBenModal(false);
+          fetchData();
+        }
       }
     } catch (err) {
-      alert('Error creating beneficiary');
+      alert('Error saving beneficiary');
     }
   };
 
@@ -732,7 +783,7 @@ export default function App() {
                 </select>
 
                 <button 
-                  onClick={() => alert('Exporting Caregivers data.')}
+                  onClick={() => exportToCsv('thodu_caregivers_roster.csv', caregivers)}
                   style={{ background: '#FFF', border: '1px solid #E5E9E6', padding: '9px 16px', borderRadius: 8, fontSize: '13px', fontWeight: 600, color: '#1E2D24', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                 >
                   <Download size={14} /> Export
@@ -827,7 +878,29 @@ export default function App() {
                             </button>
                             <button 
                               title="Edit Record"
-                              onClick={() => alert(`Edit profile for ${cg.fullName}`)}
+                              onClick={() => {
+    setEditingCaregiver(cg);
+    setCgWizardForm({
+      fullName: cg.fullName,
+      gender: cg.gender || 'Female',
+      dateOfBirth: cg.dateOfBirth || '1990-01-01',
+      age: cg.age || 36,
+      phone: cg.phone,
+      alternatePhone: cg.alternatePhone || '',
+      email: cg.email || '',
+      languages: cg.languages || ['Telugu', 'English'],
+      address: cg.address || '',
+      zone: cg.zone,
+      pincode: cg.pincode || '517501',
+      employmentType: cg.employmentType,
+      skills: cg.skills,
+      experienceYears: cg.experienceYears || 5,
+      aadhaarNumber: cg.aadhaarNumber || 'XXXX-XXXX-1234',
+      policeClearanceStatus: cg.policeClearanceStatus || 'Verified',
+      workingShift: cg.workingShift || 'Morning (08:00 AM - 02:00 PM)'
+    });
+    setShowAddCaregiverModal(true);
+  }}
                               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}
                             >
                               <Edit3 size={15} />
@@ -1628,7 +1701,7 @@ export default function App() {
                     <p style={{ fontSize: '12px', color: '#6B7C72' }}>Live payment transactions, Trust grant offsets, and official receipts</p>
                   </div>
                   <button 
-                    onClick={() => alert('Exporting full ledger to CSV...')}
+                    onClick={() => exportToCsv('thodu_payments_ledger.csv', paymentTransactions)}
                     style={{ background: '#FFF', border: '1px solid #E5E9E6', borderRadius: 8, padding: '8px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                   >
                     <Download size={14} /> Export CSV
@@ -1670,7 +1743,7 @@ export default function App() {
                         </td>
                         <td>
                           <button 
-                            onClick={() => alert(`Official Receipt generated for ${tx.invoiceNumber}. Trust 80G tax exemption details included.`)}
+                            onClick={() => setSelectedReceipt(tx)}
                             style={{ background: '#FAFBF9', border: '1px solid #E5E9E6', padding: '6px 10px', borderRadius: 6, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
                           >
                             Receipt
@@ -1901,7 +1974,7 @@ export default function App() {
                 </select>
 
                 <button 
-                  onClick={() => alert('Exporting beneficiary roster as CSV.')}
+                  onClick={() => exportToCsv('thodu_beneficiaries_registry.csv', beneficiaries)}
                   style={{ background: '#FFF', border: '1px solid #E5E9E6', padding: '9px 16px', borderRadius: 8, fontSize: '13px', fontWeight: 600, color: '#1E2D24', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                 >
                   <Download size={14} /> Export
@@ -1988,7 +2061,21 @@ export default function App() {
                             </button>
                             <button 
                               title="Edit Record"
-                              onClick={() => alert(`Editing profile for ${ben.fullName}`)}
+                              onClick={() => {
+    setEditingBeneficiary(ben);
+    setNewBenForm({
+      fullName: ben.fullName,
+      category: ben.category,
+      age: ben.age.toString(),
+      gender: ben.gender,
+      relationship: ben.relationship,
+      primaryGuardian: ben.primaryGuardian,
+      primaryContact: ben.primaryContact,
+      address: ben.address,
+      accessibilityNeeds: ben.accessibilityNeeds
+    });
+    setShowAddBenModal(true);
+  }}
                               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}
                             >
                               <Edit3 size={15} />
@@ -2686,16 +2773,29 @@ export default function App() {
                     type="button" 
                     onClick={async () => {
                       try {
-                        const res = await fetch(`${API_BASE_URL}/api/v1/caregivers`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(cgWizardForm)
-                        });
-                        if (res.ok) {
-                          alert('Caregiver successfully registered into the live database!');
-                          setShowAddCaregiverModal(false);
-                          setCgWizardStep(1);
-                          fetchData();
+                        if (editingCaregiver) {
+                          const res = await fetch(`${API_BASE_URL}/api/v1/caregivers/${editingCaregiver.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(cgWizardForm)
+                          });
+                          if (res.ok) {
+                            setShowAddCaregiverModal(false);
+                            setEditingCaregiver(null);
+                            setCgWizardStep(1);
+                            fetchData();
+                          }
+                        } else {
+                          const res = await fetch(`${API_BASE_URL}/api/v1/caregivers`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(cgWizardForm)
+                          });
+                          if (res.ok) {
+                            setShowAddCaregiverModal(false);
+                            setCgWizardStep(1);
+                            fetchData();
+                          }
                         }
                       } catch (err) {
                         alert('Error saving caregiver');
@@ -2704,7 +2804,7 @@ export default function App() {
                     className="btn-primary" 
                     style={{ padding: '10px 28px', fontSize: '13px' }}
                   >
-                    Confirm & Complete Registration ✓
+                    {editingCaregiver ? 'Save Caregiver Changes ✓' : 'Confirm & Complete Registration ✓'}
                   </button>
                 </div>
               </div>
@@ -2846,7 +2946,7 @@ export default function App() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 540, width: '100%', padding: 28 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>Register New Beneficiary</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>{editingBeneficiary ? `Edit Beneficiary: ${editingBeneficiary.fullName}` : 'Register New Beneficiary'}</h3>
               <button onClick={() => setShowAddBenModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
             </div>
             <form onSubmit={handleSaveBeneficiary}>
@@ -2876,7 +2976,7 @@ export default function App() {
                 <input required value={newBenForm.address} onChange={e => setNewBenForm({...newBenForm, address: e.target.value})} placeholder="T.T.D. Colony, Tirupati" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
               </div>
               <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 12 }}>
-                Confirm Registration
+                {editingBeneficiary ? 'Save Profile Changes' : 'Confirm Registration'}
               </button>
             </form>
           </div>
@@ -3088,6 +3188,106 @@ export default function App() {
                 Confirm Add Staff Member
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+    
+      {/* ========================================================================= */}
+      {/* OFFICIAL TRUST RECEIPT MODAL (80G TAX EXEMPTION & TRUST ENDOWMENT)       */}
+      {/* ========================================================================= */}
+      {selectedReceipt && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1250, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 600, width: '100%', padding: '32px 36px', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', maxHeight: '90vh', overflowY: 'auto' }}>
+            
+            {/* Trust Header with Seal */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #0B5D3B', paddingBottom: 16, marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <img src="/assets/thodu-logo.png" alt="Thodu Logo" style={{ height: 48, objectFit: 'contain' }} />
+                <div>
+                  <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0B5D3B' }}>Sri Divyang Seva Kendram Trust</h3>
+                  <p style={{ fontSize: '11px', color: '#6B7C72' }}>Regd. Public Charitable Trust • Elder & Disability Care Services</p>
+                  <p style={{ fontSize: '10px', color: '#0B5D3B', fontWeight: 600 }}>Tirupati, Andhra Pradesh - 517501</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedReceipt(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}><X size={20} /></button>
+            </div>
+
+            {/* Receipt Details Badge */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F4F8F5', padding: '12px 16px', borderRadius: 10, marginBottom: 20, border: '1px solid #D1DDD5' }}>
+              <div>
+                <span style={{ fontSize: '11px', color: '#6B7C72', display: 'block' }}>OFFICIAL RECEIPT NO.</span>
+                <strong style={{ fontSize: '15px', color: '#0B5D3B' }}>{selectedReceipt.invoiceNumber}</strong>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '11px', color: '#6B7C72', display: 'block' }}>DATE & TIME</span>
+                <strong style={{ fontSize: '13px', color: '#1E2D24' }}>{selectedReceipt.timestamp}</strong>
+              </div>
+            </div>
+
+            {/* Payer & Beneficiary Info */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20, fontSize: '12px' }}>
+              <div style={{ background: '#FAFBF9', padding: '12px 14px', borderRadius: 10, border: '1px solid #E5E9E6' }}>
+                <span style={{ fontSize: '11px', color: '#6B7C72', fontWeight: 600, display: 'block', marginBottom: 4 }}>CARE BENEFICIARY</span>
+                <strong style={{ fontSize: '13px', color: '#1E2D24' }}>{selectedReceipt.beneficiaryName}</strong>
+                <div style={{ color: '#6B7C72', marginTop: 2 }}>Booking Ref: {selectedReceipt.bookingNumber}</div>
+              </div>
+              <div style={{ background: '#FAFBF9', padding: '12px 14px', borderRadius: 10, border: '1px solid #E5E9E6' }}>
+                <span style={{ fontSize: '11px', color: '#6B7C72', fontWeight: 600, display: 'block', marginBottom: 4 }}>PAID BY / GUARDIAN</span>
+                <strong style={{ fontSize: '13px', color: '#1E2D24' }}>{selectedReceipt.guardianName}</strong>
+                <div style={{ color: '#6B7C72', marginTop: 2 }}>Contact: {selectedReceipt.payerContact}</div>
+              </div>
+            </div>
+
+            {/* Financial Line Item Breakdown */}
+            <div style={{ border: '1px solid #E5E9E6', borderRadius: 12, overflow: 'hidden', marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '10px 14px', background: '#F0F4F1', fontSize: '11px', fontWeight: 700, color: '#0B5D3B' }}>
+                <span>SERVICE ITEM</span>
+                <span style={{ textAlign: 'right' }}>FEE RATE</span>
+                <span style={{ textAlign: 'right' }}>AMOUNT</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '12px 14px', fontSize: '12px', borderBottom: '1px solid #F0F2F0' }}>
+                <div>
+                  <strong>Scheduled Care Support Visit</strong>
+                  <div style={{ fontSize: '11px', color: '#6B7C72' }}>Mode: {selectedReceipt.paymentGateway || selectedReceipt.paymentMode}</div>
+                </div>
+                <span style={{ textAlign: 'right' }}>₹{selectedReceipt.amountInr + selectedReceipt.subsidyInr}</span>
+                <span style={{ textAlign: 'right', fontWeight: 700 }}>₹{selectedReceipt.amountInr + selectedReceipt.subsidyInr}</span>
+              </div>
+              {selectedReceipt.subsidyInr > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '10px 14px', fontSize: '12px', background: '#E8F5E9', color: '#0B5D3B' }}>
+                  <span>Less: Sri Divyang Trust Subsidy Grant (100% Free)</span>
+                  <span></span>
+                  <span style={{ textAlign: 'right', fontWeight: 700 }}>- ₹{selectedReceipt.subsidyInr}</span>
+                </div>
+              )}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '12px 14px', fontSize: '14px', background: '#FAFBF9', fontWeight: 800 }}>
+                <span>Net Amount Paid:</span>
+                <span></span>
+                <span style={{ textAlign: 'right', color: '#0B5D3B' }}>₹{selectedReceipt.amountInr}</span>
+              </div>
+            </div>
+
+            {/* Statutory Compliance Footer */}
+            <div style={{ background: '#FFF9EB', border: '1px solid #F5E6BE', borderRadius: 10, padding: 12, marginBottom: 20, fontSize: '11px', color: '#4A5D52' }}>
+              <strong>Trust Statutory Exemption:</strong> Donations and contributions to Sri Divyang Seva Kendram Trust are eligible for tax deduction under Section 80G of the Income Tax Act.
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button 
+                onClick={() => setSelectedReceipt(null)}
+                style={{ padding: '10px 18px', borderRadius: 8, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Close
+              </button>
+              <button 
+                onClick={() => window.print()}
+                className="btn-primary"
+                style={{ padding: '10px 22px', fontSize: '13px' }}
+              >
+                Print Official Receipt 🖨️
+              </button>
+            </div>
           </div>
         </div>
       )}
