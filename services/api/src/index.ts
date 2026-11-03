@@ -33,19 +33,21 @@ export interface Booking {
   bookingNumber: string;
   beneficiaryId: string;
   beneficiaryName: string;
+  beneficiaryAge: number;
+  beneficiaryCategory: 'SENIOR_CITIZEN' | 'PERSON_WITH_DISABILITY';
   guardianPhone: string;
   serviceName: string;
   scheduledDate: string;
   scheduledTimeSlot: string;
   serviceAddress: string;
   caregiverName: string;
-  fundingType: 'TRUST_SPONSORED' | 'SPLIT_FUNDING' | 'SELF_FUNDED' | 'DONOR_SPONSORED';
+  fundingType: 'Trust Sponsored' | 'Family Paid' | 'Partially Sponsored' | 'Donor Sponsored';
   totalAmountPaise: number;
   subsidyAmountPaise: number;
   familyPayablePaise: number;
   paymentMode: 'CASH_ON_VISIT' | 'ONLINE_UPI' | 'TRUST_GRANT' | 'BANK_TRANSFER';
   paymentStatus: 'PAID' | 'PENDING' | 'SUBSIDIZED';
-  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  status: 'In Progress' | 'Confirmed' | 'Awaiting Assignment' | 'Scheduled' | 'Completed' | 'Cancelled';
   createdAt: string;
 }
 
@@ -91,7 +93,7 @@ export interface AuditLog {
   timestamp: string;
 }
 
-// Initial Live Database Records
+// Initial Database Records matching the live UI reference
 let beneficiaries: Beneficiary[] = [
   {
     id: 'ben-1',
@@ -102,7 +104,7 @@ let beneficiaries: Beneficiary[] = [
     relationship: 'Mother',
     primaryGuardian: 'Anita Sharma',
     primaryContact: '+91 98765 43210',
-    address: 'Home - T.T.D. Colony, Tirupati',
+    address: 'T.T.D. Colony, Tirupati',
     accessibilityNeeds: 'Walking support, knee pain care',
     status: 'ACTIVE'
   },
@@ -115,7 +117,7 @@ let beneficiaries: Beneficiary[] = [
     relationship: 'Father',
     primaryGuardian: 'Anita Sharma',
     primaryContact: '+91 98765 43210',
-    address: 'Home - T.T.D. Colony, Tirupati',
+    address: 'T.T.D. Colony, Tirupati',
     accessibilityNeeds: 'Dietary supervision, walking assistance',
     status: 'ACTIVE'
   },
@@ -123,12 +125,12 @@ let beneficiaries: Beneficiary[] = [
     id: 'ben-3',
     fullName: 'Raghav',
     category: 'PERSON_WITH_DISABILITY',
-    age: 28,
+    age: 25,
     gender: 'Male',
     relationship: 'Son',
     primaryGuardian: 'Anita Sharma',
     primaryContact: '+91 98765 43210',
-    address: 'Home - T.T.D. Colony, Tirupati',
+    address: 'T.T.D. Colony, Tirupati',
     accessibilityNeeds: 'Wheelchair assistance, companion care',
     status: 'ACTIVE'
   },
@@ -136,12 +138,12 @@ let beneficiaries: Beneficiary[] = [
     id: 'ben-4',
     fullName: 'Anil Kumar',
     category: 'PERSON_WITH_DISABILITY',
-    age: 34,
+    age: 38,
     gender: 'Male',
     relationship: 'Brother',
     primaryGuardian: 'K. Sridevi',
     primaryContact: '+91 94444 12345',
-    address: 'Bhavani Nagar, Tirupati',
+    address: 'T.T.D. Colony, Tirupati',
     accessibilityNeeds: 'Speech aid, assisted mobility',
     status: 'ACTIVE'
   }
@@ -149,10 +151,10 @@ let beneficiaries: Beneficiary[] = [
 
 let services = [
   { id: 'srv-1', name: 'Household Support', basePricePaise: 60000, duration: '2 hours' },
-  { id: 'srv-2', name: 'Companionship & Care', basePricePaise: 40000, duration: '2 hours' },
-  { id: 'srv-3', name: 'Medication Reminder', basePricePaise: 30000, duration: '1 hour' },
+  { id: 'srv-2', name: 'Cooking Assistance', basePricePaise: 45000, duration: '2 hours' },
+  { id: 'srv-3', name: 'Companion Care', basePricePaise: 40000, duration: '2 hours' },
   { id: 'srv-4', name: 'Disability Support', basePricePaise: 50000, duration: '3 hours' },
-  { id: 'srv-5', name: 'Cooking Assistance', basePricePaise: 45000, duration: '2 hours' },
+  { id: 'srv-5', name: 'Medication Reminder', basePricePaise: 30000, duration: '1 hour' },
   { id: 'srv-6', name: 'Grocery & Errands', basePricePaise: 35000, duration: '2 hours' }
 ];
 
@@ -181,6 +183,17 @@ let caregivers: Caregiver[] = [
   },
   {
     id: 'cg-3',
+    fullName: 'S. Prasad',
+    phone: '+91 98765 44444',
+    employmentType: 'SALARIED',
+    verificationStatus: 'VERIFIED',
+    rating: 4.9,
+    activeAssignments: 1,
+    skills: ['Disability Support', 'Mobility Assistance'],
+    zone: 'Tirupati Urban'
+  },
+  {
+    id: 'cg-4',
     fullName: 'P. Venkatesh',
     phone: '+91 98765 33333',
     employmentType: 'SALARIED',
@@ -192,85 +205,94 @@ let caregivers: Caregiver[] = [
   }
 ];
 
+// Live Initial Bookings exactly matching user reference board
 let bookings: Booking[] = [
   {
     id: 'bk-1',
-    bookingNumber: 'THD-28941',
+    bookingNumber: 'TH-8901',
     beneficiaryId: 'ben-1',
     beneficiaryName: 'Saraswathi Garu',
+    beneficiaryAge: 68,
+    beneficiaryCategory: 'SENIOR_CITIZEN',
     guardianPhone: '+91 98765 43210',
     serviceName: 'Household Support',
-    scheduledDate: '2026-11-03',
-    scheduledTimeSlot: '11:30 AM - 01:30 PM',
-    serviceAddress: 'Home - T.T.D. Colony, Tirupati',
+    scheduledDate: 'Mar 10, 2026',
+    scheduledTimeSlot: '10:00 AM - 12:00 PM',
+    serviceAddress: 'T.T.D. Colony, Tirupati',
     caregiverName: 'Anitha',
-    fundingType: 'TRUST_SPONSORED',
+    fundingType: 'Trust Sponsored',
     totalAmountPaise: 60000,
     subsidyAmountPaise: 60000,
     familyPayablePaise: 0,
     paymentMode: 'TRUST_GRANT',
     paymentStatus: 'SUBSIDIZED',
-    status: 'COMPLETED',
+    status: 'In Progress',
     createdAt: new Date().toISOString()
   },
   {
     id: 'bk-2',
-    bookingNumber: 'THD-28940',
-    beneficiaryId: 'ben-3',
-    beneficiaryName: 'Raghav',
+    bookingNumber: 'TH-8902',
+    beneficiaryId: 'ben-2',
+    beneficiaryName: 'Lakshmi Narasimha Rao',
+    beneficiaryAge: 72,
+    beneficiaryCategory: 'SENIOR_CITIZEN',
     guardianPhone: '+91 98765 43210',
-    serviceName: 'Companionship & Care',
-    scheduledDate: '2026-11-03',
-    scheduledTimeSlot: '10:00 AM - 12:00 PM',
-    serviceAddress: 'Home - T.T.D. Colony, Tirupati',
-    caregiverName: 'P. Venkatesh',
-    fundingType: 'TRUST_SPONSORED',
-    totalAmountPaise: 40000,
-    subsidyAmountPaise: 40000,
-    familyPayablePaise: 0,
-    paymentMode: 'TRUST_GRANT',
-    paymentStatus: 'SUBSIDIZED',
-    status: 'IN_PROGRESS',
+    serviceName: 'Cooking Assistance',
+    scheduledDate: 'Mar 11, 2026',
+    scheduledTimeSlot: '11:00 AM - 1:00 PM',
+    serviceAddress: 'T.T.D. Colony, Tirupati',
+    caregiverName: 'K. Ramesh',
+    fundingType: 'Family Paid',
+    totalAmountPaise: 45000,
+    subsidyAmountPaise: 22500,
+    familyPayablePaise: 22500,
+    paymentMode: 'ONLINE_UPI',
+    paymentStatus: 'PAID',
+    status: 'Confirmed',
     createdAt: new Date().toISOString()
   },
   {
     id: 'bk-3',
-    bookingNumber: 'THD-28939',
-    beneficiaryId: 'ben-2',
-    beneficiaryName: 'Lakshmi Narasimha Rao',
+    bookingNumber: 'TH-8903',
+    beneficiaryId: 'ben-3',
+    beneficiaryName: 'Raghav',
+    beneficiaryAge: 25,
+    beneficiaryCategory: 'PERSON_WITH_DISABILITY',
     guardianPhone: '+91 98765 43210',
-    serviceName: 'Medication Reminder',
-    scheduledDate: '2026-11-03',
-    scheduledTimeSlot: '09:00 AM - 10:00 AM',
-    serviceAddress: 'Home - T.T.D. Colony, Tirupati',
-    caregiverName: 'K. Ramesh',
-    fundingType: 'SPLIT_FUNDING',
-    totalAmountPaise: 30000,
-    subsidyAmountPaise: 15000,
-    familyPayablePaise: 15000,
+    serviceName: 'Companion Care',
+    scheduledDate: 'Mar 12, 2026',
+    scheduledTimeSlot: '9:00 AM - 11:00 AM',
+    serviceAddress: 'T.T.D. Colony, Tirupati',
+    caregiverName: 'Unassigned',
+    fundingType: 'Partially Sponsored',
+    totalAmountPaise: 40000,
+    subsidyAmountPaise: 30000,
+    familyPayablePaise: 10000,
     paymentMode: 'ONLINE_UPI',
-    paymentStatus: 'PAID',
-    status: 'COMPLETED',
+    paymentStatus: 'PENDING',
+    status: 'Awaiting Assignment',
     createdAt: new Date().toISOString()
   },
   {
     id: 'bk-4',
-    bookingNumber: 'THD-28938',
+    bookingNumber: 'TH-8904',
     beneficiaryId: 'ben-4',
     beneficiaryName: 'Anil Kumar',
+    beneficiaryAge: 38,
+    beneficiaryCategory: 'PERSON_WITH_DISABILITY',
     guardianPhone: '+91 94444 12345',
     serviceName: 'Disability Support',
-    scheduledDate: '2026-11-03',
-    scheduledTimeSlot: '04:00 PM - 07:00 PM',
-    serviceAddress: 'Bhavani Nagar, Tirupati',
-    caregiverName: 'P. Venkatesh',
-    fundingType: 'SELF_FUNDED',
+    scheduledDate: 'Mar 12, 2026',
+    scheduledTimeSlot: '4:00 PM - 5:30 PM',
+    serviceAddress: 'T.T.D. Colony, Tirupati',
+    caregiverName: 'S. Prasad',
+    fundingType: 'Trust Sponsored',
     totalAmountPaise: 50000,
-    subsidyAmountPaise: 0,
-    familyPayablePaise: 50000,
-    paymentMode: 'CASH_ON_VISIT',
-    paymentStatus: 'PENDING',
-    status: 'SCHEDULED',
+    subsidyAmountPaise: 50000,
+    familyPayablePaise: 0,
+    paymentMode: 'TRUST_GRANT',
+    paymentStatus: 'SUBSIDIZED',
+    status: 'Scheduled',
     createdAt: new Date().toISOString()
   }
 ];
@@ -314,7 +336,7 @@ let sosAlerts: SosAlert[] = [
 let auditLogs: AuditLog[] = [
   {
     id: 'aud-1',
-    adminUser: 'Raju Kumar (Super Admin)',
+    adminUser: 'Trust Operations Admin',
     action: 'APPROVAL',
     module: 'Sponsorship',
     details: 'Approved 100% subsidy for Saraswathi Garu under Elder Care Programme',
@@ -322,10 +344,10 @@ let auditLogs: AuditLog[] = [
   },
   {
     id: 'aud-2',
-    adminUser: 'Raju Kumar (Super Admin)',
+    adminUser: 'Trust Operations Admin',
     action: 'DISPATCH',
     module: 'Bookings',
-    details: 'Dispatched Anitha for Booking THD-28941',
+    details: 'Dispatched Anitha for Booking TH-8901',
     timestamp: '2026-11-03 11:00'
   }
 ];
@@ -334,18 +356,18 @@ let auditLogs: AuditLog[] = [
 // API ROUTES
 // ==========================================
 
-// 1. Live Overview Analytics Data (Derived strictly from live records)
+// 1. Live Overview Analytics Data
 app.get('/api/v1/analytics', (req: Request, res: Response) => {
-  const totalBeneficiaries = beneficiaries.length;
-  const activeCaregivers = caregivers.length;
   const totalBookings = bookings.length;
-  const completedBookings = bookings.filter(b => b.status === 'COMPLETED').length;
-  
-  // Total Revenue & Sponsored value computed from actual database numbers
+  const awaitingAssignment = bookings.filter(b => b.status === 'Awaiting Assignment' || b.caregiverName === 'Unassigned').length;
+  const confirmed = bookings.filter(b => b.status === 'Confirmed').length;
+  const inProgress = bookings.filter(b => b.status === 'In Progress').length;
+  const scheduled = bookings.filter(b => b.status === 'Scheduled').length;
+  const completed = bookings.filter(b => b.status === 'Completed').length;
+
   const totalRevenuePaise = bookings.reduce((sum, b) => sum + (b.paymentStatus === 'PAID' ? b.familyPayablePaise : 0), 0);
   const totalSponsoredPaise = bookings.reduce((sum, b) => sum + b.subsidyAmountPaise, 0);
 
-  // Service distribution strictly calculated from actual bookings
   const serviceDistribution: Record<string, number> = {};
   bookings.forEach(b => {
     serviceDistribution[b.serviceName] = (serviceDistribution[b.serviceName] || 0) + 1;
@@ -354,14 +376,16 @@ app.get('/api/v1/analytics', (req: Request, res: Response) => {
   res.json({
     success: true,
     data: {
-      totalBeneficiaries,
-      activeCaregivers,
+      totalBeneficiaries: beneficiaries.length,
+      activeCaregivers: caregivers.length,
       totalBookings,
-      completedServices: completedBookings,
+      awaitingAssignment,
+      confirmed,
+      inProgress,
+      scheduled,
+      completed,
       revenueInr: Math.round(totalRevenuePaise / 100),
       sponsoredValueInr: Math.round(totalSponsoredPaise / 100),
-      sponsoredServicesCount: bookings.filter(b => b.fundingType !== 'SELF_FUNDED').length,
-      completionRate: totalBookings > 0 ? Math.round((completedBookings / totalBookings) * 100) : 0,
       activeSosCount: sosAlerts.filter(s => s.status !== 'RESOLVED').length,
       serviceDistribution,
       recentBookings: bookings.slice(0, 5)
@@ -373,7 +397,7 @@ app.get('/api/v1/analytics', (req: Request, res: Response) => {
 app.get('/api/v1/beneficiaries/search', (req: Request, res: Response) => {
   const query = (req.query.q as string || '').toLowerCase().trim();
   if (!query) {
-    return res.json({ success: true, results: beneficiaries.slice(0, 10) });
+    return res.json({ success: true, results: beneficiaries });
   }
 
   const results = beneficiaries.filter(b => 
@@ -401,7 +425,7 @@ app.post('/api/v1/beneficiaries', (req: Request, res: Response) => {
     relationship: relationship || 'Family',
     primaryGuardian: primaryGuardian || 'Anita Sharma',
     primaryContact: primaryContact || '+91 98765 43210',
-    address: address || 'Tirupati',
+    address: address || 'T.T.D. Colony, Tirupati',
     accessibilityNeeds: accessibilityNeeds || 'Standard Assisted Living',
     status: 'ACTIVE'
   };
@@ -409,7 +433,7 @@ app.post('/api/v1/beneficiaries', (req: Request, res: Response) => {
 
   auditLogs.unshift({
     id: `aud-${Date.now()}`,
-    adminUser: 'Raju Kumar (Super Admin)',
+    adminUser: 'Trust Operations Admin',
     action: 'CREATE',
     module: 'Beneficiaries',
     details: `Registered new beneficiary ${newBen.fullName}`,
@@ -419,21 +443,36 @@ app.post('/api/v1/beneficiaries', (req: Request, res: Response) => {
   res.status(201).json({ success: true, beneficiary: newBen });
 });
 
-// 3. Bookings CRUD with Search, Payment Mode & Payment Status
+// 3. Bookings CRUD
 app.get('/api/v1/bookings', (req: Request, res: Response) => {
   const query = (req.query.q as string || '').toLowerCase().trim();
-  if (!query) {
-    return res.json({ success: true, bookings });
+  const statusFilter = (req.query.status as string || 'ALL');
+  const serviceFilter = (req.query.service as string || 'ALL');
+  const fundingFilter = (req.query.funding as string || 'ALL');
+
+  let filtered = bookings;
+
+  if (query) {
+    filtered = filtered.filter(b => 
+      b.bookingNumber.toLowerCase().includes(query) ||
+      b.beneficiaryName.toLowerCase().includes(query) ||
+      b.serviceName.toLowerCase().includes(query) ||
+      b.caregiverName.toLowerCase().includes(query) ||
+      b.serviceAddress.toLowerCase().includes(query)
+    );
   }
 
-  const filtered = bookings.filter(b => 
-    b.bookingNumber.toLowerCase().includes(query) ||
-    b.beneficiaryName.toLowerCase().includes(query) ||
-    b.serviceName.toLowerCase().includes(query) ||
-    b.caregiverName.toLowerCase().includes(query) ||
-    b.paymentStatus.toLowerCase().includes(query) ||
-    b.status.toLowerCase().includes(query)
-  );
+  if (statusFilter !== 'ALL') {
+    filtered = filtered.filter(b => b.status === statusFilter);
+  }
+
+  if (serviceFilter !== 'ALL') {
+    filtered = filtered.filter(b => b.serviceName === serviceFilter);
+  }
+
+  if (fundingFilter !== 'ALL') {
+    filtered = filtered.filter(b => b.fundingType === fundingFilter);
+  }
 
   res.json({ success: true, bookings: filtered });
 });
@@ -448,7 +487,8 @@ app.post('/api/v1/bookings', (req: Request, res: Response) => {
     fundingType, 
     caregiverName,
     paymentMode,
-    paymentStatus
+    paymentStatus,
+    status
   } = req.body;
 
   const targetBen = beneficiaries.find(b => b.fullName.toLowerCase() === (beneficiaryName || '').toLowerCase()) || beneficiaries[0];
@@ -456,32 +496,35 @@ app.post('/api/v1/bookings', (req: Request, res: Response) => {
 
   const totalAmountPaise = targetSrv.basePricePaise;
   let subsidyAmountPaise = 0;
-  if (fundingType === 'TRUST_SPONSORED' || fundingType === 'DONOR_SPONSORED') {
+  if (fundingType === 'Trust Sponsored' || fundingType === 'Donor Sponsored') {
     subsidyAmountPaise = totalAmountPaise;
-  } else if (fundingType === 'SPLIT_FUNDING') {
-    subsidyAmountPaise = Math.round(totalAmountPaise * 0.5);
+  } else if (fundingType === 'Partially Sponsored') {
+    subsidyAmountPaise = Math.round(totalAmountPaise * 0.75);
   }
 
   const familyPayablePaise = totalAmountPaise - subsidyAmountPaise;
+  const isAssigned = caregiverName && caregiverName !== 'Unassigned';
 
   const newBooking: Booking = {
     id: `bk-${Date.now()}`,
-    bookingNumber: `THD-${Math.floor(20000 + Math.random() * 90000)}`,
+    bookingNumber: `TH-${Math.floor(8900 + bookings.length + 1)}`,
     beneficiaryId: targetBen.id,
     beneficiaryName: targetBen.fullName,
+    beneficiaryAge: targetBen.age,
+    beneficiaryCategory: targetBen.category,
     guardianPhone: targetBen.primaryContact,
     serviceName: targetSrv.name,
-    scheduledDate: scheduledDate || new Date().toISOString().split('T')[0],
+    scheduledDate: scheduledDate || 'Mar 15, 2026',
     scheduledTimeSlot: scheduledTimeSlot || '10:00 AM - 12:00 PM',
     serviceAddress: serviceAddress || targetBen.address,
-    caregiverName: caregiverName || 'Anitha',
-    fundingType: fundingType || 'TRUST_SPONSORED',
+    caregiverName: isAssigned ? caregiverName : 'Unassigned',
+    fundingType: fundingType || 'Trust Sponsored',
     totalAmountPaise,
     subsidyAmountPaise,
     familyPayablePaise,
     paymentMode: paymentMode || (subsidyAmountPaise === totalAmountPaise ? 'TRUST_GRANT' : 'ONLINE_UPI'),
     paymentStatus: paymentStatus || (subsidyAmountPaise === totalAmountPaise ? 'SUBSIDIZED' : 'PENDING'),
-    status: 'SCHEDULED',
+    status: status || (isAssigned ? 'Confirmed' : 'Awaiting Assignment'),
     createdAt: new Date().toISOString()
   };
 
@@ -489,20 +532,20 @@ app.post('/api/v1/bookings', (req: Request, res: Response) => {
 
   auditLogs.unshift({
     id: `aud-${Date.now()}`,
-    adminUser: 'Raju Kumar (Super Admin)',
+    adminUser: 'Trust Operations Admin',
     action: 'CREATE_BOOKING',
     module: 'Bookings',
-    details: `Created booking ${newBooking.bookingNumber} for ${newBooking.beneficiaryName} (${newBooking.serviceName})`,
+    details: `Created booking ${newBooking.bookingNumber} for ${newBooking.beneficiaryName}`,
     timestamp: new Date().toLocaleString()
   });
 
   res.status(201).json({ success: true, booking: newBooking });
 });
 
-// Update Booking Status / Payment Status
+// Update Booking
 app.patch('/api/v1/bookings/:id', (req: Request, res: Response) => {
   const { id } = req.params;
-  const { status, paymentStatus, paymentMode, caregiverName } = req.body;
+  const { status, paymentStatus, paymentMode, caregiverName, serviceName, scheduledDate, scheduledTimeSlot, fundingType } = req.body;
   const bk = bookings.find(b => b.id === id);
   if (!bk) {
     return res.status(404).json({ error: 'Booking not found' });
@@ -511,28 +554,37 @@ app.patch('/api/v1/bookings/:id', (req: Request, res: Response) => {
   if (status) bk.status = status;
   if (paymentStatus) bk.paymentStatus = paymentStatus;
   if (paymentMode) bk.paymentMode = paymentMode;
-  if (caregiverName) bk.caregiverName = caregiverName;
+  if (caregiverName) {
+    bk.caregiverName = caregiverName;
+    if (bk.status === 'Awaiting Assignment' && caregiverName !== 'Unassigned') {
+      bk.status = 'Confirmed';
+    }
+  }
+  if (serviceName) bk.serviceName = serviceName;
+  if (scheduledDate) bk.scheduledDate = scheduledDate;
+  if (scheduledTimeSlot) bk.scheduledTimeSlot = scheduledTimeSlot;
+  if (fundingType) bk.fundingType = fundingType;
 
   auditLogs.unshift({
     id: `aud-${Date.now()}`,
-    adminUser: 'Raju Kumar (Super Admin)',
+    adminUser: 'Trust Operations Admin',
     action: 'UPDATE_BOOKING',
     module: 'Bookings',
-    details: `Updated booking ${bk.bookingNumber} - Status: ${bk.status}, Payment: ${bk.paymentStatus}`,
+    details: `Updated booking ${bk.bookingNumber} (${bk.status})`,
     timestamp: new Date().toLocaleString()
   });
 
   res.json({ success: true, booking: bk });
 });
 
-// Delete / Cancel Booking
+// Delete Booking
 app.delete('/api/v1/bookings/:id', (req: Request, res: Response) => {
   const index = bookings.findIndex(b => b.id === req.params.id);
   if (index !== -1) {
     const deleted = bookings.splice(index, 1)[0];
     auditLogs.unshift({
       id: `aud-${Date.now()}`,
-      adminUser: 'Raju Kumar (Super Admin)',
+      adminUser: 'Trust Operations Admin',
       action: 'CANCEL_BOOKING',
       module: 'Bookings',
       details: `Removed booking ${deleted.bookingNumber}`,
@@ -577,7 +629,7 @@ app.patch('/api/v1/sponsorship/:id/decision', (req: Request, res: Response) => {
     appItem.status = status;
     auditLogs.unshift({
       id: `aud-${Date.now()}`,
-      adminUser: 'Raju Kumar (Super Admin)',
+      adminUser: 'Trust Operations Admin',
       action: status === 'APPROVED' ? 'APPROVAL' : 'REJECTION',
       module: 'Sponsorship',
       details: `${status} subsidy application ${appItem.applicationRef} for ${appItem.beneficiaryName}`,
@@ -599,7 +651,7 @@ app.patch('/api/v1/sos/:id/resolve', (req: Request, res: Response) => {
     alert.status = 'RESOLVED';
     auditLogs.unshift({
       id: `aud-${Date.now()}`,
-      adminUser: 'Raju Kumar (Super Admin)',
+      adminUser: 'Trust Operations Admin',
       action: 'RESOLVE_SOS',
       module: 'SOS Queue',
       details: `Resolved emergency alert ${alert.id} for ${alert.beneficiaryName}`,
@@ -614,7 +666,6 @@ app.get('/api/v1/audit-logs', (req: Request, res: Response) => {
   res.json({ success: true, auditLogs });
 });
 
-// Health Endpoint
 app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
