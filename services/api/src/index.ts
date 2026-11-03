@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import { 
   LoginRequestSchema, 
   CreateBookingRequestSchema, 
@@ -18,76 +17,125 @@ const JWT_SECRET = process.env.JWT_SECRET || 'thodu_super_secret_jwt_key_2026';
 app.use(cors());
 app.use(express.json());
 
-// In-memory data store for live validation (seeded from Trust defaults)
+// In-Memory Database for Live Operations
 let beneficiaries = [
   {
-    id: 'b1-saraswathi',
+    id: 'ben-1',
     fullName: 'Saraswathi Garu',
     category: 'SENIOR_CITIZEN',
     age: 68,
+    gender: 'Female',
     relationship: 'Mother',
-    primaryContact: 'Anita Sharma (+91 98765 43210)',
+    primaryGuardian: 'Anita Sharma',
+    primaryContact: '+91 98765 43210',
     address: 'Home - T.T.D. Colony, Tirupati',
-    accessibilityNeeds: 'Walking support, knee pain care, gentle handling'
+    accessibilityNeeds: 'Walking support, knee pain care, gentle handling',
+    status: 'ACTIVE'
   },
   {
-    id: 'b2-lakshmi',
+    id: 'ben-2',
     fullName: 'Lakshmi Narasimha Rao',
     category: 'SENIOR_CITIZEN',
     age: 72,
+    gender: 'Male',
     relationship: 'Father',
-    primaryContact: 'Anita Sharma (+91 98765 43210)',
+    primaryGuardian: 'Anita Sharma',
+    primaryContact: '+91 98765 43210',
     address: 'Home - T.T.D. Colony, Tirupati',
-    accessibilityNeeds: 'Dietary supervision, walking assistance'
+    accessibilityNeeds: 'Dietary supervision, walking assistance',
+    status: 'ACTIVE'
   },
   {
-    id: 'b3-raghav',
+    id: 'ben-3',
     fullName: 'Raghav',
     category: 'PERSON_WITH_DISABILITY',
     age: 28,
+    gender: 'Male',
     relationship: 'Son',
-    primaryContact: 'Anita Sharma (+91 98765 43210)',
+    primaryGuardian: 'Anita Sharma',
+    primaryContact: '+91 98765 43210',
     address: 'Home - T.T.D. Colony, Tirupati',
-    accessibilityNeeds: 'Wheelchair assistance, companion support'
+    accessibilityNeeds: 'Wheelchair assistance, companion support',
+    status: 'ACTIVE'
   }
 ];
 
 let services = [
   {
-    id: 'srv-household',
+    id: 'srv-1',
     name: 'Household Support',
-    category: 'Household Support',
-    duration: '1 - 3 hours',
-    basePricePaise: 60000, // ₹600
+    category: 'Household',
+    duration: '2 hours',
+    basePricePaise: 60000,
+    active: true,
     description: 'Light housekeeping, laundry, home organization and daily household tasks.'
   },
   {
-    id: 'srv-cooking',
+    id: 'srv-2',
     name: 'Cooking Assistance',
-    category: 'Cooking Assistance',
-    duration: '1 - 2 hours',
-    basePricePaise: 45000, // ₹450
+    category: 'Nutrition',
+    duration: '2 hours',
+    basePricePaise: 45000,
+    active: true,
     description: 'Nutritious meal preparation according to dietary preferences.'
   },
   {
-    id: 'srv-medication',
+    id: 'srv-3',
     name: 'Medication Reminders',
-    category: 'Medication Reminders',
-    duration: 'Scheduled visits',
-    basePricePaise: 30000, // ₹300
+    category: 'Healthcare Aid',
+    duration: '1 hour',
+    basePricePaise: 30000,
+    active: true,
     description: 'Timely prompts and tracking for prescribed medications.'
   },
   {
-    id: 'srv-disability',
+    id: 'srv-4',
     name: 'Disability Mobility Support',
-    category: 'Disability Support',
-    duration: '2 - 4 hours',
-    basePricePaise: 50000, // ₹500
-    description: 'Assisted mobility, daily living support, and accompaniment.'
+    category: 'Assisted Living',
+    duration: '3 hours',
+    basePricePaise: 50000,
+    active: true,
+    description: 'Assisted mobility, daily living support, and compassionate accompaniment.'
   }
 ];
 
-let bookings: any[] = [
+let caregivers = [
+  {
+    id: 'cg-1',
+    fullName: 'Anitha',
+    phone: '+91 98765 11111',
+    employmentType: 'SALARIED',
+    verificationStatus: 'VERIFIED',
+    rating: 4.8,
+    activeAssignments: 2,
+    skills: ['Elder Companionship', 'Cooking', 'Mobility Support'],
+    zone: 'Tirupati Urban'
+  },
+  {
+    id: 'cg-2',
+    fullName: 'K. Ramesh',
+    phone: '+91 98765 22222',
+    employmentType: 'FREELANCE_GIG',
+    verificationStatus: 'VERIFIED',
+    rating: 4.9,
+    activeAssignments: 0,
+    skills: ['Cooking', 'Errands', 'Medication Reminders'],
+    zone: 'T.T.D. Colony'
+  },
+  {
+    id: 'cg-3',
+    fullName: 'P. Venkatesh',
+    phone: '+91 98765 33333',
+    employmentType: 'SALARIED',
+    verificationStatus: 'VERIFIED',
+    rating: 4.7,
+    activeAssignments: 1,
+    skills: ['Disability Care', 'Physiotherapy Assist'],
+    zone: 'Tirupati West'
+  }
+];
+
+let bookings = [
   {
     id: 'bk-1024',
     bookingNumber: 'TH-8901',
@@ -101,48 +149,81 @@ let bookings: any[] = [
     subsidyAmountPaise: 60000,
     familyPayablePaise: 0,
     status: 'IN_PROGRESS',
-    caregiver: {
-      name: 'Anitha',
-      type: 'SALARIED',
-      phone: '+91 98765 11111',
-      rating: 4.8
-    }
-  }
-];
-
-let gigJobBroadcasts: any[] = [
+    caregiverName: 'Anitha'
+  },
   {
-    id: 'gig-101',
+    id: 'bk-1025',
+    bookingNumber: 'TH-8902',
+    beneficiaryName: 'Lakshmi Narasimha Rao',
     serviceName: 'Cooking Assistance',
     scheduledDate: '2026-03-11',
-    scheduledTimeSlot: '11:00 AM - 1:00 PM',
-    serviceAddress: 'T.T.D. Colony, Tirupati',
-    payoutPaise: 45000,
-    claimed: false,
-    claimedBy: null
+    scheduledTimeSlot: '11:00 AM - 01:00 PM',
+    serviceAddress: 'Home - T.T.D. Colony, Tirupati',
+    fundingType: 'SPLIT_FUNDING',
+    totalAmountPaise: 45000,
+    subsidyAmountPaise: 22500,
+    familyPayablePaise: 22500,
+    status: 'CONFIRMED',
+    caregiverName: 'K. Ramesh'
   }
 ];
 
-let sosAlerts: any[] = [];
-
-// JWT Auth Middleware
-const authenticateToken = (req: any, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    req.user = { id: 'u-guest', roles: ['FAMILY'] };
-    return next();
+let sponsorshipApplications = [
+  {
+    id: 'sp-101',
+    applicationRef: 'SP-2026-09',
+    beneficiaryName: 'Saraswathi Garu',
+    programme: 'Elder Care Support Programme',
+    applicantName: 'Anita Sharma',
+    requestedSubsidyPercent: 100,
+    documentsProvided: 'Aadhaar, BPL Ration Card, Doctor Certificate',
+    status: 'UNDER_REVIEW',
+    submittedAt: '2026-03-05'
+  },
+  {
+    id: 'sp-102',
+    applicationRef: 'SP-2026-10',
+    beneficiaryName: 'Raghav',
+    programme: 'Disability Care Aid',
+    applicantName: 'Anita Sharma',
+    requestedSubsidyPercent: 80,
+    documentsProvided: 'UDID Card, Income Certificate',
+    status: 'APPROVED',
+    submittedAt: '2026-03-02'
   }
+];
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
-    req.user = user;
-    next();
-  });
-};
+let sosAlerts = [
+  {
+    id: 'SOS-9912',
+    beneficiaryName: 'Saraswathi Garu',
+    triggeredBy: 'Anita Sharma (+91 98765 43210)',
+    timestamp: new Date().toISOString(),
+    status: 'RESPONDER_DISPATCHED',
+    notes: 'Triggered from Family App - Fall alert simulation'
+  }
+];
 
-// 1. Health check
+let auditLogs = [
+  {
+    id: 'aud-1',
+    adminUser: 'Trust Administrator',
+    action: 'APPROVAL',
+    module: 'Sponsorship',
+    details: 'Approved 80% subsidy for UDID Cardholder Raghav',
+    timestamp: '2026-03-02 14:32:00'
+  },
+  {
+    id: 'aud-2',
+    adminUser: 'Trust Operations',
+    action: 'DISPATCH',
+    module: 'Bookings',
+    details: 'Assigned Anitha to booking TH-8901 (Household Support)',
+    timestamp: '2026-03-03 09:15:00'
+  }
+];
+
+// 1. Health check & Stats
 app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
@@ -150,194 +231,175 @@ app.get('/health', (req: Request, res: Response) => {
     port: PORT,
     timestamp: new Date().toISOString(),
     organization: 'Sri Divyang Seva Kendram Trust',
-    activeBookingsCount: bookings.length,
-    activeBeneficiariesCount: beneficiaries.length
+    stats: {
+      beneficiariesCount: beneficiaries.length,
+      bookingsCount: bookings.length,
+      caregiversCount: caregivers.length,
+      pendingSponsorships: sponsorshipApplications.filter(s => s.status === 'UNDER_REVIEW').length,
+      activeSosCount: sosAlerts.filter(s => s.status !== 'RESOLVED').length
+    }
   });
 });
 
-// 2. Auth Endpoint (Email/Password credentials)
-app.post('/api/v1/auth/login', (req: Request, res: Response) => {
-  const parseResult = LoginRequestSchema.safeParse(req.body);
-  if (!parseResult.success) {
-    return res.status(400).json({ error: 'Invalid credentials format', details: parseResult.error.errors });
-  }
-
-  const { email } = parseResult.data;
-  let user = {
-    id: 'u-user-1',
-    name: 'Anita Sharma',
-    email,
-    roles: ['FAMILY', 'CAREGIVER_GIG', 'ADMIN_STAFF'],
-    phone: '+91 98765 43210'
-  };
-
-  if (email.includes('admin')) {
-    user = {
-      id: 'u-admin-1',
-      name: 'Trust Administrator',
-      email,
-      roles: ['ADMIN', 'ADMIN_STAFF'],
-      phone: '+91 94444 56789'
-    };
-  } else if (email.includes('care')) {
-    user = {
-      id: 'u-care-1',
-      name: 'Anitha',
-      email,
-      roles: ['CAREGIVER_SALARIED', 'CAREGIVER_GIG'],
-      phone: '+91 98765 11111'
-    };
-  }
-
-  const token = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
-
-  res.json({
-    success: true,
-    token,
-    user,
-    workspaces: user.roles
-  });
-});
-
-// 3. Beneficiaries List & Registration
+// 2. Beneficiaries Endpoints
 app.get('/api/v1/beneficiaries', (req: Request, res: Response) => {
   res.json({ success: true, beneficiaries });
 });
 
-app.post('/api/v1/beneficiaries', authenticateToken, (req: Request, res: Response) => {
-  const { fullName, category, age, relationship, address, primaryContact, accessibilityNeeds } = req.body;
-  if (!fullName || !category || !age) {
-    return res.status(400).json({ error: 'Missing required beneficiary information' });
-  }
-
-  const newBeneficiary = {
+app.post('/api/v1/beneficiaries', (req: Request, res: Response) => {
+  const { fullName, category, age, gender, relationship, primaryGuardian, primaryContact, address, accessibilityNeeds } = req.body;
+  const newBen = {
     id: `ben-${Date.now()}`,
     fullName,
-    category,
-    age: Number(age),
-    relationship: relationship || 'Family Member',
+    category: category || 'SENIOR_CITIZEN',
+    age: Number(age) || 60,
+    gender: gender || 'Other',
+    relationship: relationship || 'Family',
+    primaryGuardian: primaryGuardian || 'Anita Sharma',
     primaryContact: primaryContact || '+91 98765 43210',
     address: address || 'Tirupati',
-    accessibilityNeeds: accessibilityNeeds || 'Standard care'
+    accessibilityNeeds: accessibilityNeeds || 'General Assisted Living',
+    status: 'ACTIVE'
   };
-
-  beneficiaries.unshift(newBeneficiary);
-  res.status(201).json({ success: true, beneficiary: newBeneficiary });
+  beneficiaries.unshift(newBen);
+  auditLogs.unshift({
+    id: `aud-${Date.now()}`,
+    adminUser: 'Trust Admin',
+    action: 'CREATE',
+    module: 'Beneficiaries',
+    details: `Registered beneficiary ${newBen.fullName}`,
+    timestamp: new Date().toISOString()
+  });
+  res.status(201).json({ success: true, beneficiary: newBen });
 });
 
-// 4. Services Catalog
-app.get('/api/v1/services', (req: Request, res: Response) => {
-  res.json({ success: true, services });
+app.delete('/api/v1/beneficiaries/:id', (req: Request, res: Response) => {
+  beneficiaries = beneficiaries.filter(b => b.id !== req.params.id);
+  res.json({ success: true, message: 'Beneficiary record removed' });
 });
 
-// 5. Bookings Creation & Listing with Server-Side Pricing & Subsidy Calculation
+// 3. Bookings Endpoints
 app.get('/api/v1/bookings', (req: Request, res: Response) => {
   res.json({ success: true, bookings });
 });
 
-app.post('/api/v1/bookings', authenticateToken, (req: Request, res: Response) => {
-  const parseResult = CreateBookingRequestSchema.safeParse(req.body);
-  if (!parseResult.success) {
-    return res.status(400).json({ error: 'Invalid booking request', details: parseResult.error.errors });
-  }
-
-  const { beneficiaryId, serviceId, serviceAddress, scheduledDate, scheduledTimeSlot, specialInstructions, fundingType } = parseResult.data;
-
-  const targetService = services.find(s => s.id === serviceId) || services[0];
-  const targetBeneficiary = beneficiaries.find(b => b.id === beneficiaryId) || beneficiaries[0];
-
-  const totalAmountPaise = targetService.basePricePaise;
+app.post('/api/v1/bookings', (req: Request, res: Response) => {
+  const { beneficiaryName, serviceName, scheduledDate, scheduledTimeSlot, serviceAddress, fundingType, caregiverName } = req.body;
+  const srv = services.find(s => s.name === serviceName) || services[0];
+  const totalAmountPaise = srv.basePricePaise;
   let subsidyAmountPaise = 0;
-
   if (fundingType === 'TRUST_SPONSORED' || fundingType === 'DONOR_SPONSORED') {
-    subsidyAmountPaise = totalAmountPaise; // 100% subsidy
+    subsidyAmountPaise = totalAmountPaise;
   } else if (fundingType === 'SPLIT_FUNDING') {
-    subsidyAmountPaise = Math.round(totalAmountPaise * 0.5); // 50% subsidy
+    subsidyAmountPaise = Math.round(totalAmountPaise * 0.5);
   }
-
-  const familyPayablePaise = totalAmountPaise - subsidyAmountPaise;
 
   const newBooking = {
     id: `bk-${Date.now()}`,
     bookingNumber: `TH-${Math.floor(1000 + Math.random() * 9000)}`,
-    beneficiaryName: targetBeneficiary.fullName,
-    serviceName: targetService.name,
-    scheduledDate,
-    scheduledTimeSlot,
-    serviceAddress,
-    specialInstructions: specialInstructions || '',
-    fundingType,
+    beneficiaryName: beneficiaryName || 'Saraswathi Garu',
+    serviceName: srv.name,
+    scheduledDate: scheduledDate || '2026-03-15',
+    scheduledTimeSlot: scheduledTimeSlot || '10:00 AM - 12:00 PM',
+    serviceAddress: serviceAddress || 'Home - T.T.D. Colony, Tirupati',
+    fundingType: fundingType || 'TRUST_SPONSORED',
     totalAmountPaise,
     subsidyAmountPaise,
-    familyPayablePaise,
+    familyPayablePaise: totalAmountPaise - subsidyAmountPaise,
     status: 'CONFIRMED',
-    createdAt: new Date().toISOString()
+    caregiverName: caregiverName || 'Anitha'
   };
-
   bookings.unshift(newBooking);
   res.status(201).json({ success: true, booking: newBooking });
 });
 
-// 6. Caregiver Atomic Job Claim (Concurreny safe)
-app.get('/api/v1/caregiver/jobs', (req: Request, res: Response) => {
-  res.json({ success: true, availableJobs: gigJobBroadcasts.filter(j => !j.claimed) });
-});
-
-app.post('/api/v1/caregiver/jobs/:id/claim', authenticateToken, (req: any, res: Response) => {
+app.patch('/api/v1/bookings/:id/status', (req: Request, res: Response) => {
   const { id } = req.params;
-  const caregiverName = req.user?.name || 'Caregiver User';
-
-  const jobIndex = gigJobBroadcasts.findIndex(j => j.id === id);
-  if (jobIndex === -1) {
-    return res.status(404).json({ error: 'Job broadcast not found' });
+  const { status, caregiverName } = req.body;
+  const bk = bookings.find(b => b.id === id);
+  if (bk) {
+    if (status) bk.status = status;
+    if (caregiverName) bk.caregiverName = caregiverName;
   }
-
-  const targetJob = gigJobBroadcasts[jobIndex];
-  if (targetJob.claimed) {
-    return res.status(409).json({ error: 'Job already claimed by another caregiver' });
-  }
-
-  // Atomic claim update
-  targetJob.claimed = true;
-  targetJob.claimedBy = caregiverName;
-  targetJob.claimedAt = new Date().toISOString();
-
-  res.json({
-    success: true,
-    message: 'Job claimed successfully!',
-    job: targetJob
-  });
+  res.json({ success: true, booking: bk });
 });
 
-// 7. SOS Rapid Responder Alert
+// 4. Workforce / Caregivers Endpoints
+app.get('/api/v1/caregivers', (req: Request, res: Response) => {
+  res.json({ success: true, caregivers });
+});
+
+app.post('/api/v1/caregivers', (req: Request, res: Response) => {
+  const { fullName, phone, employmentType, skills, zone } = req.body;
+  const newCg = {
+    id: `cg-${Date.now()}`,
+    fullName,
+    phone: phone || '+91 98765 00000',
+    employmentType: employmentType || 'SALARIED',
+    verificationStatus: 'VERIFIED',
+    rating: 5.0,
+    activeAssignments: 0,
+    skills: skills ? skills.split(',').map((s: string) => s.trim()) : ['General Elder Care'],
+    zone: zone || 'Tirupati Urban'
+  };
+  caregivers.unshift(newCg);
+  res.status(201).json({ success: true, caregiver: newCg });
+});
+
+// 5. Sponsorship Applications Endpoints
+app.get('/api/v1/sponsorship', (req: Request, res: Response) => {
+  res.json({ success: true, applications: sponsorshipApplications });
+});
+
+app.patch('/api/v1/sponsorship/:id/decision', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body; // 'APPROVED' or 'REJECTED'
+  const appItem = sponsorshipApplications.find(a => a.id === id);
+  if (appItem) {
+    appItem.status = status;
+    auditLogs.unshift({
+      id: `aud-${Date.now()}`,
+      adminUser: 'Trust Admin',
+      action: status === 'APPROVED' ? 'APPROVAL' : 'REJECTION',
+      module: 'Sponsorship',
+      details: `${status} subsidy application ${appItem.applicationRef} for ${appItem.beneficiaryName}`,
+      timestamp: new Date().toISOString()
+    });
+  }
+  res.json({ success: true, application: appItem });
+});
+
+// 6. SOS Operations
 app.get('/api/v1/sos/queue', (req: Request, res: Response) => {
   res.json({ success: true, queue: sosAlerts });
 });
 
-app.post('/api/v1/sos/trigger', authenticateToken, (req: any, res: Response) => {
-  const parseResult = TriggerSosRequestSchema.safeParse(req.body);
-  const data = parseResult.success ? parseResult.data : {};
-
-  const alert = {
+app.post('/api/v1/sos/trigger', (req: Request, res: Response) => {
+  const { beneficiaryId, notes } = req.body;
+  const newAlert = {
     id: `SOS-${Math.floor(1000 + Math.random() * 9000)}`,
-    beneficiaryId: data.beneficiaryId || 'b1-saraswathi',
     beneficiaryName: 'Saraswathi Garu',
-    triggeredBy: req.user?.name || 'Anita Sharma (+91 98765 43210)',
-    status: 'RESPONDER_DISPATCHED',
+    triggeredBy: 'Anita Sharma (+91 98765 43210)',
     timestamp: new Date().toISOString(),
-    emergencyContactsNotified: [
-      'Anita Sharma (+91 98765 43210)',
-      'Sri Divyang Seva Kendram Trust Emergency Unit (+91 94444 56789)'
-    ]
+    status: 'RESPONDER_DISPATCHED',
+    notes: notes || 'Emergency assistance requested'
   };
+  sosAlerts.unshift(newAlert);
+  res.status(201).json({ success: true, alert: newAlert });
+});
 
-  sosAlerts.unshift(alert);
+app.patch('/api/v1/sos/:id/resolve', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const alert = sosAlerts.find(a => a.id === id);
+  if (alert) {
+    alert.status = 'RESOLVED';
+  }
+  res.json({ success: true, alert });
+});
 
-  res.status(201).json({
-    success: true,
-    message: 'Urgent SOS triggered. Emergency unit dispatched and family alerted.',
-    alert
-  });
+// 7. Audit Logs Endpoint
+app.get('/api/v1/audit-logs', (req: Request, res: Response) => {
+  res.json({ success: true, auditLogs });
 });
 
 app.listen(PORT, () => {

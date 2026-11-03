@@ -51,3 +51,4 @@ export type BookingStatus = z.infer<typeof BookingStatusSchema>;
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 export type CreateBookingRequest = z.infer<typeof CreateBookingRequestSchema>;
 export type TriggerSosRequest = z.infer<typeof TriggerSosRequestSchema>;
+
