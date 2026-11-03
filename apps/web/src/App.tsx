@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, Calendar, Users, ShieldCheck, 
-  AlertTriangle, Search, Plus, DollarSign, RefreshCw,
-  LogOut, Lock, Mail, CheckCircle2, ChevronRight, X,
-  FileText, Shield, UserPlus, PhoneCall, Trash2, Edit3,
-  TrendingUp, Heart, Check, Clock, Bell, MapPin, Award,
-  MoreVertical, ChevronDown, Filter, ChevronLeft, Eye, Download,
-  Radio, Send, CheckSquare
+import {
+  Activity, AlertTriangle, ArrowUpRight, Award, Bell, Calendar, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, DollarSign, Download, Edit3, Eye, FileText, Filter, Heart, LayoutDashboard, Lock, LogOut, Mail, MapPin, MoreVertical, PhoneCall, Plus, Radio, RefreshCw, Search, Send, Shield, ShieldCheck, Trash2, TrendingUp, UserPlus, Users, X
 } from 'lucide-react';
 import './style.css';
 
@@ -32,7 +26,7 @@ export default function App() {
 
   const [emailInput, setEmailInput] = useState('raju@thodu.sriddha.com');
   const [passwordInput, setPasswordInput] = useState('admin123');
-  const [activeSection, setActiveSection] = useState<NavSection>('workforce'); // Direct to requested screen
+  const [activeSection, setActiveSection] = useState<NavSection>('overview'); // Direct to requested screen
   const [loading, setLoading] = useState(false);
 
   // Live Database States
@@ -60,6 +54,30 @@ export default function App() {
   const [bookingServiceFilter, setBookingServiceFilter] = useState('ALL');
   const [bookingFundingFilter, setBookingFundingFilter] = useState('ALL');
   const [openBookingActionId, setOpenBookingActionId] = useState<string | null>(null);
+
+  // Beneficiaries Section States (Exact Match to Reference Image 2)
+  const [benTab, setBenTab] = useState<'ALL' | 'SENIOR' | 'DISABILITY'>('ALL');
+  const [benSearchQuery, setBenSearchQuery] = useState('');
+  const [benCategoryFilter, setBenCategoryFilter] = useState('ALL');
+  const [benStatusFilter, setBenStatusFilter] = useState('ALL');
+  const [selectedBenIds, setSelectedBenIds] = useState<string[]>([]);
+  const [openBenActionId, setOpenBenActionId] = useState<string | null>(null);
+  const [selectedBeneficiaryDetail, setSelectedBeneficiaryDetail] = useState<any | null>(null);
+  const [editingBooking, setEditingBooking] = useState<any | null>(null);
+
+  // Form State for Add Beneficiary
+  const [newBenForm, setNewBenForm] = useState({
+    fullName: '',
+    category: 'Senior Citizen',
+    age: '',
+    gender: 'Female',
+    relationship: 'Mother',
+    primaryGuardian: 'Anita Sharma',
+    primaryContact: '+91 98765 43210',
+    address: 'T.T.D. Colony, Tirupati',
+    accessibilityNeeds: 'Walking assistance, routine health monitoring'
+  });
+
   const [assigningBooking, setAssigningBooking] = useState<any | null>(null);
 
   // Modals state
@@ -151,6 +169,115 @@ export default function App() {
   };
 
   // Broadcast Booking to Gig Caregivers
+  
+  const handleBeneficiarySearch = (val: string) => {
+    setBeneficiaryQuery(val);
+    setBookingForm(prev => ({ ...prev, beneficiaryName: val }));
+    if (val.trim().length > 0) {
+      const matches = beneficiaries.filter(b => 
+        b.fullName.toLowerCase().includes(val.toLowerCase()) ||
+        b.primaryGuardian?.toLowerCase().includes(val.toLowerCase()) ||
+        b.primaryContact?.includes(val)
+      );
+      setSuggestedBeneficiaries(matches);
+      setShowSuggestDropdown(true);
+    } else {
+      setShowSuggestDropdown(false);
+    }
+  };
+
+  const selectSuggestedBeneficiary = (b: any) => {
+    setBeneficiaryQuery(b.fullName);
+    setBookingForm(prev => ({
+      ...prev,
+      beneficiaryName: b.fullName,
+      serviceAddress: b.address
+    }));
+    setShowSuggestDropdown(false);
+  };
+
+  const toggleSelectBen = (id: string) => {
+    setSelectedBenIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllBens = () => {
+    if (selectedBenIds.length === filteredBeneficiaries.length) {
+      setSelectedBenIds([]);
+    } else {
+      setSelectedBenIds(filteredBeneficiaries.map(b => b.id));
+    }
+  };
+
+  const handleSaveBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingBooking) {
+        const res = await fetch(`${API_BASE_URL}/api/v1/bookings/${editingBooking.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingForm)
+        });
+        const data = await res.json();
+        if (data.booking) {
+          setShowAddBookingModal(false);
+          setEditingBooking(null);
+          fetchData();
+        }
+      } else {
+        const res = await fetch(`${API_BASE_URL}/api/v1/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingForm)
+        });
+        const data = await res.json();
+        if (data.booking) {
+          setShowAddBookingModal(false);
+          fetchData();
+        }
+      }
+    } catch (err) {
+      alert('Failed to save booking');
+    }
+  };
+
+  const handleSaveBeneficiary = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/beneficiaries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBenForm)
+      });
+      const data = await res.json();
+      if (data.beneficiary) {
+        setShowAddBenModal(false);
+        fetchData();
+      }
+    } catch (err) {
+      alert('Error creating beneficiary');
+    }
+  };
+
+  // Filtered Beneficiaries matching tabs and search
+  const filteredBeneficiaries = beneficiaries.filter(b => {
+    const matchesTab = benTab === 'ALL' || 
+      (benTab === 'SENIOR' && b.category === 'Senior Citizen') ||
+      (benTab === 'DISABILITY' && b.category === 'Person with Disability');
+
+    const matchesCategory = benCategoryFilter === 'ALL' || b.category === benCategoryFilter;
+    const matchesStatus = benStatusFilter === 'ALL' || b.status === benStatusFilter;
+
+    const matchesQuery = !benSearchQuery || 
+      b.fullName.toLowerCase().includes(benSearchQuery.toLowerCase()) ||
+      b.refNumber.toLowerCase().includes(benSearchQuery.toLowerCase()) ||
+      b.primaryGuardian.toLowerCase().includes(benSearchQuery.toLowerCase()) ||
+      b.primaryContact.includes(benSearchQuery);
+
+    return matchesTab && matchesCategory && matchesStatus && matchesQuery;
+  });
+
   const handleBroadcastBooking = async (bookingId: string) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/bookings/${bookingId}/broadcast`, { method: 'POST' });
@@ -1078,37 +1205,308 @@ export default function App() {
 
           {/* OTHER SECTIONS */}
           {activeSection === 'beneficiaries' && (
-            <div className="data-table-card">
-              <div className="table-header">
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0B5D3B' }}>Beneficiaries & Families</h3>
-                <button className="btn-primary" onClick={() => setShowAddBenModal(true)}><Plus size={15} /> Add Beneficiary</button>
+            <div>
+              {/* Header Title with Add Beneficiary Button */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                <div>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B' }}>Beneficiaries & Families</h2>
+                  <p style={{ fontSize: '13px', color: '#6B7C72', marginTop: 2 }}>
+                    Manage all registered beneficiaries and their family/guardian details
+                  </p>
+                </div>
+                <button 
+                  className="btn-primary" 
+                  onClick={() => setShowAddBenModal(true)}
+                  style={{ padding: '10px 20px', fontSize: '14px' }}
+                >
+                  <Plus size={16} /> Add Beneficiary
+                </button>
               </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>BENEFICIARY</th>
-                    <th>CATEGORY</th>
-                    <th>AGE</th>
-                    <th>GUARDIAN</th>
-                    <th>PHONE</th>
-                    <th>ADDRESS</th>
-                    <th>STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {beneficiaries.map(ben => (
-                    <tr key={ben.id}>
-                      <td><strong>{ben.fullName}</strong></td>
-                      <td><span className="badge badge-success">{ben.category}</span></td>
-                      <td>{ben.age} yrs</td>
-                      <td>{ben.primaryGuardian} ({ben.relationship})</td>
-                      <td>{ben.primaryContact}</td>
-                      <td>{ben.address}</td>
-                      <td><span className="badge badge-success">{ben.status}</span></td>
+
+              {/* 4 Summary Cards at Top */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+                {/* 1. Total Beneficiaries */}
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Users size={22} color="#0B5D3B" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Total Beneficiaries</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>
+                      {analytics?.totalBeneficiaries ?? beneficiaries.length}
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#2E7D32', fontWeight: 600 }}>↑ +8.4% vs last month</span>
+                  </div>
+                </div>
+
+                {/* 2. Senior Citizens */}
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFEBEE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Users size={22} color="#C62828" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Senior Citizens</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>
+                      {analytics?.seniorCitizens ?? beneficiaries.filter(b => b.category === 'Senior Citizen').length}
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#6B7C72' }}>
+                      ({analytics?.seniorCitizensPct ?? 60}%)
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. Persons with Disabilities */}
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#E1F5FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Activity size={22} color="#0288D1" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Persons with Disabilities</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>
+                      {analytics?.personsWithDisabilities ?? beneficiaries.filter(b => b.category === 'Person with Disability').length}
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#6B7C72' }}>
+                      ({analytics?.personsWithDisabilitiesPct ?? 40}%)
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4. Family Members / Guardians */}
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFF8E6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ShieldCheck size={22} color="#F9B233" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Family Members / Guardians</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>
+                      {analytics?.activeGuardians ?? 3}
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#2E7D32', fontWeight: 600 }}>Active Contacts</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category Segment Tabs matching reference */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                <button 
+                  onClick={() => setBenTab('ALL')}
+                  style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: benTab === 'ALL' ? '#0B5D3B' : '#FFF', color: benTab === 'ALL' ? '#FFF' : '#1E2D24', fontWeight: 600, fontSize: '13px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+                >
+                  All Beneficiaries ({beneficiaries.length})
+                </button>
+                <button 
+                  onClick={() => setBenTab('SENIOR')}
+                  style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: benTab === 'SENIOR' ? '#0B5D3B' : '#FFF', color: benTab === 'SENIOR' ? '#FFF' : '#1E2D24', fontWeight: 600, fontSize: '13px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+                >
+                  Senior Citizens ({beneficiaries.filter(b => b.category === 'Senior Citizen').length})
+                </button>
+                <button 
+                  onClick={() => setBenTab('DISABILITY')}
+                  style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: benTab === 'DISABILITY' ? '#0B5D3B' : '#FFF', color: benTab === 'DISABILITY' ? '#FFF' : '#1E2D24', fontWeight: 600, fontSize: '13px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+                >
+                  Persons with Disabilities ({beneficiaries.filter(b => b.category === 'Person with Disability').length})
+                </button>
+              </div>
+
+              {/* Filter and Search Bar matching reference */}
+              <div style={{ background: '#FFF', borderRadius: 14, padding: '14px 18px', border: '1px solid #E5E9E6', marginBottom: 20, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+                  <Search size={15} color="#6B7C72" style={{ position: 'absolute', left: 12, top: 12 }} />
+                  <input 
+                    placeholder="Search by name, phone, or ID..."
+                    value={benSearchQuery}
+                    onChange={e => setBenSearchQuery(e.target.value)}
+                    style={{ width: '100%', padding: '9px 12px 9px 34px', borderRadius: 8, border: '1px solid #E5E9E6', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+
+                <select 
+                  value={benCategoryFilter} 
+                  onChange={e => setBenCategoryFilter(e.target.value)}
+                  style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                >
+                  <option value="ALL">Category: All</option>
+                  <option value="Senior Citizen">Category: Senior Citizen</option>
+                  <option value="Person with Disability">Category: Person with Disability</option>
+                </select>
+
+                <select style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}>
+                  <option>Age: All</option>
+                  <option>Below 40</option>
+                  <option>60 - 75</option>
+                  <option>75+</option>
+                </select>
+
+                <select style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}>
+                  <option>Area: All</option>
+                  <option>T.T.D. Colony</option>
+                  <option>Lakshmi Nagar</option>
+                  <option>Bhavani Nagar</option>
+                </select>
+
+                <select 
+                  value={benStatusFilter} 
+                  onChange={e => setBenStatusFilter(e.target.value)}
+                  style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                >
+                  <option value="ALL">Status: All</option>
+                  <option value="Active">Status: Active</option>
+                  <option value="Inactive">Status: Inactive</option>
+                </select>
+
+                <button 
+                  onClick={() => alert('Exporting beneficiary roster as CSV.')}
+                  style={{ background: '#FFF', border: '1px solid #E5E9E6', padding: '9px 16px', borderRadius: 8, fontSize: '13px', fontWeight: 600, color: '#1E2D24', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Download size={14} /> Export
+                </button>
+              </div>
+
+              {/* Beneficiaries Table */}
+              <div className="data-table-card">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style={{ width: 40 }}>
+                        <input 
+                          type="checkbox" 
+                          checked={selectedBenIds.length === filteredBeneficiaries.length && filteredBeneficiaries.length > 0}
+                          onChange={selectAllBens}
+                        />
+                      </th>
+                      <th>BENEFICIARY ⬍</th>
+                      <th>CATEGORY</th>
+                      <th>AGE</th>
+                      <th>PRIMARY GUARDIAN</th>
+                      <th>PHONE</th>
+                      <th>ADDRESS</th>
+                      <th>STATUS ⬍</th>
+                      <th>ACTIONS</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredBeneficiaries.map(ben => (
+                      <tr key={ben.id}>
+                        <td>
+                          <input 
+                            type="checkbox" 
+                            checked={selectedBenIds.includes(ben.id)}
+                            onChange={() => toggleSelectBen(ben.id)}
+                          />
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: ben.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '13px', color: '#0B5D3B' }}>
+                              {ben.fullName.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <strong style={{ fontSize: '13px' }}>{ben.fullName}</strong>
+                              <div style={{ fontSize: '11px', color: '#6B7C72' }}>{ben.refNumber}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: '11px', padding: '4px 10px', borderRadius: 9999, fontWeight: 600, background: ben.category === 'Senior Citizen' ? '#E8F5E9' : '#E1F5FE', color: ben.category === 'Senior Citizen' ? '#2E7D32' : '#0288D1', display: 'flex', alignItems: 'center', gap: 4 }}>
+                              {ben.category === 'Senior Citizen' ? 'Senior Citizen' : 'Person with Disability'}
+                            </span>
+                          </div>
+                        </td>
+                        <td>{ben.age} yrs</td>
+                        <td>{ben.primaryGuardian} ({ben.relationship})</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#1E2D24', fontSize: '12px' }}>
+                            <PhoneCall size={12} color="#6B7C72" />
+                            <span>{ben.primaryContact}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#6B7C72', fontSize: '12px' }}>
+                            <MapPin size={12} />
+                            <span>{ben.address}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '11px', padding: '4px 10px', borderRadius: 9999, fontWeight: 600, background: ben.status === 'Active' ? '#E8F5E9' : '#FFEBEE', color: ben.status === 'Active' ? '#2E7D32' : '#C62828' }}>
+                            {ben.status}
+                          </span>
+                        </td>
+                        <td style={{ position: 'relative' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <button 
+                              title="View Details"
+                              onClick={() => setSelectedBeneficiaryDetail(ben)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button 
+                              title="Edit Record"
+                              onClick={() => alert(`Editing profile for ${ben.fullName}`)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}
+                            >
+                              <Edit3 size={15} />
+                            </button>
+                            <button 
+                              onClick={() => setOpenBenActionId(openBenActionId === ben.id ? null : ben.id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}
+                            >
+                              <MoreVertical size={15} />
+                            </button>
+                          </div>
+
+                          {openBenActionId === ben.id && (
+                            <div style={{ position: 'absolute', right: 20, top: 38, background: '#FFF', border: '1px solid #E5E9E6', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 100, width: 140 }}>
+                              <button 
+                                onClick={() => {
+                                  setSelectedBeneficiaryDetail(ben);
+                                  setOpenBenActionId(null);
+                                }}
+                                style={{ width: '100%', padding: '8px 12px', background: 'none', border: 'none', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                              >
+                                View Profile
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                  if (window.confirm(`Deactivate ${ben.fullName}?`)) {
+                                    setBeneficiaries(prev => prev.map(b => b.id === ben.id ? { ...b, status: b.status === 'Active' ? 'Inactive' : 'Active' } : b));
+                                    setOpenBenActionId(null);
+                                  }
+                                }}
+                                style={{ width: '100%', padding: '8px 12px', background: 'none', border: 'none', textAlign: 'left', fontSize: '12px', cursor: 'pointer', color: '#C62828' }}
+                              >
+                                Toggle Status
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Pagination Footer */}
+                <div style={{ padding: '14px 20px', borderTop: '1px solid #E5E9E6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#6B7C72' }}>
+                  <span>Showing 1 – {filteredBeneficiaries.length} of {beneficiaries.length} beneficiaries</span>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span>Rows per page:</span>
+                    <select style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #E5E9E6', fontSize: '12px' }}>
+                      <option>10</option>
+                      <option>25</option>
+                      <option>50</option>
+                    </select>
+
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E5E9E6', background: '#FFF', cursor: 'pointer' }}>&lt;</button>
+                      <button style={{ width: 28, height: 28, borderRadius: 6, border: 'none', background: '#0B5D3B', color: '#FFF', fontWeight: 600, cursor: 'pointer' }}>1</button>
+                      <button style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E5E9E6', background: '#FFF', cursor: 'pointer' }}>2</button>
+                      <button style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E5E9E6', background: '#FFF', cursor: 'pointer' }}>3</button>
+                      <button style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E5E9E6', background: '#FFF', cursor: 'pointer' }}>&gt;</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1275,6 +1673,232 @@ export default function App() {
                 Confirm Add Caregiver
               </button>
             </form>
+          </div>
+        </div>
+      )}
+    
+      {/* MODAL 1: CREATE / EDIT CARE BOOKING */}
+      {showAddBookingModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 580, width: '100%', padding: 28, maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>
+                {editingBooking ? `Edit Booking ${editingBooking.bookingNumber}` : 'Create & Dispatch Care Booking'}
+              </h3>
+              <button onClick={() => setShowAddBookingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleSaveBooking}>
+              {/* Customer / Beneficiary Name with Auto Suggest */}
+              <div className="autosuggest-container" style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                  Customer / Beneficiary Name (Search & Auto-Suggest)
+                </label>
+                <input 
+                  required
+                  placeholder="Type to search (e.g. Saraswathi, Raghav, Anil)..." 
+                  value={beneficiaryQuery}
+                  onChange={e => handleBeneficiarySearch(e.target.value)}
+                  style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}
+                />
+                {showSuggestDropdown && suggestedBeneficiaries.length > 0 && (
+                  <div className="autosuggest-dropdown">
+                    {suggestedBeneficiaries.map(b => (
+                      <div 
+                        key={b.id} 
+                        className="autosuggest-item"
+                        onClick={() => selectSuggestedBeneficiary(b)}
+                      >
+                        <div>
+                          <strong>{b.fullName}</strong>
+                          <div style={{ fontSize: '11px', color: '#6B7C72' }}>{b.category === 'SENIOR_CITIZEN' ? 'Senior Citizen' : 'Person with Disability'} • Age: {b.age} • {b.address}</div>
+                        </div>
+                        <span style={{ fontSize: '11px', color: '#0B5D3B', fontWeight: 600 }}>Select</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Care Service</label>
+                  <select value={bookingForm.serviceName} onChange={e => setBookingForm({...bookingForm, serviceName: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="Household Support">Household Support (₹600)</option>
+                    <option value="Cooking Assistance">Cooking Assistance (₹450)</option>
+                    <option value="Companion Care">Companion Care (₹400)</option>
+                    <option value="Disability Support">Disability Support (₹500)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Funding Route</label>
+                  <select value={bookingForm.fundingType} onChange={e => setBookingForm({...bookingForm, fundingType: e.target.value as any})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="Trust Sponsored">Trust Sponsored (100% Free)</option>
+                    <option value="Family Paid">Family Paid (Full Fee)</option>
+                    <option value="Partially Sponsored">Partially Sponsored (75% Trust)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Payment Mode</label>
+                  <select value={bookingForm.paymentMode} onChange={e => setBookingForm({...bookingForm, paymentMode: e.target.value as any})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="TRUST_GRANT">Trust Grant / Subsidized</option>
+                    <option value="ONLINE_UPI">Online UPI (GPay / PhonePe)</option>
+                    <option value="CASH_ON_VISIT">Cash on Visit</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Payment Status</label>
+                  <select value={bookingForm.paymentStatus} onChange={e => setBookingForm({...bookingForm, paymentStatus: e.target.value as any})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="SUBSIDIZED">Subsidized (Covered by Trust)</option>
+                    <option value="PAID">Paid</option>
+                    <option value="PENDING">Pending</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Date</label>
+                  <input value={bookingForm.scheduledDate} onChange={e => setBookingForm({...bookingForm, scheduledDate: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Time Slot</label>
+                  <input value={bookingForm.scheduledTimeSlot} onChange={e => setBookingForm({...bookingForm, scheduledTimeSlot: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Assigned Caregiver</label>
+                  <select value={bookingForm.caregiverName} onChange={e => setBookingForm({...bookingForm, caregiverName: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="Unassigned">Unassigned (Awaiting Assignment)</option>
+                    {caregivers.map(cg => (
+                      <option key={cg.id} value={cg.fullName}>{cg.fullName} ({cg.employmentType})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Booking Status</label>
+                  <select value={bookingForm.status} onChange={e => setBookingForm({...bookingForm, status: e.target.value as any})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Awaiting Assignment">Awaiting Assignment</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Service Address</label>
+                <input required value={bookingForm.serviceAddress} onChange={e => setBookingForm({...bookingForm, serviceAddress: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 12 }}>
+                {editingBooking ? 'Save Changes' : 'Confirm & Dispatch Booking'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: REGISTER NEW BENEFICIARY */}
+      {showAddBenModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 540, width: '100%', padding: 28 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>Register New Beneficiary</h3>
+              <button onClick={() => setShowAddBenModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleSaveBeneficiary}>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Full Name</label>
+                <input required value={newBenForm.fullName} onChange={e => setNewBenForm({...newBenForm, fullName: e.target.value})} placeholder="e.g. Saraswathi Garu" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Category</label>
+                  <select value={newBenForm.category} onChange={e => setNewBenForm({...newBenForm, category: e.target.value as any})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="Senior Citizen">Senior Citizen</option>
+                    <option value="Person with Disability">Person with Disability</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Age</label>
+                  <input required type="number" value={newBenForm.age} onChange={e => setNewBenForm({...newBenForm, age: e.target.value})} placeholder="68" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+                </div>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Primary Contact Phone</label>
+                <input required value={newBenForm.primaryContact} onChange={e => setNewBenForm({...newBenForm, primaryContact: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Address</label>
+                <input required value={newBenForm.address} onChange={e => setNewBenForm({...newBenForm, address: e.target.value})} placeholder="T.T.D. Colony, Tirupati" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+              </div>
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 12 }}>
+                Confirm Registration
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: BENEFICIARY PROFILE DETAILS */}
+      {selectedBeneficiaryDetail && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 500, width: '100%', padding: 28 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>Beneficiary Profile Details</h3>
+              <button onClick={() => setSelectedBeneficiaryDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+              <div style={{ width: 50, height: 50, borderRadius: '50%', background: selectedBeneficiaryDetail.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '18px', color: '#0B5D3B' }}>
+                {selectedBeneficiaryDetail.fullName.substring(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <h4 style={{ fontSize: '16px', fontWeight: 700 }}>{selectedBeneficiaryDetail.fullName}</h4>
+                <p style={{ fontSize: '12px', color: '#6B7C72' }}>{selectedBeneficiaryDetail.refNumber} • {selectedBeneficiaryDetail.category}</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '13px', background: '#FAFBF9', padding: 16, borderRadius: 12, border: '1px solid #E5E9E6' }}>
+              <div><strong>Age / Gender:</strong> {selectedBeneficiaryDetail.age} yrs • {selectedBeneficiaryDetail.gender}</div>
+              <div><strong>Primary Guardian:</strong> {selectedBeneficiaryDetail.primaryGuardian} ({selectedBeneficiaryDetail.relationship})</div>
+              <div><strong>Phone Contact:</strong> {selectedBeneficiaryDetail.primaryContact}</div>
+              <div><strong>Address:</strong> {selectedBeneficiaryDetail.address}</div>
+              <div><strong>Care & Accessibility Needs:</strong> {selectedBeneficiaryDetail.accessibilityNeeds}</div>
+              <div><strong>Status:</strong> <span className={`badge ${selectedBeneficiaryDetail.status === 'Active' ? 'badge-success' : 'badge-danger'}`}>{selectedBeneficiaryDetail.status}</span></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+            {/* MODAL: CAREGIVER DETAIL PROFILE */}
+      {selectedCaregiverDetail && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 500, width: '100%', padding: 28 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>Caregiver Profile</h3>
+              <button onClick={() => setSelectedCaregiverDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+              <div style={{ width: 50, height: 50, borderRadius: '50%', background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '18px', color: '#0B5D3B' }}>
+                {selectedCaregiverDetail.fullName.substring(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <h4 style={{ fontSize: '16px', fontWeight: 700 }}>{selectedCaregiverDetail.fullName}</h4>
+                <p style={{ fontSize: '12px', color: '#6B7C72' }}>{selectedCaregiverDetail.staffId} • {selectedCaregiverDetail.employmentType}</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '13px', background: '#FAFBF9', padding: 16, borderRadius: 12, border: '1px solid #E5E9E6' }}>
+              <div><strong>Rating:</strong> ★ {selectedCaregiverDetail.rating} ({selectedCaregiverDetail.reviewCount || 120} reviews)</div>
+              <div><strong>Service Zone:</strong> {selectedCaregiverDetail.zone}</div>
+              <div><strong>Phone Contact:</strong> {selectedCaregiverDetail.phone}</div>
+              <div><strong>Availability Status:</strong> <span className="badge badge-success">{selectedCaregiverDetail.availability}</span></div>
+              <div><strong>Verification:</strong> <span className="badge badge-success">✓ Background Verified</span></div>
+            </div>
           </div>
         </div>
       )}
