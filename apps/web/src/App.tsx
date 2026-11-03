@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import './style.css';
 
-type NavSection = 'overview' | 'bookings' | 'beneficiaries' | 'workforce' | 'funding' | 'sos' | 'audit';
+type NavSection = 'overview' | 'map' | 'bookings' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'staff' | 'funding' | 'sos' | 'audit';
 
 interface UserSession {
   id: string;
@@ -63,6 +63,44 @@ export default function App() {
   const [selectedBenIds, setSelectedBenIds] = useState<string[]>([]);
   const [openBenActionId, setOpenBenActionId] = useState<string | null>(null);
   const [selectedBeneficiaryDetail, setSelectedBeneficiaryDetail] = useState<any | null>(null);
+
+  // 200% Modules State
+  const [caregiverPayouts, setCaregiverPayouts] = useState<any[]>([]);
+  const [paymentTransactions, setPaymentTransactions] = useState<any[]>([]);
+  const [staffList, setStaffList] = useState<any[]>([]);
+  const [selectedTrackingBooking, setSelectedTrackingBooking] = useState<any | null>(null);
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+
+  // 4-Step Caregiver Wizard State (Matching Image)
+  const [cgWizardStep, setCgWizardStep] = useState<number>(1);
+  const [cgWizardForm, setCgWizardForm] = useState({
+    fullName: 'Anitha',
+    gender: 'Female',
+    dateOfBirth: '1990-03-12',
+    age: 36,
+    phone: '+91 98765 11111',
+    alternatePhone: '+91 91234 56789',
+    email: 'anitha.care@gmail.com',
+    languages: ['Telugu', 'English', 'Hindi'],
+    address: '#12-4-56, T.T.D. Colony, Tirupati - 517501, Andhra Pradesh',
+    zone: 'Tirupati Urban',
+    pincode: '517501',
+    employmentType: 'Salaried',
+    skills: ['Elder Companionship', 'Cooking Assistance', 'Mobility Support'],
+    experienceYears: 6,
+    aadhaarNumber: 'XXXX-XXXX-4589',
+    policeClearanceStatus: 'Verified',
+    workingShift: 'Morning (08:00 AM - 02:00 PM)'
+  });
+
+  const [newStaffForm, setNewStaffForm] = useState({
+    fullName: '',
+    role: 'Trust Care Coordinator',
+    phone: '',
+    email: '',
+    serviceZone: 'Tirupati Urban'
+  });
+
   const [editingBooking, setEditingBooking] = useState<any | null>(null);
 
   // Form State for Add Beneficiary
@@ -118,14 +156,17 @@ export default function App() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [analyticsRes, benRes, bkRes, cgRes, spRes, sosRes, audRes] = await Promise.all([
+      const [analyticsRes, benRes, bkRes, cgRes, spRes, sosRes, audRes, payRes, txRes, stRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/v1/analytics`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/beneficiaries`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/bookings`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/caregivers`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/sponsorship`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/sos/queue`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE_URL}/api/v1/audit-logs`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE_URL}/api/v1/audit-logs`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE_URL}/api/v1/caregiver-payouts`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE_URL}/api/v1/payments`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE_URL}/api/v1/staff`).then(r => r.json()).catch(() => null)
       ]);
 
       if (analyticsRes?.data) setAnalytics(analyticsRes.data);
@@ -135,6 +176,9 @@ export default function App() {
       if (spRes?.applications) setSponsorships(spRes.applications);
       if (sosRes?.queue) setSosQueue(sosRes.queue);
       if (audRes?.auditLogs) setAuditLogs(audRes.auditLogs);
+      if (payRes?.payouts) setCaregiverPayouts(payRes.payouts);
+      if (txRes?.payments) setPaymentTransactions(txRes.payments);
+      if (stRes?.staff) setStaffList(stRes.staff);
     } catch (e) {
       console.error('Fetch error:', e);
     } finally {
@@ -408,6 +452,11 @@ export default function App() {
             <TrendingUp size={18} />
             <span>Overview & Analytics</span>
           </button>
+          
+          <button className={`nav-link ${activeSection === 'map' ? 'active' : ''}`} onClick={() => setActiveSection('map')}>
+            <MapPin size={18} />
+            <span>Live Dispatch Map</span>
+          </button>
           <button className={`nav-link ${activeSection === 'bookings' ? 'active' : ''}`} onClick={() => setActiveSection('bookings')}>
             <Calendar size={18} />
             <span>Care Bookings</span>
@@ -419,6 +468,19 @@ export default function App() {
           <button className={`nav-link ${activeSection === 'workforce' ? 'active' : ''}`} onClick={() => setActiveSection('workforce')}>
             <ShieldCheck size={18} />
             <span>Caregiver Workforce</span>
+          </button>
+          
+          <button className={`nav-link ${activeSection === 'earnings' ? 'active' : ''}`} onClick={() => setActiveSection('earnings')}>
+            <Award size={18} />
+            <span>Caregiver Earnings</span>
+          </button>
+          <button className={`nav-link ${activeSection === 'payments' ? 'active' : ''}`} onClick={() => setActiveSection('payments')}>
+            <DollarSign size={18} />
+            <span>Billing & Payments</span>
+          </button>
+          <button className={`nav-link ${activeSection === 'staff' ? 'active' : ''}`} onClick={() => setActiveSection('staff')}>
+            <Users size={18} />
+            <span>Trust Staff Directory</span>
           </button>
           <button className={`nav-link ${activeSection === 'funding' ? 'active' : ''}`} onClick={() => setActiveSection('funding')}>
             <DollarSign size={18} />
@@ -461,6 +523,11 @@ export default function App() {
           <div>
             <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>
               {activeSection === 'workforce' && 'Caregiver Workforce'}
+              {activeSection === 'map' && 'Fleet Geo-Operations & Live Dispatch Map'}
+              {activeSection === 'earnings' && 'Caregiver Earnings & Payout Requests'}
+              {activeSection === 'payments' && 'Financial Ledger & Invoices'}
+              {activeSection === 'staff' && 'Trust Staff Management & Operations'}
+
               {activeSection === 'bookings' && 'Care Service Bookings & Dispatch Board'}
               {activeSection === 'beneficiaries' && 'Beneficiaries & Families'}
               {activeSection === 'overview' && 'Overview & Analytics'}
@@ -824,6 +891,186 @@ export default function App() {
           {/* ========================================================================= */}
           {/* 2. CARE SERVICE BOOKINGS & DISPATCH (WITH ASSIGN & BROADCAST FEATURES!)   */}
           {/* ========================================================================= */}
+          
+          {/* ========================================================================= */}
+          {/* DISPATCH CENTER & LIVE TRACKING MAP (REAL-TIME TIRUPATI FLEET)           */}
+          {/* ========================================================================= */}
+          {activeSection === 'map' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B' }}>Live Dispatch & Fleet Map</h2>
+                  <p style={{ fontSize: '13px', color: '#6B7C72', marginTop: 2 }}>
+                    Real-time GPS positions of caregivers and beneficiary residences across Tirupati service zones
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button 
+                    onClick={() => setActiveSection('bookings')}
+                    className="btn-primary"
+                    style={{ padding: '8px 16px', fontSize: '13px' }}
+                  >
+                    View All Bookings
+                  </button>
+                </div>
+              </div>
+
+              {/* Map Canvas with SVG Grid & Simulated Live GPS Pins */}
+              <div className="map-canvas-container" style={{ position: 'relative', height: 500, background: '#E2EAE5', borderRadius: 16, overflow: 'hidden', border: '1px solid #C8D6CD' }}>
+                {/* SVG Map Grid Background representing Tirupati Area */}
+                <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, opacity: 0.25 }}>
+                  <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0B5D3B" strokeWidth="1" />
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#grid)" />
+                  {/* Roadways Simulation */}
+                  <path d="M 0 250 Q 250 200, 500 260 T 1000 240" fill="none" stroke="#FFF" strokeWidth="12" />
+                  <path d="M 0 250 Q 250 200, 500 260 T 1000 240" fill="none" stroke="#A7C4B5" strokeWidth="6" />
+                  <path d="M 350 0 L 400 600" fill="none" stroke="#FFF" strokeWidth="10" />
+                  <path d="M 350 0 L 400 600" fill="none" stroke="#A7C4B5" strokeWidth="5" />
+                </svg>
+
+                {/* Tirupati Zone Label Overlays */}
+                <div style={{ position: 'absolute', top: 20, left: 24, background: 'rgba(255,255,255,0.9)', padding: '6px 14px', borderRadius: 10, fontSize: '12px', fontWeight: 700, color: '#0B5D3B', border: '1px solid #D1DDD5' }}>
+                  📍 Tirupati Urban Core • T.T.D. Colony
+                </div>
+                <div style={{ position: 'absolute', bottom: 20, left: 24, background: 'rgba(255,255,255,0.9)', padding: '8px 16px', borderRadius: 12, fontSize: '11px', color: '#4A5D52', border: '1px solid #D1DDD5' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 4 }}>Map Legend:</div>
+                  <div style={{ display: 'flex', gap: 14 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#2E7D32' }}></span> Beneficiary Home</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#F9B233' }}></span> Caregiver In-Transit</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#0288D1' }}></span> Active On-Visit</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#C62828' }}></span> SOS Alert</span>
+                  </div>
+                </div>
+
+                {/* Beneficiary Pins */}
+                {beneficiaries.map((b, idx) => {
+                  const top = 150 + (idx * 55) % 300;
+                  const left = 200 + (idx * 140) % 650;
+                  return (
+                    <div 
+                      key={b.id} 
+                      onClick={() => setSelectedBeneficiaryDetail(b)}
+                      style={{ position: 'absolute', top, left, transform: 'translate(-50%, -50%)', cursor: 'pointer', zIndex: 10 }}
+                      title={`Beneficiary: ${b.fullName} (${b.address})`}
+                    >
+                      <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#2E7D32', border: '3px solid #FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
+                        <Users size={16} />
+                      </div>
+                      <div style={{ background: 'rgba(0,0,0,0.75)', color: '#FFF', padding: '2px 8px', borderRadius: 4, fontSize: '10px', marginTop: 4, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        {b.fullName}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Active Caregivers Pins with Transit Radar Pulse */}
+                {caregivers.filter(c => c.availability === 'On Duty').map((c, idx) => {
+                  const top = 200 + (idx * 90) % 250;
+                  const left = 280 + (idx * 180) % 600;
+                  return (
+                    <div 
+                      key={c.id} 
+                      onClick={() => setSelectedCaregiverDetail(c)}
+                      style={{ position: 'absolute', top, left, transform: 'translate(-50%, -50%)', cursor: 'pointer', zIndex: 20 }}
+                      title={`Caregiver: ${c.fullName} (${c.zone})`}
+                    >
+                      <div className="map-radar-pulse" style={{ background: '#F9B233', left: '50%', top: '50%' }}></div>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F9B233', border: '3px solid #FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+                        <ShieldCheck size={18} />
+                      </div>
+                      <div style={{ background: '#0B5D3B', color: '#FFF', padding: '2px 8px', borderRadius: 4, fontSize: '10px', marginTop: 4, textAlign: 'center', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                        {c.fullName} (In Transit)
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Active SOS Beacon (if any) */}
+                {sosQueue.filter(s => s.status !== 'RESOLVED').map((s) => (
+                  <div key={s.id} style={{ position: 'absolute', top: 220, left: 320, transform: 'translate(-50%, -50%)', cursor: 'pointer', zIndex: 30 }}>
+                    <div className="map-radar-pulse map-sos-pulse" style={{ background: '#C62828', left: '50%', top: '50%' }}></div>
+                    <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#C62828', border: '3px solid #FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', boxShadow: '0 6px 16px rgba(198,40,40,0.5)' }}>
+                      <AlertTriangle size={22} />
+                    </div>
+                    <div style={{ background: '#C62828', color: '#FFF', padding: '3px 8px', borderRadius: 4, fontSize: '10px', marginTop: 4, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      EMERGENCY: {s.beneficiaryName}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom Cards: Live Care Active Visits & Breadcrumb Details */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18, marginTop: 20 }}>
+                <div className="data-table-card">
+                  <div className="table-header">
+                    <div>
+                      <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0B5D3B' }}>Active Live Care Visits</h3>
+                      <p style={{ fontSize: '12px', color: '#6B7C72' }}>Ongoing assignments with live ETA and geo-fence check-in</p>
+                    </div>
+                  </div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Booking</th>
+                        <th>Beneficiary</th>
+                        <th>Caregiver</th>
+                        <th>Distance & ETA</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings.filter(b => b.status === 'In Progress' || b.status === 'Confirmed').map(b => (
+                        <tr key={b.id}>
+                          <td><strong>{b.bookingNumber}</strong></td>
+                          <td>{b.beneficiaryName}</td>
+                          <td><strong>{b.caregiverName}</strong></td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', color: '#0B5D3B', fontWeight: 600 }}>
+                              <Clock size={13} /> {b.caregiverEtaMinutes || 10} mins ({b.geoDistanceKm || 0.8} km)
+                            </div>
+                          </td>
+                          <td>
+                            <button 
+                              onClick={() => setSelectedTrackingBooking(b)}
+                              style={{ background: '#E8F5E9', border: '1px solid #C8E6C9', color: '#0B5D3B', padding: '4px 10px', borderRadius: 6, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                            >
+                              Live Drawer
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Service Zones Coverage stats */}
+                <div style={{ background: '#FFF', borderRadius: 16, padding: 20, border: '1px solid #E5E9E6' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#1E2D24', marginBottom: 14 }}>Tirupati Zone Health</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#FAFBF9', borderRadius: 8 }}>
+                      <span>Tirupati Urban:</span>
+                      <strong style={{ color: '#0B5D3B' }}>2 Active Visits • 1 Available</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#FAFBF9', borderRadius: 8 }}>
+                      <span>T.T.D. Colony:</span>
+                      <strong style={{ color: '#0B5D3B' }}>1 Active Visit • 1 Gig Broadcast</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#FAFBF9', borderRadius: 8 }}>
+                      <span>Tirupati West:</span>
+                      <strong style={{ color: '#0B5D3B' }}>1 On Standby (Salaried)</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+
           {activeSection === 'bookings' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
@@ -1204,6 +1451,305 @@ export default function App() {
           )}
 
           {/* OTHER SECTIONS */}
+          
+          {/* ========================================================================= */}
+          {/* CAREGIVER EARNINGS & PAYOUT REQUESTS SCREEN                                */}
+          {/* ========================================================================= */}
+          {activeSection === 'earnings' && (
+            <div>
+              {/* 4 Summary Metric Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFF3E0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Clock size={22} color="#E65100" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Pending Requests</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>
+                      {caregiverPayouts.filter(p => p.status === 'PENDING').length}
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#E65100', fontWeight: 600 }}>
+                      ₹{caregiverPayouts.filter(p => p.status === 'PENDING').reduce((s, p) => s + p.amountInr, 0).toLocaleString()} awaiting approval
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CheckCircle2 size={22} color="#0B5D3B" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Disbursed This Month</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>
+                      ₹{caregiverPayouts.filter(p => p.status === 'DISBURSED').reduce((s, p) => s + p.amountInr, 0).toLocaleString()}
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#2E7D32', fontWeight: 600 }}>100% on-time bank transfers</span>
+                  </div>
+                </div>
+
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#E1F5FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <DollarSign size={22} color="#0288D1" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Total Caregiver Pool</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>{caregivers.length}</h3>
+                    <span style={{ fontSize: '11px', color: '#6B7C72' }}>Salaried + Verified Gig</span>
+                  </div>
+                </div>
+
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#EDE7F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Award size={22} color="#512DA8" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#6B7C72' }}>Rating Incentives</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#1E2D24', margin: '2px 0' }}>₹1,500</h3>
+                    <span style={{ fontSize: '11px', color: '#512DA8', fontWeight: 600 }}>Earned for 4.9+ star service</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payout Requests Data Table */}
+              <div className="data-table-card">
+                <div className="table-header">
+                  <div>
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0B5D3B' }}>Caregiver Withdrawal & Payout Requests</h3>
+                    <p style={{ fontSize: '12px', color: '#6B7C72' }}>Review and approve requested shift payouts and monthly salaries</p>
+                  </div>
+                </div>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ref</th>
+                      <th>Caregiver</th>
+                      <th>Pay Period</th>
+                      <th>Visits / Hours</th>
+                      <th>Bank / UPI</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {caregiverPayouts.map(pay => (
+                      <tr key={pay.id}>
+                        <td><strong>{pay.id}</strong></td>
+                        <td>
+                          <strong>{pay.caregiverName}</strong>
+                          <div style={{ fontSize: '11px', color: '#6B7C72' }}>{pay.caregiverRef}</div>
+                        </td>
+                        <td>{pay.payPeriod}</td>
+                        <td>
+                          <div>{pay.visitsCount} visits</div>
+                          <div style={{ fontSize: '11px', color: '#6B7C72' }}>{pay.hoursLogged} hours logged</div>
+                        </td>
+                        <td>
+                          <div>{pay.upiId}</div>
+                          <div style={{ fontSize: '11px', color: '#6B7C72' }}>{pay.bankName} ({pay.accountNumberMasked})</div>
+                        </td>
+                        <td><strong style={{ fontSize: '14px', color: '#0B5D3B' }}>₹{pay.amountInr.toLocaleString()}</strong></td>
+                        <td>
+                          <span className={`badge ${pay.status === 'DISBURSED' ? 'badge-success' : pay.status === 'APPROVED' ? 'badge-primary' : 'badge-warning'}`}>
+                            {pay.status}
+                          </span>
+                        </td>
+                        <td>
+                          {pay.status === 'PENDING' && (
+                            <button 
+                              onClick={async () => {
+                                const txn = prompt('Enter Bank Transaction Ref (e.g. TXN-SBI-991204):', 'TXN-SBI-' + Math.floor(100000 + Math.random() * 900000));
+                                if (txn) {
+                                  await fetch(`${API_BASE_URL}/api/v1/caregiver-payouts/${pay.id}/decision`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ decision: 'DISBURSED', txnRef: txn })
+                                  });
+                                  fetchData();
+                                }
+                              }}
+                              style={{ background: '#0B5D3B', color: '#FFF', border: 'none', padding: '6px 12px', borderRadius: 6, fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                            >
+                              Approve & Disburse
+                            </button>
+                          )}
+                          {pay.status === 'DISBURSED' && (
+                            <span style={{ fontSize: '11px', color: '#6B7C72' }}>Ref: {pay.txnRef}</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+
+          
+          {/* ========================================================================= */}
+          {/* PAYMENTS, BILLING & SUBSIDY LEDGER                                        */}
+          {/* ========================================================================= */}
+          {activeSection === 'payments' && (
+            <div>
+              {/* 3 Overview Metric Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7C72' }}>Total Family Collections (UPI / Cash)</span>
+                  <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#0B5D3B', margin: '4px 0' }}>
+                    ₹{paymentTransactions.filter(t => t.status === 'COMPLETED').reduce((s, t) => s + t.amountInr, 0).toLocaleString()}
+                  </h3>
+                  <span style={{ fontSize: '11px', color: '#2E7D32', fontWeight: 600 }}>100% verified settlement</span>
+                </div>
+
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7C72' }}>Trust Endowed Subsidies Absorbed</span>
+                  <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#D81B60', margin: '4px 0' }}>
+                    ₹{paymentTransactions.reduce((s, t) => s + t.subsidyInr, 0).toLocaleString()}
+                  </h3>
+                  <span style={{ fontSize: '11px', color: '#6B7C72' }}>Covered by Sri Divyang Seva Kendram Trust</span>
+                </div>
+
+                <div style={{ background: '#FFF', borderRadius: 14, padding: 18, border: '1px solid #E5E9E6' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7C72' }}>Pending Family Invoices</span>
+                  <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#F9B233', margin: '4px 0' }}>
+                    ₹{paymentTransactions.filter(t => t.status === 'PENDING').reduce((s, t) => s + t.amountInr, 0).toLocaleString()}
+                  </h3>
+                  <span style={{ fontSize: '11px', color: '#E65100', fontWeight: 600 }}>Awaiting UPI confirmation</span>
+                </div>
+              </div>
+
+              {/* Transactions Ledger Table */}
+              <div className="data-table-card">
+                <div className="table-header">
+                  <div>
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0B5D3B' }}>Central Financial Ledger & Invoices</h3>
+                    <p style={{ fontSize: '12px', color: '#6B7C72' }}>Live payment transactions, Trust grant offsets, and official receipts</p>
+                  </div>
+                  <button 
+                    onClick={() => alert('Exporting full ledger to CSV...')}
+                    style={{ background: '#FFF', border: '1px solid #E5E9E6', borderRadius: 8, padding: '8px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <Download size={14} /> Export CSV
+                  </button>
+                </div>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Invoice #</th>
+                      <th>Beneficiary & Guardian</th>
+                      <th>Care Service</th>
+                      <th>Amount Paid</th>
+                      <th>Trust Subsidy</th>
+                      <th>Mode & Gateway</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paymentTransactions.map(tx => (
+                      <tr key={tx.id}>
+                        <td><strong>{tx.invoiceNumber}</strong><div style={{ fontSize: '11px', color: '#6B7C72' }}>{tx.txnRef}</div></td>
+                        <td>
+                          <strong>{tx.beneficiaryName}</strong>
+                          <div style={{ fontSize: '11px', color: '#6B7C72' }}>Guardian: {tx.guardianName} ({tx.payerContact})</div>
+                        </td>
+                        <td>{tx.bookingNumber}</td>
+                        <td><strong style={{ fontSize: '13px' }}>₹{tx.amountInr}</strong></td>
+                        <td><span style={{ color: '#0B5D3B', fontWeight: 600 }}>₹{tx.subsidyInr} (Free)</span></td>
+                        <td>
+                          <div>{tx.paymentMode}</div>
+                          <div style={{ fontSize: '11px', color: '#6B7C72' }}>{tx.paymentGateway}</div>
+                        </td>
+                        <td>
+                          <span className={`badge ${tx.status === 'COMPLETED' ? 'badge-success' : tx.status === 'SUBSIDIZED' ? 'badge-primary' : 'badge-warning'}`}>
+                            {tx.status}
+                          </span>
+                        </td>
+                        <td>
+                          <button 
+                            onClick={() => alert(`Official Receipt generated for ${tx.invoiceNumber}. Trust 80G tax exemption details included.`)}
+                            style={{ background: '#FAFBF9', border: '1px solid #E5E9E6', padding: '6px 10px', borderRadius: 6, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Receipt
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+
+          
+          {/* ========================================================================= */}
+          {/* STAFF MANAGEMENT & SUPERVISOR ROLES                                       */}
+          {/* ========================================================================= */}
+          {activeSection === 'staff' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B' }}>Trust Internal Staff & Supervisors</h2>
+                  <p style={{ fontSize: '13px', color: '#6B7C72', marginTop: 2 }}>
+                    Manage administrators, clinical supervisors, and coordinators of Sri Divyang Seva Kendram Trust
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setShowAddStaffModal(true)}
+                  className="btn-primary"
+                  style={{ padding: '10px 20px', fontSize: '14px' }}
+                >
+                  <Plus size={16} /> Add Staff Member
+                </button>
+              </div>
+
+              {/* Staff Directory Table */}
+              <div className="data-table-card">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Staff ID</th>
+                      <th>Name & Contact</th>
+                      <th>Role</th>
+                      <th>Department</th>
+                      <th>Service Zone</th>
+                      <th>Shift Timing</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {staffList.map(st => (
+                      <tr key={st.id}>
+                        <td><strong>{st.staffId}</strong></td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#0B5D3B', fontSize: '12px' }}>
+                              {st.fullName.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <strong>{st.fullName}</strong>
+                              <div style={{ fontSize: '11px', color: '#6B7C72' }}>{st.email} • {st.phone}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td><span className="badge badge-primary">{st.role}</span></td>
+                        <td>{st.department}</td>
+                        <td>{st.serviceZone}</td>
+                        <td>{st.shiftTiming}</td>
+                        <td><span className="badge badge-success">{st.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+
           {activeSection === 'beneficiaries' && (
             <div>
               {/* Header Title with Add Beneficiary Button */}
@@ -1631,52 +2177,543 @@ export default function App() {
       )}
 
       {/* MODAL: ADD CAREGIVER */}
+      
+      {/* ========================================================================= */}
+      {/* 4-STEP CAREGIVER REGISTRATION WIZARD (EXACT MATCH TO USER REFERENCE IMAGE) */}
+      {/* ========================================================================= */}
       {showAddCaregiverModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 480, width: '100%', padding: 28 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ background: '#FFF', borderRadius: 24, maxWidth: 960, width: '100%', maxHeight: '92vh', overflowY: 'auto', padding: '28px 32px', boxShadow: '0 20px 50px rgba(0,0,0,0.25)' }}>
+            
+            {/* Top Bar with Back Arrow, Title & Subtitle */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>Add Caregiver to Roster</h3>
-              <button onClick={() => setShowAddCaregiverModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              await fetch(`${API_BASE_URL}/api/v1/caregivers`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newCgForm)
-              });
-              setShowAddCaregiverModal(false);
-              fetchData();
-            }}>
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Full Name</label>
-                <input required value={newCgForm.fullName} onChange={e => setNewCgForm({...newCgForm, fullName: e.target.value})} placeholder="e.g. Radhika S." style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <button 
+                  onClick={() => setShowAddCaregiverModal(false)}
+                  style={{ width: 38, height: 38, borderRadius: 10, border: '1px solid #E5E9E6', background: '#FAFBF9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                >
+                  <ChevronLeft size={20} color="#1E2D24" />
+                </button>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Employment Type</label>
-                  <select value={newCgForm.employmentType} onChange={e => setNewCgForm({...newCgForm, employmentType: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
-                    <option value="Salaried">Salaried Staff</option>
-                    <option value="Freelance / Gig">Freelance / Gig</option>
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0B5D3B' }}>Add Caregiver</h2>
+                  <p style={{ fontSize: '12px', color: '#6B7C72', marginTop: 2 }}>
+                    Register a new caregiver to your workforce
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <button 
+                  onClick={() => setShowAddCaregiverModal(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7C72' }}
+                >
+                  <X size={22} />
+                </button>
+              </div>
+            </div>
+
+            {/* Stepper Navigation matching image */}
+            <div className="stepper-header">
+              <div className={`step-item ${cgWizardStep === 1 ? 'active' : ''}`} onClick={() => setCgWizardStep(1)}>
+                <span className={`step-badge ${cgWizardStep > 1 ? 'completed' : ''}`}>1</span>
+                <span>Basic Details</span>
+              </div>
+              <ChevronRight size={14} color="#9EAFA5" />
+
+              <div className={`step-item ${cgWizardStep === 2 ? 'active' : ''}`} onClick={() => setCgWizardStep(2)}>
+                <span className={`step-badge ${cgWizardStep > 2 ? 'completed' : ''}`}>2</span>
+                <span>Professional Details</span>
+              </div>
+              <ChevronRight size={14} color="#9EAFA5" />
+
+              <div className={`step-item ${cgWizardStep === 3 ? 'active' : ''}`} onClick={() => setCgWizardStep(3)}>
+                <span className={`step-badge ${cgWizardStep > 3 ? 'completed' : ''}`}>3</span>
+                <span>Verification & Documents</span>
+              </div>
+              <ChevronRight size={14} color="#9EAFA5" />
+
+              <div className={`step-item ${cgWizardStep === 4 ? 'active' : ''}`} onClick={() => setCgWizardStep(4)}>
+                <span className="step-badge">4</span>
+                <span>Availability & Preferences</span>
+              </div>
+            </div>
+
+            {/* STEP 1: BASIC DETAILS (EXACT CLONE OF REFERENCE IMAGE) */}
+            {cgWizardStep === 1 && (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 28 }}>
+                  {/* Left Column: Form Fields */}
+                  <div>
+                    <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Basic Details</h3>
+                    <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                      Enter the caregiver's personal and contact information
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Full Name <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <input 
+                          required
+                          value={cgWizardForm.fullName}
+                          onChange={e => setCgWizardForm({ ...cgWizardForm, fullName: e.target.value })}
+                          placeholder="e.g. Anitha"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Gender <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14, height: 40 }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', cursor: 'pointer' }}>
+                            <input 
+                              type="radio" 
+                              name="cgGender" 
+                              checked={cgWizardForm.gender === 'Male'} 
+                              onChange={() => setCgWizardForm({ ...cgWizardForm, gender: 'Male' })} 
+                            />
+                            <span>Male</span>
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', cursor: 'pointer' }}>
+                            <input 
+                              type="radio" 
+                              name="cgGender" 
+                              checked={cgWizardForm.gender === 'Female'} 
+                              onChange={() => setCgWizardForm({ ...cgWizardForm, gender: 'Female' })} 
+                            />
+                            <span>Female</span>
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', cursor: 'pointer' }}>
+                            <input 
+                              type="radio" 
+                              name="cgGender" 
+                              checked={cgWizardForm.gender === 'Other'} 
+                              onChange={() => setCgWizardForm({ ...cgWizardForm, gender: 'Other' })} 
+                            />
+                            <span>Other</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Date of Birth <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <Calendar size={16} color="#6B7C72" style={{ position: 'absolute', left: 12, top: 12 }} />
+                          <input 
+                            type="date"
+                            value={cgWizardForm.dateOfBirth}
+                            onChange={e => {
+                              const dob = e.target.value;
+                              const birthYear = new Date(dob).getFullYear();
+                              const currentYear = new Date().getFullYear();
+                              const calcAge = currentYear - birthYear;
+                              setCgWizardForm({ ...cgWizardForm, dateOfBirth: dob, age: calcAge > 0 ? calcAge : 30 });
+                            }}
+                            style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Age
+                        </label>
+                        <input 
+                          readOnly
+                          value={`${cgWizardForm.age} yrs`}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#F5F7F6', fontSize: '13px', color: '#4A5D52' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Phone Number <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <PhoneCall size={15} color="#6B7C72" style={{ position: 'absolute', left: 12, top: 12 }} />
+                          <input 
+                            required
+                            value={cgWizardForm.phone}
+                            onChange={e => setCgWizardForm({ ...cgWizardForm, phone: e.target.value })}
+                            placeholder="+91 98765 11111"
+                            style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Alternate Phone (Optional)
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <PhoneCall size={15} color="#6B7C72" style={{ position: 'absolute', left: 12, top: 12 }} />
+                          <input 
+                            value={cgWizardForm.alternatePhone}
+                            onChange={e => setCgWizardForm({ ...cgWizardForm, alternatePhone: e.target.value })}
+                            placeholder="+91 91234 56789"
+                            style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Email ID <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <Mail size={15} color="#6B7C72" style={{ position: 'absolute', left: 12, top: 12 }} />
+                          <input 
+                            type="email"
+                            required
+                            value={cgWizardForm.email}
+                            onChange={e => setCgWizardForm({ ...cgWizardForm, email: e.target.value })}
+                            placeholder="anitha.care@gmail.com"
+                            style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Language(s) Known <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '6px 10px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF' }}>
+                          {cgWizardForm.languages.map(lang => (
+                            <span key={lang} className="tag-pill">
+                              {lang}
+                              <span 
+                                onClick={() => setCgWizardForm({ ...cgWizardForm, languages: cgWizardForm.languages.filter(l => l !== lang) })}
+                                style={{ cursor: 'pointer', marginLeft: 2 }}
+                              >
+                                ×
+                              </span>
+                            </span>
+                          ))}
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const extra = prompt('Add spoken language (e.g. Kannada, Tamil):');
+                              if (extra && !cgWizardForm.languages.includes(extra)) {
+                                setCgWizardForm({ ...cgWizardForm, languages: [...cgWizardForm.languages, extra] });
+                              }
+                            }}
+                            style={{ background: 'none', border: 'none', color: '#0B5D3B', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            + Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                        Address <span style={{ color: '#D32F2F' }}>*</span>
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <MapPin size={16} color="#6B7C72" style={{ position: 'absolute', left: 12, top: 12 }} />
+                        <textarea 
+                          rows={2}
+                          required
+                          value={cgWizardForm.address}
+                          onChange={e => setCgWizardForm({ ...cgWizardForm, address: e.target.value })}
+                          placeholder="#12-4-56, T.T.D. Colony, Tirupati - 517501, Andhra Pradesh"
+                          style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', resize: 'none' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Zone / Service Area <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <select 
+                          value={cgWizardForm.zone}
+                          onChange={e => setCgWizardForm({ ...cgWizardForm, zone: e.target.value })}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                        >
+                          <option value="Tirupati Urban">Tirupati Urban</option>
+                          <option value="T.T.D. Colony">T.T.D. Colony</option>
+                          <option value="Tirupati West">Tirupati West</option>
+                          <option value="Alipiri & Kapilatheertham">Alipiri & Kapilatheertham</option>
+                          <option value="Renigunta Zone">Renigunta Zone</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                          Pincode <span style={{ color: '#D32F2F' }}>*</span>
+                        </label>
+                        <input 
+                          value={cgWizardForm.pincode}
+                          onChange={e => setCgWizardForm({ ...cgWizardForm, pincode: e.target.value })}
+                          placeholder="517501"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Caregiver Photo & Guidelines matching image */}
+                  <div>
+                    <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#1E2D24', marginBottom: 12 }}>
+                      Caregiver Photo <span style={{ color: '#D32F2F' }}>*</span>
+                    </h3>
+
+                    <div style={{ display: 'flex', gap: 14, marginBottom: 20 }}>
+                      <div style={{ width: 110, height: 120, borderRadius: 14, overflow: 'hidden', border: '1px solid #E5E9E6', position: 'relative', background: '#E8F5E9' }}>
+                        <img 
+                          src="/assets/cg-anitha.png" 
+                          alt="Preview" 
+                          onError={(e: any) => { e.target.src = 'https://images.unsplash.com/photo-1594824813583-09747a82b3a8?w=200&auto=format&fit=crop&q=80'; }}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                        <div style={{ position: 'absolute', right: 6, bottom: 6, width: 26, height: 26, borderRadius: '50%', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+                          <Edit3 size={13} color="#0B5D3B" />
+                        </div>
+                      </div>
+
+                      <div className="photo-upload-box" style={{ flex: 1, padding: 16 }}>
+                        <Download size={22} color="#0B5D3B" style={{ transform: 'rotate(180deg)', margin: '0 auto 6px auto' }} />
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#1E2D24' }}>Upload Photo</div>
+                        <div style={{ fontSize: '10px', color: '#6B7C72', marginTop: 2 }}>(JPG, PNG)<br />Max 2 MB</div>
+                      </div>
+                    </div>
+
+                    <div style={{ background: '#FFF9EB', border: '1px solid #F5E6BE', borderRadius: 14, padding: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', fontWeight: 700, color: '#0B5D3B', marginBottom: 8 }}>
+                        <CheckCircle2 size={16} /> Quick Information
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '11px', color: '#4A5D52' }}>
+                        <div>✓ Supported file types: JPG, PNG</div>
+                        <div>✓ Photo should be a clear face photo</div>
+                        <div>✓ Max file size: 2 MB</div>
+                        <div>✓ All * marked fields are mandatory</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Actions */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowAddCaregiverModal(false)}
+                    style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button 
+                      type="button"
+                      onClick={() => alert('Draft saved to local storage!')}
+                      style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #0B5D3B', color: '#0B5D3B', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      Save as Draft
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setCgWizardStep(2)}
+                      className="btn-primary"
+                      style={{ padding: '10px 24px', fontSize: '13px' }}
+                    >
+                      Next: Professional Details →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: PROFESSIONAL DETAILS */}
+            {cgWizardStep === 2 && (
+              <div>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Professional Details</h3>
+                <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                  Caregiver employment model, specializations, and prior clinical/elder care experience
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>Employment Classification</label>
+                    <select 
+                      value={cgWizardForm.employmentType}
+                      onChange={e => setCgWizardForm({ ...cgWizardForm, employmentType: e.target.value as any })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                    >
+                      <option value="Salaried">Salaried Staff (Full-time trust employee)</option>
+                      <option value="Freelance / Gig">Freelance / Gig (Shift-based verified partner)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>Prior Care Experience (Years)</label>
+                    <input 
+                      type="number"
+                      value={cgWizardForm.experienceYears}
+                      onChange={e => setCgWizardForm({ ...cgWizardForm, experienceYears: Number(e.target.value) })}
+                      placeholder="e.g. 5"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>Core Care Skills & Specializations</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    {['Elder Companionship', 'Cooking Assistance', 'Mobility Support', 'Physiotherapy Assist', 'Disability Support', 'Bedridden Care', 'Medication Reminders', 'Vitals Monitoring', 'Wound Dressing'].map(skill => (
+                      <label key={skill} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E9E6', background: cgWizardForm.skills.includes(skill) ? '#E8F5E9' : '#FFF', cursor: 'pointer', fontSize: '12px' }}>
+                        <input 
+                          type="checkbox"
+                          checked={cgWizardForm.skills.includes(skill)}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setCgWizardForm({ ...cgWizardForm, skills: [...cgWizardForm.skills, skill] });
+                            } else {
+                              setCgWizardForm({ ...cgWizardForm, skills: cgWizardForm.skills.filter(s => s !== skill) });
+                            }
+                          }}
+                        />
+                        <span>{skill}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button type="button" onClick={() => setCgWizardStep(1)} style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ← Back: Basic Details
+                  </button>
+                  <button type="button" onClick={() => setCgWizardStep(3)} className="btn-primary" style={{ padding: '10px 24px', fontSize: '13px' }}>
+                    Next: Verification & Documents →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: VERIFICATION & DOCUMENTS */}
+            {cgWizardStep === 3 && (
+              <div>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Trust Verification & KYC</h3>
+                <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                  Statutory compliance and background verification required by Sri Divyang Seva Kendram Trust
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>Aadhaar Card Number</label>
+                    <input 
+                      value={cgWizardForm.aadhaarNumber}
+                      onChange={e => setCgWizardForm({ ...cgWizardForm, aadhaarNumber: e.target.value })}
+                      placeholder="XXXX-XXXX-4589"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>Police Background Clearance</label>
+                    <select 
+                      value={cgWizardForm.policeClearanceStatus}
+                      onChange={e => setCgWizardForm({ ...cgWizardForm, policeClearanceStatus: e.target.value as any })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                    >
+                      <option value="Verified">✓ Verified (Certificate on file)</option>
+                      <option value="Pending">⏳ Pending Verification</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ border: '2px dashed #C8D6CD', borderRadius: 12, padding: 24, textAlign: 'center', background: '#FAFBF9', marginBottom: 20 }}>
+                  <ShieldCheck size={28} color="#0B5D3B" style={{ margin: '0 auto 8px auto' }} />
+                  <div style={{ fontSize: '13px', fontWeight: 700 }}>Upload Identity Documents</div>
+                  <div style={{ fontSize: '11px', color: '#6B7C72', marginTop: 4 }}>Upload scanned Aadhaar / Police Clearance / Voter ID (PDF or JPG)</div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button type="button" onClick={() => setCgWizardStep(2)} style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ← Back: Professional Details
+                  </button>
+                  <button type="button" onClick={() => setCgWizardStep(4)} className="btn-primary" style={{ padding: '10px 24px', fontSize: '13px' }}>
+                    Next: Availability & Preferences →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: AVAILABILITY & FINAL REGISTRATION */}
+            {cgWizardStep === 4 && (
+              <div>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Availability & Work Shift</h3>
+                <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
+                  Assign the default roster shift and finalize onboarding into the live database
+                </p>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 6 }}>Roster Shift</label>
+                  <select 
+                    value={cgWizardForm.workingShift}
+                    onChange={e => setCgWizardForm({ ...cgWizardForm, workingShift: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6', fontSize: '13px', background: '#FFF' }}
+                  >
+                    <option value="Morning (08:00 AM - 02:00 PM)">Morning (08:00 AM - 02:00 PM)</option>
+                    <option value="Evening (02:00 PM - 08:00 PM)">Evening (02:00 PM - 08:00 PM)</option>
+                    <option value="Full Day (24/7 Live-in)">Full Day (24/7 Live-in)</option>
+                    <option value="Flexible / Shift Based">Flexible / Shift Based (Gig On-Demand)</option>
                   </select>
                 </div>
-                <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Phone</label>
-                  <input required value={newCgForm.phone} onChange={e => setNewCgForm({...newCgForm, phone: e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+
+                <div style={{ background: '#E8F5E9', borderRadius: 14, padding: 18, border: '1px solid #C8E6C9', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <CheckCircle2 size={20} color="#0B5D3B" />
+                    <div>
+                      <strong style={{ fontSize: '13px', color: '#0B5D3B' }}>Ready to Register into Live Database</strong>
+                      <p style={{ fontSize: '12px', color: '#2E7D32', marginTop: 2 }}>
+                        {cgWizardForm.fullName || 'Caregiver'} will immediately be available for dispatch on the Care Bookings board.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 18, borderTop: '1px solid #E5E9E6' }}>
+                  <button type="button" onClick={() => setCgWizardStep(3)} style={{ padding: '10px 22px', borderRadius: 10, border: '1px solid #E5E9E6', background: '#FFF', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    ← Back: Verification
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`${API_BASE_URL}/api/v1/caregivers`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(cgWizardForm)
+                        });
+                        if (res.ok) {
+                          alert('Caregiver successfully registered into the live database!');
+                          setShowAddCaregiverModal(false);
+                          setCgWizardStep(1);
+                          fetchData();
+                        }
+                      } catch (err) {
+                        alert('Error saving caregiver');
+                      }
+                    }} 
+                    className="btn-primary" 
+                    style={{ padding: '10px 28px', fontSize: '13px' }}
+                  >
+                    Confirm & Complete Registration ✓
+                  </button>
                 </div>
               </div>
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Service Zone</label>
-                <input value={newCgForm.zone} onChange={e => setNewCgForm({...newCgForm, zone: e.target.value})} placeholder="Tirupati Urban" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
-              </div>
-              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 12 }}>
-                Confirm Add Caregiver
-              </button>
-            </form>
+            )}
           </div>
         </div>
       )}
-    
+
+
       {/* MODAL 1: CREATE / EDIT CARE BOOKING */}
       {showAddBookingModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
@@ -1902,6 +2939,159 @@ export default function App() {
           </div>
         </div>
       )}
+    
+      {/* ========================================================================= */}
+      {/* LIVE BOOKING TRACKING & CLINICAL CHECKLIST DRAWER                          */}
+      {/* ========================================================================= */}
+      {selectedTrackingBooking && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1200, display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ background: '#FFF', width: '100%', maxWidth: 520, height: '100%', padding: '24px 28px', overflowY: 'auto', boxShadow: '-10px 0 30px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div>
+                <span style={{ fontSize: '12px', color: '#0B5D3B', fontWeight: 700 }}>LIVE VISIT MONITOR</span>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1E2D24' }}>{selectedTrackingBooking.bookingNumber}</h3>
+              </div>
+              <button onClick={() => setSelectedTrackingBooking(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={22} /></button>
+            </div>
+
+            {/* Live Status Header */}
+            <div style={{ background: '#E8F5E9', borderRadius: 14, padding: 16, border: '1px solid #C8E6C9', marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '11px', color: '#2E7D32', fontWeight: 700 }}>CAREGIVER ETA</div>
+                  <div style={{ fontSize: '22px', fontWeight: 800, color: '#0B5D3B' }}>{selectedTrackingBooking.caregiverEtaMinutes || 8} Mins Away</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '11px', color: '#6B7C72' }}>DISTANCE</div>
+                  <strong style={{ fontSize: '14px', color: '#1E2D24' }}>{selectedTrackingBooking.geoDistanceKm || 0.6} km</strong>
+                </div>
+              </div>
+              <div style={{ fontSize: '12px', color: '#4A5D52', marginTop: 8 }}>
+                Caregiver <strong>{selectedTrackingBooking.caregiverName}</strong> is en route to {selectedTrackingBooking.beneficiaryName}
+              </div>
+            </div>
+
+            {/* Vitals Recorded */}
+            {selectedTrackingBooking.vitals && (
+              <div style={{ marginBottom: 20 }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1E2D24', marginBottom: 10 }}>Live Clinical Vitals</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                  <div style={{ background: '#FAFBF9', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6' }}>
+                    <span style={{ fontSize: '11px', color: '#6B7C72' }}>Blood Pressure</span>
+                    <strong style={{ display: 'block', fontSize: '14px', color: '#0B5D3B', marginTop: 2 }}>{selectedTrackingBooking.vitals.bp}</strong>
+                  </div>
+                  <div style={{ background: '#FAFBF9', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6' }}>
+                    <span style={{ fontSize: '11px', color: '#6B7C72' }}>Pulse Rate</span>
+                    <strong style={{ display: 'block', fontSize: '14px', color: '#0B5D3B', marginTop: 2 }}>{selectedTrackingBooking.vitals.pulse}</strong>
+                  </div>
+                  <div style={{ background: '#FAFBF9', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6' }}>
+                    <span style={{ fontSize: '11px', color: '#6B7C72' }}>Oxygen (SpO2)</span>
+                    <strong style={{ display: 'block', fontSize: '14px', color: '#0B5D3B', marginTop: 2 }}>{selectedTrackingBooking.vitals.spo2}</strong>
+                  </div>
+                  <div style={{ background: '#FAFBF9', padding: '10px 14px', borderRadius: 10, border: '1px solid #E5E9E6' }}>
+                    <span style={{ fontSize: '11px', color: '#6B7C72' }}>Blood Sugar</span>
+                    <strong style={{ display: 'block', fontSize: '14px', color: '#0B5D3B', marginTop: 2 }}>{selectedTrackingBooking.vitals.sugar}</strong>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Checklist */}
+            {selectedTrackingBooking.checklistCompleted && (
+              <div style={{ marginBottom: 20 }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1E2D24', marginBottom: 10 }}>Visit Care Checklist</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {selectedTrackingBooking.checklistCompleted.map((c, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, background: c.done ? '#E8F5E9' : '#FAFBF9', border: '1px solid #E5E9E6' }}>
+                      <span style={{ fontSize: '12px', fontWeight: c.done ? 600 : 400, color: c.done ? '#0B5D3B' : '#1E2D24' }}>{c.task}</span>
+                      <span style={{ fontSize: '11px', color: c.done ? '#2E7D32' : '#9EAFA5', fontWeight: 600 }}>{c.done ? '✓ ' + (c.time || 'Done') : 'Pending'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Caregiver Notes */}
+            {selectedTrackingBooking.caregiverNotes && (
+              <div style={{ background: '#FFF9EB', border: '1px solid #F5E6BE', borderRadius: 12, padding: 14, marginBottom: 24, fontSize: '12px', color: '#4A5D52' }}>
+                <strong style={{ color: '#0B5D3B', display: 'block', marginBottom: 4 }}>Caregiver Field Notes:</strong>
+                "{selectedTrackingBooking.caregiverNotes}"
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button 
+                onClick={() => alert(`Calling Caregiver ${selectedTrackingBooking.caregiverName}...`)}
+                style={{ flex: 1, padding: 12, borderRadius: 10, background: '#0B5D3B', color: '#FFF', border: 'none', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              >
+                <PhoneCall size={15} /> Call Caregiver
+              </button>
+              <button 
+                onClick={() => alert(`Calling Family Guardian for ${selectedTrackingBooking.beneficiaryName}...`)}
+                style={{ flex: 1, padding: 12, borderRadius: 10, background: '#FFF', color: '#0B5D3B', border: '1px solid #0B5D3B', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              >
+                <PhoneCall size={15} /> Call Guardian
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      
+      {/* MODAL: ADD STAFF MEMBER */}
+      {showAddStaffModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#FFF', borderRadius: 20, maxWidth: 500, width: '100%', padding: 28 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0B5D3B' }}>Add Internal Staff Member</h3>
+              <button onClick={() => setShowAddStaffModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              await fetch(`${API_BASE_URL}/api/v1/staff`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newStaffForm)
+              });
+              setShowAddStaffModal(false);
+              fetchData();
+            }}>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Full Name</label>
+                <input required value={newStaffForm.fullName} onChange={e => setNewStaffForm({ ...newStaffForm, fullName: e.target.value })} placeholder="e.g. Sunita Reddy" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Role</label>
+                  <select value={newStaffForm.role} onChange={e => setNewStaffForm({ ...newStaffForm, role: e.target.value as any })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }}>
+                    <option value="Trust Care Coordinator">Trust Care Coordinator</option>
+                    <option value="Field Supervisor">Field Supervisor</option>
+                    <option value="Accounts Officer">Accounts Officer</option>
+                    <option value="Super Admin">Super Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Phone</label>
+                  <input required value={newStaffForm.phone} onChange={e => setNewStaffForm({ ...newStaffForm, phone: e.target.value })} placeholder="+91 98765 00003" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+                </div>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Email</label>
+                <input required type="email" value={newStaffForm.email} onChange={e => setNewStaffForm({ ...newStaffForm, email: e.target.value })} placeholder="staff@thodu.sriddha.com" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: 4 }}>Assigned Service Zone</label>
+                <input value={newStaffForm.serviceZone} onChange={e => setNewStaffForm({ ...newStaffForm, serviceZone: e.target.value })} placeholder="Tirupati Urban" style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #E5E9E6' }} />
+              </div>
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 12 }}>
+                Confirm Add Staff Member
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
