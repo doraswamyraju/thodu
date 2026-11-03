@@ -15,14 +15,12 @@ export default function App() {
     <div className="web-layout">
       {/* Left Desktop Sidebar */}
       <aside className="web-sidebar">
-        <div className="sidebar-brand">
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Heart size={24} color="#0B5D3B" fill="#F9B233" />
-          </div>
-          <div>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#FFF' }}>Thodu</h2>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.5px' }}>Sri Divyang Seva Kendram</p>
-          </div>
+        <div className="sidebar-brand" style={{ padding: '20px 16px' }}>
+          <img 
+            src="/thodu_logo_dark_banner.png" 
+            alt="Thodu Elder Care Services" 
+            style={{ width: '100%', height: 'auto', borderRadius: '8px' }} 
+          />
         </div>
 
         <nav className="sidebar-nav">

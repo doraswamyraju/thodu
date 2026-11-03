@@ -24,3 +24,4 @@ fun ThoduTheme(content: @Composable () -> Unit) {
         content = content
     )
 }
+

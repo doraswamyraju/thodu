@@ -13,3 +13,4 @@ val ThoduDangerRed = Color(0xFFC62828)
 val ThoduTextPrimary = Color(0xFF1E2D24)
 val ThoduTextMuted = Color(0xFF6B7C72)
 val ThoduBorder = Color(0xFFE5E9E6)
+

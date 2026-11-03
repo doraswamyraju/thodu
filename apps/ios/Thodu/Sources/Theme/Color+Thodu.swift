@@ -10,3 +10,4 @@ extension Color {
     static let thoduTextPrimary = Color(red: 30/255, green: 45/255, blue: 36/255)
     static let thoduTextMuted = Color(red: 107/255, green: 124/255, blue: 114/255)
 }
+
