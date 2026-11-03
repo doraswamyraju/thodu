@@ -27,6 +27,7 @@ export default function App() {
 
   const [emailInput, setEmailInput] = useState('raju@thodu.sriddha.com');
   const [passwordInput, setPasswordInput] = useState('admin123');
+  const [loginRole, setLoginRole] = useState<'admin' | 'family'>('admin');
   const [currentPortal, setCurrentPortal] = useState<'admin' | 'beneficiary'>('admin');
   const [activeSection, setActiveSection] = useState<NavSection>('overview'); // Direct to requested screen
   const [loading, setLoading] = useState(false);
@@ -232,15 +233,35 @@ export default function App() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const user: UserSession = {
-      id: 'usr-admin',
-      name: 'Raju Kumar',
-      email: emailInput,
-      role: 'Super Admin',
-      phone: '+91 94444 56789'
-    };
-    localStorage.setItem('thodu_session', JSON.stringify(user));
-    setSession(user);
+    if (loginRole === 'family') {
+      const targetBen = beneficiaries.find(b => 
+        (b.guardianEmail && b.guardianEmail.toLowerCase() === emailInput.toLowerCase()) ||
+        (b.primaryContact && b.primaryContact.includes(emailInput)) ||
+        (b.primaryGuardian && b.primaryGuardian.toLowerCase().includes(emailInput.toLowerCase()))
+      ) || beneficiaries[0];
+
+      const user: UserSession = {
+        id: targetBen?.id || 'usr-family-1',
+        name: targetBen?.primaryGuardian || 'Anita Sharma (Family Guardian)',
+        email: emailInput || 'anita.sharma@gmail.com',
+        role: 'Family Guardian / Beneficiary',
+        phone: targetBen?.primaryContact || '+91 98765 43210'
+      };
+      localStorage.setItem('thodu_session', JSON.stringify(user));
+      setSession(user);
+      setCurrentPortal('beneficiary');
+    } else {
+      const user: UserSession = {
+        id: 'usr-admin',
+        name: 'Raju Kumar',
+        email: emailInput,
+        role: 'Super Admin',
+        phone: '+91 94444 56789'
+      };
+      localStorage.setItem('thodu_session', JSON.stringify(user));
+      setSession(user);
+      setCurrentPortal('admin');
+    }
   };
 
   const handleLogout = () => {
@@ -530,33 +551,105 @@ export default function App() {
     }
   };
 
-  // 1. SIGN IN SCREEN
+  // 1. SIGN IN SCREEN (Supports Super Admin and Beneficiary / Family Login)
   if (!session) {
     return (
       <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, #FFF8E6 0%, #F5EED8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-        <div style={{ maxWidth: '460px', width: '100%', background: '#FFFFFF', borderRadius: '24px', boxShadow: '0 20px 40px rgba(11, 93, 59, 0.08)', border: '1px solid #E5E9E6', padding: '40px 36px', textAlign: 'center' }}>
-          <div style={{ marginBottom: '24px' }}>
-            <img src="/thodu_logo_horizontal.png" alt="Thodu Elder Care" style={{ width: '280px', height: 'auto', margin: '0 auto', display: 'block' }} />
+        <div style={{ maxWidth: '460px', width: '100%', background: '#FFFFFF', borderRadius: '24px', boxShadow: '0 20px 40px rgba(11, 93, 59, 0.08)', border: '1px solid #E5E9E6', padding: '36px 32px', textAlign: 'center' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <img src="/thodu_logo_horizontal.png" alt="Thodu Elder Care" style={{ width: '260px', height: 'auto', margin: '0 auto', display: 'block' }} />
           </div>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B', marginBottom: '6px' }}>Super Admin Sign In</h2>
-          <p style={{ fontSize: '12px', fontWeight: 600, color: '#1B5E3C', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '28px' }}>Elder & Assisted Care</p>
+
+          {/* Role Switcher Tabs */}
+          <div style={{ display: 'flex', background: '#F0F4F1', borderRadius: '12px', padding: '4px', marginBottom: '24px' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginRole('admin');
+                setEmailInput('raju@thodu.sriddha.com');
+                setPasswordInput('admin123');
+              }}
+              style={{
+                flex: 1, padding: '10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                fontWeight: 700, fontSize: '13px',
+                background: loginRole === 'admin' ? '#0B5D3B' : 'transparent',
+                color: loginRole === 'admin' ? '#FFF' : '#5A6E63',
+                transition: 'all 0.2s'
+              }}
+            >
+              Operations Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginRole('family');
+                setEmailInput('anita.sharma@gmail.com');
+                setPasswordInput('family123');
+              }}
+              style={{
+                flex: 1, padding: '10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                fontWeight: 700, fontSize: '13px',
+                background: loginRole === 'family' ? '#0B5D3B' : 'transparent',
+                color: loginRole === 'family' ? '#FFF' : '#5A6E63',
+                transition: 'all 0.2s'
+              }}
+            >
+              Beneficiary / Family
+            </button>
+          </div>
+
+          <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0B5D3B', marginBottom: '4px' }}>
+            {loginRole === 'admin' ? 'Operations Admin Workspace' : 'Family & Beneficiary Portal'}
+          </h2>
+          <p style={{ fontSize: '12px', fontWeight: 600, color: '#1B5E3C', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '22px' }}>
+            {loginRole === 'admin' ? 'Central Operations & Fleet Dispatch' : 'Track Loved Ones & Manage Care Visits'}
+          </p>
+
           <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
-            <div style={{ marginBottom: '18px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' }}>Email Address</label>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#1B382B' }}>
+                {loginRole === 'admin' ? 'Admin Email Address' : 'Guardian Email or Mobile'}
+              </label>
               <div style={{ position: 'relative' }}>
                 <Mail size={16} color="#6B7C72" style={{ position: 'absolute', left: 14, top: 14 }} />
-                <input type="email" value={emailInput} onChange={(e) => setEmailInput(e.target.value)} required style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: '12px', border: '1.5px solid #E5E9E6', fontSize: '14px', outline: 'none' }} />
+                <input 
+                  type="text" 
+                  value={emailInput} 
+                  onChange={(e) => setEmailInput(e.target.value)} 
+                  required 
+                  style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: '12px', border: '1.5px solid #E5E9E6', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} 
+                />
               </div>
             </div>
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' }}>Password</label>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#1B382B' }}>
+                Password
+              </label>
               <div style={{ position: 'relative' }}>
                 <Lock size={16} color="#6B7C72" style={{ position: 'absolute', left: 14, top: 14 }} />
-                <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} required style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: '12px', border: '1.5px solid #E5E9E6', fontSize: '14px', outline: 'none' }} />
+                <input 
+                  type="password" 
+                  value={passwordInput} 
+                  onChange={(e) => setPasswordInput(e.target.value)} 
+                  required 
+                  style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: '12px', border: '1.5px solid #E5E9E6', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} 
+                />
               </div>
             </div>
+
+            {/* Quick Demo Credentials Reminder Box */}
+            <div style={{ background: '#F8FAF9', border: '1px solid #E5E9E6', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px', fontSize: '11px', color: '#5A6E63' }}>
+              <strong>Demo Credentials:</strong><br />
+              {loginRole === 'admin' ? (
+                <span>Email: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>raju@thodu.sriddha.com</code> | Pass: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>admin123</code></span>
+              ) : (
+                <span>Guardian Email: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>anita.sharma@gmail.com</code> | Pass: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>family123</code></span>
+              )}
+            </div>
+
             <button type="submit" className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px', justifyContent: 'center' }}>
-              Sign In to Super Admin Workspace →
+              {loginRole === 'admin' ? 'Sign In to Super Admin Workspace →' : 'Sign In to Family & Beneficiary Portal →'}
             </button>
           </form>
         </div>
