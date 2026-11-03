@@ -1200,6 +1200,41 @@ app.patch('/api/v1/sponsorship/:id/decision', (req: Request, res: Response) => {
   res.json({ success: true, application: appItem });
 });
 
+
+app.post('/api/v1/sos/queue', (req: Request, res: Response) => {
+  const { beneficiaryId, beneficiaryName, beneficiaryAddress, latitude, longitude, guardianContact, emergencyDoctorPhone, notes } = req.body;
+  const newAlert = {
+    id: 'sos-' + Date.now(),
+    beneficiaryId: beneficiaryId || 'ben-1',
+    beneficiaryName: beneficiaryName || 'Beneficiary Alert',
+    beneficiaryAddress: beneficiaryAddress || 'Tirupati',
+    latitude: latitude || 13.6288,
+    longitude: longitude || 79.4192,
+    guardianContact: guardianContact || '+91 98765 43210',
+    emergencyDoctorPhone: emergencyDoctorPhone || '+91 98480 11223',
+    alertTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    status: 'ACTIVE',
+    severity: 'CRITICAL',
+    triggerType: 'ONE_TAP_APP',
+    notes: notes || 'Immediate family distress button pressed',
+    assignedResponder: 'Unassigned (Dispatching...)',
+    etaMinutes: 10
+  };
+
+  sosAlerts.unshift(newAlert as any);
+
+  auditLogs.unshift({
+    id: 'aud-' + Date.now(),
+    adminUser: 'Family Guardian / Beneficiary Portal',
+    action: 'SOS_TRIGGERED',
+    module: 'Emergency SOS',
+    details: '1-Tap SOS triggered for ' + newAlert.beneficiaryName + ' (' + newAlert.beneficiaryAddress + ')',
+    timestamp: new Date().toLocaleString()
+  });
+
+  res.status(201).json({ success: true, alert: newAlert });
+});
+
 app.get('/api/v1/sos/queue', (req: Request, res: Response) => {
   res.json({ success: true, queue: sosAlerts });
 });

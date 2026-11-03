@@ -3,6 +3,7 @@ import {
   Activity, AlertTriangle, ArrowUpRight, Award, Bell, Calendar, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, DollarSign, Download, Edit3, Eye, FileText, Filter, Heart, LayoutDashboard, Lock, LogOut, Mail, MapPin, MoreVertical, PhoneCall, Plus, Radio, RefreshCw, Search, Send, Shield, ShieldCheck, Trash2, TrendingUp, UserPlus, Users, X
 } from 'lucide-react';
 import './style.css';
+import { BeneficiaryPortal } from './BeneficiaryPortal';
 
 type NavSection = 'overview' | 'map' | 'bookings' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'staff' | 'funding' | 'sos' | 'audit';
 
@@ -26,6 +27,7 @@ export default function App() {
 
   const [emailInput, setEmailInput] = useState('raju@thodu.sriddha.com');
   const [passwordInput, setPasswordInput] = useState('admin123');
+  const [currentPortal, setCurrentPortal] = useState<'admin' | 'beneficiary'>('admin');
   const [activeSection, setActiveSection] = useState<NavSection>('overview'); // Direct to requested screen
   const [loading, setLoading] = useState(false);
 
@@ -282,6 +284,47 @@ export default function App() {
     }
   };
 
+  
+  const handleBeneficiaryBookCare = async (bookingData: any) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData)
+      });
+      const data = await res.json();
+      if (data.success || data.booking) {
+        await fetchData();
+        alert('Care visit scheduled successfully! A verified caregiver is being assigned.');
+      }
+    } catch (e) {
+      alert('Error booking care visit');
+    }
+  };
+
+  const handleBeneficiaryTriggerSos = async (benId: string, notes: string) => {
+    try {
+      const targetBen = beneficiaries.find(b => b.id === benId) || beneficiaries[0];
+      const res = await fetch(`${API_BASE_URL}/api/v1/sos/queue`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          beneficiaryId: benId,
+          beneficiaryName: targetBen?.fullName || 'Beneficiary',
+          beneficiaryAddress: targetBen?.address || 'Tirupati',
+          latitude: targetBen?.latitude || 13.6288,
+          longitude: targetBen?.longitude || 79.4192,
+          guardianContact: targetBen?.primaryContact || '+91 98765 43210',
+          emergencyDoctorPhone: targetBen?.emergencyDoctorPhone || '+91 98480 11223',
+          notes: notes
+        })
+      });
+      await fetchData();
+    } catch (e) {
+      console.error('SOS dispatch error', e);
+    }
+  };
+
   const handleBeneficiarySearch = (val: string) => {
     setBeneficiaryQuery(val);
     setBookingForm(prev => ({ ...prev, beneficiaryName: val }));
@@ -496,7 +539,7 @@ export default function App() {
             <img src="/thodu_logo_horizontal.png" alt="Thodu Elder Care" style={{ width: '280px', height: 'auto', margin: '0 auto', display: 'block' }} />
           </div>
           <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B', marginBottom: '6px' }}>Super Admin Sign In</h2>
-          <p style={{ fontSize: '13px', color: '#6B7C72', marginBottom: '28px' }}>Sri Divyang Seva Kendram Trust</p>
+          <p style={{ fontSize: '12px', fontWeight: 600, color: '#1B5E3C', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '28px' }}>Elder & Assisted Care</p>
           <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
             <div style={{ marginBottom: '18px' }}>
               <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' }}>Email Address</label>
@@ -518,6 +561,21 @@ export default function App() {
           </form>
         </div>
       </div>
+    );
+  }
+
+  
+  if (currentPortal === 'beneficiary') {
+    return (
+      <BeneficiaryPortal
+        beneficiaries={beneficiaries}
+        bookings={bookings}
+        caregivers={caregivers}
+        onRefresh={fetchData}
+        onBookCare={handleBeneficiaryBookCare}
+        onTriggerSos={handleBeneficiaryTriggerSos}
+        onSwitchToAdmin={() => setCurrentPortal('admin')}
+      />
     );
   }
 
@@ -632,6 +690,15 @@ export default function App() {
                 style={{ padding: '7px 12px 7px 34px', borderRadius: '10px', border: '1px solid #E5E9E6', fontSize: '12px', width: '260px', outline: 'none' }}
               />
             </div>
+
+            
+            <button 
+              onClick={() => setCurrentPortal('beneficiary')} 
+              title="Switch to Family & Beneficiary View"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#E8F5E9', border: '1.5px solid #A5D6A7', color: '#1B5E3C', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              <Users size={14} /> Beneficiary / Family Portal →
+            </button>
 
             <button onClick={fetchData} title="Refresh Database" style={{ background: '#FFF', border: '1px solid #E5E9E6', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px' }}>
               <RefreshCw size={13} className={loading ? 'spin' : ''} /> Refresh
@@ -1799,7 +1866,7 @@ export default function App() {
                 <div>
                   <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B' }}>Trust Internal Staff & Supervisors</h2>
                   <p style={{ fontSize: '13px', color: '#6B7C72', marginTop: 2 }}>
-                    Manage administrators, clinical supervisors, and coordinators of Sri Divyang Seva Kendram Trust
+                    Manage platform administrators, field supervisors, and dispatch care coordinators
                   </p>
                 </div>
                 <button 
@@ -2767,7 +2834,7 @@ export default function App() {
               <div>
                 <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Trust Verification & KYC</h3>
                 <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
-                  Statutory compliance and background verification required by Sri Divyang Seva Kendram Trust
+                  Background verification and compliance verification required for active dispatch
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
@@ -3280,7 +3347,7 @@ export default function App() {
                         <CheckCircle2 size={16} /> Trust Care Mission
                       </div>
                       <p style={{ fontSize: '11px', color: '#4A5D52', lineHeight: '1.5' }}>
-                        Sri Divyang Seva Kendram Trust provides prioritized daily living assistance, medical accompaniment, and 100% subsidized care for verified elder and disabled beneficiaries in Tirupati.
+                        Eligible low-income seniors and Divyang beneficiaries receive care sponsorships through our philanthropic partner, Sri Divyang Seva Kendram Trust.
                       </p>
                     </div>
                   </div>
@@ -3513,7 +3580,7 @@ export default function App() {
               <div>
                 <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#0B5D3B', marginBottom: 4 }}>Trust Sponsorship & Subsidy Allocation</h3>
                 <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: 20 }}>
-                  Allocate financial subsidy tier under Sri Divyang Seva Kendram Trust charitable grant
+                  Select care financing route or partner subsidy grant (Sri Divyang Seva Kendram Trust)
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 20 }}>
@@ -3934,7 +4001,7 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <img src="/assets/thodu-logo.png" alt="Thodu Logo" style={{ height: 48, objectFit: 'contain' }} />
                 <div>
-                  <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0B5D3B' }}>Sri Divyang Seva Kendram Trust</h3>
+                  <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0B5D3B' }}>Thodu Elder Care Services</h3><p style={{ fontSize: '11px', color: '#6B7C72' }}>Supported by Sri Divyang Seva Kendram Trust (Grant Partner)</p>
                   <p style={{ fontSize: '11px', color: '#6B7C72' }}>Regd. Public Charitable Trust • Elder & Disability Care Services</p>
                   <p style={{ fontSize: '10px', color: '#0B5D3B', fontWeight: 600 }}>Tirupati, Andhra Pradesh - 517501</p>
                 </div>
@@ -3999,7 +4066,7 @@ export default function App() {
 
             {/* Statutory Compliance Footer */}
             <div style={{ background: '#FFF9EB', border: '1px solid #F5E6BE', borderRadius: 10, padding: 12, marginBottom: 20, fontSize: '11px', color: '#4A5D52' }}>
-              <strong>Trust Statutory Exemption:</strong> Donations and contributions to Sri Divyang Seva Kendram Trust are eligible for tax deduction under Section 80G of the Income Tax Act.
+              <strong>Partner Subsidy Exemption:</strong> Subsidies and philanthropic contributions facilitated via Sri Divyang Seva Kendram Trust are eligible for tax exemptions under Section 80G.
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
