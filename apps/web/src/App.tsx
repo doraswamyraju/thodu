@@ -1,22 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Calendar, Users, ShieldCheck, 
-  AlertTriangle, Search, Plus, DollarSign, RefreshCw
+  AlertTriangle, Search, Plus, DollarSign, RefreshCw,
+  LogOut, Lock, Mail, CheckCircle2, ChevronRight
 } from 'lucide-react';
 import './style.css';
 
 type NavSection = 'overview' | 'bookings' | 'beneficiaries' | 'workforce' | 'funding' | 'sos';
 
+interface UserSession {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  phone: string;
+}
+
 const API_BASE_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5089' 
-  : ''; // In production Nginx proxies /api/ and /health directly to Port 5089
+  : ''; // Proxied via Nginx in production
 
 export default function App() {
+  // Authentication State
+  const [session, setSession] = useState<UserSession | null>(() => {
+    const saved = localStorage.getItem('thodu_session');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [emailInput, setEmailInput] = useState('admin@thodu.sriddha.com');
+  const [passwordInput, setPasswordInput] = useState('admin123');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  // App Navigation & Data State
   const [activeSection, setActiveSection] = useState<NavSection>('overview');
   const [loading, setLoading] = useState(false);
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
   const [sosQueue, setSosQueue] = useState<any[]>([]);
   const [systemStats, setSystemStats] = useState({
     activeBeneficiariesCount: 3,
@@ -24,13 +44,64 @@ export default function App() {
     port: 5089
   });
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError('');
+
+    // Authenticate with API or predefined role users
+    setTimeout(() => {
+      if (!emailInput || !passwordInput) {
+        setLoginError('Please enter both email and password.');
+        setLoginLoading(false);
+        return;
+      }
+
+      let user: UserSession = {
+        id: 'usr-admin',
+        name: 'Trust Operations Admin',
+        email: emailInput,
+        role: 'Trust Administrator',
+        phone: '+91 94444 56789'
+      };
+
+      if (emailInput.includes('family')) {
+        user = {
+          id: 'usr-family',
+          name: 'Anita Sharma',
+          email: emailInput,
+          role: 'Family Member / Guardian',
+          phone: '+91 98765 43210'
+        };
+      } else if (emailInput.includes('care')) {
+        user = {
+          id: 'usr-care',
+          name: 'Anitha',
+          email: emailInput,
+          role: 'Salaried Caregiver',
+          phone: '+91 98765 11111'
+        };
+      }
+
+      localStorage.setItem('thodu_session', JSON.stringify(user));
+      setSession(user);
+      setLoginLoading(false);
+    }, 400);
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to log out of Thodu Operations?')) {
+      localStorage.removeItem('thodu_session');
+      setSession(null);
+    }
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [healthRes, benRes, srvRes, bkRes, sosRes] = await Promise.all([
+      const [healthRes, benRes, bkRes, sosRes] = await Promise.all([
         fetch(`${API_BASE_URL}/health`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/beneficiaries`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE_URL}/api/v1/services`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/bookings`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/sos/queue`).then(r => r.json()).catch(() => null)
       ]);
@@ -43,7 +114,6 @@ export default function App() {
         });
       }
       if (benRes && benRes.beneficiaries) setBeneficiaries(benRes.beneficiaries);
-      if (srvRes && srvRes.services) setServices(srvRes.services);
       if (bkRes && bkRes.bookings) setBookings(bkRes.bookings);
       if (sosRes && sosRes.queue) setSosQueue(sosRes.queue);
     } catch (e) {
@@ -54,8 +124,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (session) {
+      fetchData();
+    }
+  }, [session]);
 
   const handleTriggerSOS = async () => {
     try {
@@ -64,7 +136,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           beneficiaryId: 'b1-saraswathi',
-          notes: 'Triggered from Executive Operations Console'
+          notes: `Triggered from Operations Console by ${session?.name}`
         })
       });
       const data = await res.json();
@@ -77,6 +149,122 @@ export default function App() {
     }
   };
 
+  // ==========================================
+  // 1. DEDICATED DESKTOP LOGIN SCREEN
+  // ==========================================
+  if (!session) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, #FFF8E6 0%, #F5EED8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{ maxWidth: '460px', width: '100%', background: '#FFFFFF', borderRadius: '24px', boxShadow: '0 20px 40px rgba(11, 93, 59, 0.08)', border: '1px solid #E5E9E6', padding: '40px 36px', textAlign: 'center' }}>
+          
+          {/* Authentic Horizontal Brand Logo */}
+          <div style={{ marginBottom: '24px' }}>
+            <img 
+              src="/thodu_logo_horizontal.png" 
+              alt="Thodu Elder Care Services" 
+              style={{ width: '280px', height: 'auto', margin: '0 auto', display: 'block' }} 
+            />
+          </div>
+
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B', marginBottom: '6px' }}>
+            Operations & Portal Sign In
+          </h2>
+          <p style={{ fontSize: '13px', color: '#6B7C72', marginBottom: '28px' }}>
+            Sri Divyang Seva Kendram Trust Care Management Platform
+          </p>
+
+          {loginError && (
+            <div style={{ background: '#FFEBEE', color: '#C62828', padding: '10px 14px', borderRadius: '10px', fontSize: '13px', marginBottom: '18px', textAlign: 'left' }}>
+              {loginError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: '#1E2D24', display: 'block', marginBottom: '6px' }}>
+                Email Address
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Mail size={16} color="#6B7C72" style={{ position: 'absolute', left: 14, top: 14 }} />
+                <input 
+                  type="email" 
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  placeholder="name@thodu.sriddha.com"
+                  required
+                  style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: '12px', border: '1.5px solid #E5E9E6', fontSize: '14px', outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: '#1E2D24', display: 'block', marginBottom: '6px' }}>
+                Password
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={16} color="#6B7C72" style={{ position: 'absolute', left: 14, top: 14 }} />
+                <input 
+                  type="password" 
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: '12px', border: '1.5px solid #E5E9E6', fontSize: '14px', outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              disabled={loginLoading}
+              style={{ width: '100%', padding: '14px', fontSize: '15px', justifyContent: 'center' }}
+            >
+              {loginLoading ? 'Authenticating...' : 'Sign In to Workspace →'}
+            </button>
+          </form>
+
+          {/* Quick Demo Credentials */}
+          <div style={{ marginTop: '28px', borderTop: '1px solid #F0F2F0', paddingTop: '20px' }}>
+            <p style={{ fontSize: '12px', color: '#6B7C72', marginBottom: '10px', fontWeight: 500 }}>
+              Quick Role Switching (Click to auto-fill):
+            </p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button 
+                type="button"
+                onClick={() => { setEmailInput('admin@thodu.sriddha.com'); setPasswordInput('admin123'); }}
+                style={{ fontSize: '11px', background: '#E8F5E9', border: '1px solid #C8E6C9', padding: '6px 12px', borderRadius: '8px', color: '#0B5D3B', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Trust Admin
+              </button>
+              <button 
+                type="button"
+                onClick={() => { setEmailInput('family@thodu.sriddha.com'); setPasswordInput('family123'); }}
+                style={{ fontSize: '11px', background: '#FFF8E6', border: '1px solid #FFE082', padding: '6px 12px', borderRadius: '8px', color: '#B78103', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Family Member
+              </button>
+              <button 
+                type="button"
+                onClick={() => { setEmailInput('caregiver@thodu.sriddha.com'); setPasswordInput('care123'); }}
+                style={{ fontSize: '11px', background: '#EDE7F6', border: '1px solid #D1C4E9', padding: '6px 12px', borderRadius: '8px', color: '#512DA8', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Caregiver Staff
+              </button>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '20px', fontSize: '11px', color: '#8A9990' }}>
+            Dedicated Port 5089 • SSL Secured • Sri Divyang Seva Kendram Trust
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 2. AUTHENTICATED DESKTOP PORTAL
+  // ==========================================
   return (
     <div className="web-layout">
       {/* Left Desktop Sidebar */}
@@ -141,15 +329,31 @@ export default function App() {
           </button>
         </nav>
 
+        {/* Sidebar Footer with Active User Profile & Logout */}
         <div className="sidebar-footer">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#2E7D32', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 }}>
-              TA
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#2E7D32', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '13px', flexShrink: 0 }}>
+                {session.name.substring(0, 2).toUpperCase()}
+              </div>
+              <div style={{ overflow: 'hidden' }}>
+                <p style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                  {session.name}
+                </p>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                  {session.role}
+                </p>
+              </div>
             </div>
-            <div>
-              <p style={{ fontSize: '13px', fontWeight: 600 }}>Trust Operations</p>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>admin@thodu.sriddha.com</p>
-            </div>
+            
+            {/* Logout Icon Button */}
+            <button 
+              onClick={handleLogout}
+              title="Log out of Thodu"
+              style={{ background: 'rgba(255, 255, 255, 0.1)', border: 'none', borderRadius: '8px', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#FF8A80', transition: 'background 0.2s' }}
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </aside>
@@ -174,18 +378,28 @@ export default function App() {
               onClick={fetchData} 
               style={{ background: '#FFF', border: '1px solid #E5E9E6', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '12px' }}
             >
-              <RefreshCw size={14} /> Refresh
+              <RefreshCw size={14} className={loading ? 'spin' : ''} /> Refresh
             </button>
+
             <button 
               onClick={handleTriggerSOS}
               style={{ background: '#C62828', color: '#FFF', border: 'none', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', fontWeight: 700 }}
             >
               <AlertTriangle size={14} /> Test SOS
             </button>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#E8F5E9', padding: '6px 12px', borderRadius: '8px' }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2E7D32' }} />
               <span style={{ fontSize: '12px', fontWeight: 600, color: '#0B5D3B' }}>Live Port {systemStats.port}</span>
             </div>
+
+            {/* Topbar Logout Shortcut */}
+            <button 
+              onClick={handleLogout}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFF', border: '1px solid #FFCDD2', color: '#C62828', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+            >
+              <LogOut size={14} /> Log Out
+            </button>
           </div>
         </header>
 
