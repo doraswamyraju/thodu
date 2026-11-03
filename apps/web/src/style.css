@@ -135,7 +135,7 @@ body {
   background: linear-gradient(135deg, #FFF9EB 0%, #FFF3D6 100%);
   border: 1px solid #F5E6BE;
   border-radius: 18px;
-  padding: 20px 24px;
+  padding: 22px 28px;
   margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
@@ -164,47 +164,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-
-/* Analytics 2-Column Grid */
-.analytics-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.analytics-card {
-  background: #FFFFFF;
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid var(--border);
-}
-
-/* Quick Action Tiles */
-.quick-action-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.action-tile-btn {
-  background: #FDFBF7;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.action-tile-btn:hover {
-  background: #F4EEDF;
-  border-color: #D2C6A8;
 }
 
 /* Data Table */
@@ -271,7 +230,7 @@ tr:hover td {
 }
 
 .badge {
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 600;
@@ -298,34 +257,22 @@ tr:hover td {
   color: #1565C0;
 }
 
-/* Auto Suggest Dropdown */
-.autosuggest-container {
-  position: relative;
-}
-
-.autosuggest-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #FFFFFF;
+/* Quick Action Tiles */
+.action-tile-btn {
+  background: #FDFBF7;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  max-height: 220px;
-  overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.autosuggest-item {
-  padding: 10px 14px;
-  cursor: pointer;
-  border-bottom: 1px solid #F0F2F0;
+  border-radius: 12px;
+  padding: 14px 8px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.autosuggest-item:hover {
-  background-color: #E8F5E9;
+.action-tile-btn:hover {
+  background: #F4EEDF;
+  border-color: #D2C6A8;
 }
