@@ -186,3 +186,4 @@ CREATE TABLE audit_logs (
     details JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+

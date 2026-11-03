@@ -40,3 +40,4 @@ export const borderRadius = {
   xl: '24px',
   pill: '9999px',
 };
+

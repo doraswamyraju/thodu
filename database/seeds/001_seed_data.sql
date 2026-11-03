@@ -18,3 +18,4 @@ INSERT INTO services (id, category_id, name, slug, description, duration_hours, 
 INSERT INTO sponsorship_programmes (id, name, description, subsidy_percentage) VALUES
 ('c0000000-0000-0000-0000-000000000001', 'Elder Care Support Programme', 'Sri Divyang Seva Kendram Trust subsidized elder care for low income seniors.', 100),
 ('c0000000-0000-0000-0000-000000000002', 'Disability Care Aid', 'Trust and donor assisted daily living support for persons with disabilities.', 80);
+
