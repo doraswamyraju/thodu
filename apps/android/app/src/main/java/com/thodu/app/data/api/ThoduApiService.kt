@@ -1,5 +1,6 @@
 package com.thodu.app.data.api
 
+import com.thodu.app.data.model.CredentialLoginRequest
 import com.thodu.app.data.model.OAuthLoginRequest
 import com.thodu.app.data.model.OAuthLoginResponse
 import com.thodu.app.data.model.UsersListResponse
@@ -13,6 +14,9 @@ import retrofit2.http.POST
 import java.util.concurrent.TimeUnit
 
 interface ThoduApiService {
+    @POST("/api/v1/auth/login")
+    suspend fun loginWithCredentials(@Body request: CredentialLoginRequest): OAuthLoginResponse
+
     @POST("/api/v1/auth/oauth")
     suspend fun loginWithOAuth(@Body request: OAuthLoginRequest): OAuthLoginResponse
 
@@ -43,4 +47,3 @@ object ApiClient {
             .create(ThoduApiService::class.java)
     }
 }
-

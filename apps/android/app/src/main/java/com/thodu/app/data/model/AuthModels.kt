@@ -8,10 +8,16 @@ data class AppUser(
     @SerializedName("name") val name: String,
     @SerializedName("avatarUrl") val avatarUrl: String?,
     @SerializedName("role") val role: String, // BENEFICIARY, CAREGIVER, FREELANCER, ADMIN
-    @SerializedName("provider") val provider: String, // GOOGLE, APPLE
+    @SerializedName("provider") val provider: String, // GOOGLE, APPLE, DIRECT
     @SerializedName("phone") val phone: String?,
     @SerializedName("createdAt") val createdAt: String?,
     @SerializedName("lastLoginAt") val lastLoginAt: String?
+)
+
+data class CredentialLoginRequest(
+    @SerializedName("credential") val credential: String,
+    @SerializedName("password") val password: String? = null,
+    @SerializedName("role") val role: String = "BENEFICIARY"
 )
 
 data class OAuthLoginRequest(
@@ -35,4 +41,3 @@ data class UsersListResponse(
     @SerializedName("count") val count: Int,
     @SerializedName("users") val users: List<AppUser>
 )
-

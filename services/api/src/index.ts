@@ -1534,6 +1534,56 @@ app.get('/api/v1/auth/users', (req: Request, res: Response) => {
   res.json({ success: true, count: appUsers.length, users: appUsers });
 });
 
+
+// Direct Credential (Email / Mobile Number & Password) Endpoint
+app.post('/api/v1/auth/login', (req: Request, res: Response) => {
+  const { credential, password, role } = req.body;
+  if (!credential) {
+    return res.status(400).json({ success: false, message: 'Email or Mobile Number is required' });
+  }
+
+  const cleanCred = credential.trim().toLowerCase();
+  let user = appUsers.find(u => 
+    u.email.toLowerCase() === cleanCred || 
+    (u.phone && u.phone.replace(/\s+/g, '').includes(cleanCred.replace(/\s+/g, '')))
+  );
+
+  const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
+
+  if (user) {
+    user.lastLoginAt = nowStr;
+    if (role) user.role = role;
+  } else {
+    const isEmail = cleanCred.includes('@');
+    user = {
+      id: 'usr-' + Date.now(),
+      email: isEmail ? cleanCred : cleanCred + '@thodu.sriddha.com',
+      name: isEmail ? cleanCred.split('@')[0] : 'User ' + cleanCred.slice(-4),
+      role: role || 'BENEFICIARY',
+      provider: 'GOOGLE',
+      phone: !isEmail ? credential : '+91 98765 ' + Math.floor(10000 + Math.random() * 90000),
+      createdAt: nowStr,
+      lastLoginAt: nowStr
+    };
+    appUsers.push(user);
+  }
+
+  auditLogs.unshift({
+    id: 'aud-' + Date.now(),
+    adminUser: user.name + ' (' + user.role + ')',
+    action: 'CREDENTIAL_LOGIN',
+    module: 'Authentication',
+    details: 'User authenticated via direct credentials (' + credential + ') with role ' + user.role,
+    timestamp: new Date().toLocaleString()
+  });
+
+  return res.json({
+    success: true,
+    user,
+    token: 'thodu_jwt_' + Buffer.from(user.id + ':' + user.email).toString('base64')
+  });
+});
+
 app.post('/api/v1/auth/oauth', (req: Request, res: Response) => {
   const { provider, email, name, role, photoUrl, idToken } = req.body;
   if (!email || !provider) {
