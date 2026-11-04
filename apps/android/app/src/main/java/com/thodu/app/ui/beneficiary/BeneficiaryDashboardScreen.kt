@@ -198,7 +198,8 @@ fun BeneficiaryDashboardScreen(
                                         activeBooking = activeBooking,
                                         services = services,
                                         onBookCareClick = { showBookCareSheet = true },
-                                        onSelectServiceToBook = { _ -> showBookCareSheet = true }
+                                        onSelectServiceToBook = { _ -> showBookCareSheet = true },
+                                        onNotificationCenterClick = { showNotificationsSheet = true }
                                     )
                                 }
                             }

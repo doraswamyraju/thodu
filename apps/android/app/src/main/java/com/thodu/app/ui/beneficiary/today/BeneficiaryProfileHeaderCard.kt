@@ -1,159 +1,181 @@
 package com.thodu.app.ui.beneficiary.today
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thodu.app.R
 import com.thodu.app.data.model.Beneficiary
-import com.thodu.app.ui.theme.ThoduGreen
 
 @Composable
 fun BeneficiaryProfileHeaderCard(
     beneficiary: Beneficiary,
-    onBookCareClick: () -> Unit
+    onViewProfileClick: () -> Unit = {}
 ) {
+    // Rich Emerald Forest Green Gradient Card matching design inspiration
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, Color(0xFFE5E7EB)),
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 4.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFF074326), // Deep rich forest
+                            Color(0xFF0F683D), // Emerald green
+                            Color(0xFF147A47)  // Vibrant green
+                        )
+                    )
+                )
+                .padding(16.dp)
+        ) {
+            // Faint watermark heart crest in top right corner
+            Icon(
+                imageVector = Icons.Default.VolunteerActivism,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.08f),
+                modifier = Modifier
+                    .size(90.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 10.dp, y = (-10).dp)
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
+                // Circular Portrait Avatar with double white border
+                Surface(
+                    shape = CircleShape,
+                    border = BorderStroke(2.5.dp, Color.White),
+                    color = Color.White,
+                    modifier = Modifier.size(62.dp)
                 ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.avatar_saraswathi),
+                        contentDescription = beneficiary.fullName,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    // "Beneficiary" Pill Badge
                     Surface(
-                        shape = CircleShape,
-                        color = Color(0xFFDCFCE7),
-                        modifier = Modifier.size(50.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color.White.copy(alpha = 0.95f),
+                        modifier = Modifier.padding(bottom = 4.dp)
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = beneficiary.fullName.take(1).uppercase(),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 22.sp,
-                                color = Color(0xFF15803D)
-                            )
-                        }
+                        Text(
+                            text = "Beneficiary",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF074326),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
                     }
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    // Name
+                    Text(
+                        text = beneficiary.fullName,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
 
-                    Column {
-                        Text(
-                            text = beneficiary.fullName,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF111827)
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Age & Location Row
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarMonth,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.85f),
+                            modifier = Modifier.size(13.dp)
                         )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 2.dp)
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = Color(0xFFE0E7FF)
-                            ) {
-                                Text(
-                                    text = beneficiary.category,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF3730A3),
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "• ${beneficiary.age} yrs • Ref: ${beneficiary.refNumber}",
-                                fontSize = 11.sp,
-                                color = Color(0xFF6B7280)
-                            )
-                        }
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "${beneficiary.age} Years",
+                            fontSize = 12.sp,
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
+
+                        Text(
+                            text = "  |  ",
+                            fontSize = 12.sp,
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.85f),
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "T.T.D. Colony, Tirupati",
+                            fontSize = 12.sp,
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = Color(0xFFF3F4F6), thickness = 1.dp)
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Address
-            Row(verticalAlignment = Alignment.Top) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = Color(0xFF0D5C3A),
-                    modifier = Modifier.size(16.dp).padding(top = 2.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = beneficiary.address,
-                    fontSize = 12.sp,
-                    color = Color(0xFF374151),
-                    lineHeight = 16.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Guardian Contact
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Phone,
-                    contentDescription = null,
-                    tint = Color(0xFF6B7280),
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Guardian: ${beneficiary.primaryGuardian} (${beneficiary.primaryContact})",
-                    fontSize = 11.sp,
-                    color = Color(0xFF6B7280)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Book Care Visit Button
-            Button(
-                onClick = onBookCareClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0D5C3A),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(44.dp)
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "+ Book Care Visit",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
+                // "View Profile >" Glass Button
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color.White.copy(alpha = 0.18f),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable(onClick = onViewProfileClick)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "View Profile",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
             }
         }
     }
 }
-

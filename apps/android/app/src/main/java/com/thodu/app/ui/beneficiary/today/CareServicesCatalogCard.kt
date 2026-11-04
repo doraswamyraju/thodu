@@ -1,6 +1,7 @@
 package com.thodu.app.ui.beneficiary.today
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -18,139 +20,149 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thodu.app.data.model.CareService
-import com.thodu.app.ui.theme.ThoduGreen
+
+data class ServiceGridItem(
+    val id: String,
+    val title: String,
+    val icon: ImageVector,
+    val cardBg: Color,
+    val iconTint: Color
+)
 
 @Composable
 fun CareServicesCatalogCard(
     services: List<CareService>,
-    onSelectServiceToBook: (CareService) -> Unit
+    onSelectServiceToBook: (CareService?) -> Unit
 ) {
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, Color(0xFFE5E7EB)),
-        shadowElevation = 1.dp,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Header
+    // 8 Beautiful Care Services matching the design inspiration
+    val catalogItems = listOf(
+        ServiceGridItem("srv-1", "Personal\nCare", Icons.Default.Elderly, Color(0xFFF0FDF4), Color(0xFF15803D)),
+        ServiceGridItem("srv-2", "Health\nMonitoring", Icons.Default.Favorite, Color(0xFFFEF2F2), Color(0xFFDC2626)),
+        ServiceGridItem("srv-3", "Medication\nAssistance", Icons.Default.Medication, Color(0xFFFFF1F2), Color(0xFFE11D48)),
+        ServiceGridItem("srv-4", "Meals &\nNutrition", Icons.Default.Restaurant, Color(0xFFFFFBEB), Color(0xFFD97706)),
+        ServiceGridItem("srv-5", "Physio\nSupport", Icons.Default.FitnessCenter, Color(0xFFF0FDF4), Color(0xFF16A34A)),
+        ServiceGridItem("srv-6", "Doctor\nConsultation", Icons.Default.MedicalServices, Color(0xFFF0FDF4), Color(0xFF0D5C3A)),
+        ServiceGridItem("srv-7", "Lab Sample\nCollection", Icons.Default.Science, Color(0xFFEFF6FF), Color(0xFF2563EB)),
+        ServiceGridItem("srv-8", "More\nServices", Icons.Default.MoreHoriz, Color(0xFFF0FDF4), Color(0xFF0D5C3A))
+    )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Section Header: "Our Services" and "Book a Service ->"
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Our Services",
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF143627)
+            )
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Our Care Services",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF111827)
-                    )
-                    Text(
-                        text = "Select any service below to book immediate or scheduled care",
-                        fontSize = 11.sp,
-                        color = Color(0xFF6B7280)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Service Icons Grid (4 Services)
-            val displayServices = services.take(4)
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                displayServices.forEach { srv ->
-                    val (icon, bgCol, tintCol) = getServiceIconConfig(srv.name)
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFF9FAFB),
-                        border = BorderStroke(1.dp, Color(0xFFE5E7EB)),
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onSelectServiceToBook(srv) }
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = bgCol,
-                                modifier = Modifier.size(42.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = srv.name,
-                                        tint = tintCol,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = srv.name,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1F2937),
-                                textAlign = TextAlign.Center,
-                                maxLines = 2,
-                                minLines = 2,
-                                lineHeight = 12.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Text(
-                                text = if (srv.pricingType == "FIXED_PRICE") "₹${(srv.pricePaise ?: 0)/100}" else "Enquiry",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0D5C3A)
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // "Book a Service" CTA Button
-            Button(
-                onClick = {
-                    services.firstOrNull()?.let { onSelectServiceToBook(it) }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0D5C3A),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(44.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onSelectServiceToBook(null) }
+                    .padding(4.dp)
             ) {
                 Text(
-                    text = "Book a Service →",
+                    text = "Book a Service",
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp
+                    color = Color(0xFF0D5C3A)
+                )
+                Spacer(modifier = Modifier.width(3.dp))
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = null,
+                    tint = Color(0xFF0D5C3A),
+                    modifier = Modifier.size(13.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Row 1 (4 Items)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            catalogItems.take(4).forEach { item ->
+                ServiceBox(
+                    item = item,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        val matched = services.firstOrNull { it.name.contains(item.title.replace("\n", " "), ignoreCase = true) }
+                        onSelectServiceToBook(matched)
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Row 2 (4 Items)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            catalogItems.drop(4).take(4).forEach { item ->
+                ServiceBox(
+                    item = item,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        val matched = services.firstOrNull { it.name.contains(item.title.replace("\n", " "), ignoreCase = true) }
+                        onSelectServiceToBook(matched)
+                    }
                 )
             }
         }
     }
 }
 
-private fun getServiceIconConfig(serviceName: String): Triple<ImageVector, Color, Color> {
-    return when {
-        serviceName.contains("Household", ignoreCase = true) -> Triple(Icons.Default.Home, Color(0xFFDCFCE7), Color(0xFF15803D))
-        serviceName.contains("Bedside", ignoreCase = true) || serviceName.contains("Mobility", ignoreCase = true) -> Triple(Icons.Default.AccessibilityNew, Color(0xFFEFF6FF), Color(0xFF2563EB))
-        serviceName.contains("Medication", ignoreCase = true) || serviceName.contains("Clinical", ignoreCase = true) -> Triple(Icons.Default.Medication, Color(0xFFFEF3C7), Color(0xFFD97706))
-        serviceName.contains("Physio", ignoreCase = true) -> Triple(Icons.Default.FitnessCenter, Color(0xFFF3E8FF), Color(0xFF9333EA))
-        else -> Triple(Icons.Default.VolunteerActivism, Color(0xFFFCE7F3), Color(0xFFDB2777))
+@Composable
+private fun ServiceBox(
+    item: ServiceGridItem,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = item.cardBg,
+        border = BorderStroke(1.dp, Color.White),
+        shadowElevation = 1.dp,
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(vertical = 12.dp, horizontal = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.title,
+                tint = item.iconTint,
+                modifier = Modifier.size(28.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = item.title,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF1E293B),
+                textAlign = TextAlign.Center,
+                lineHeight = 13.sp,
+                maxLines = 2,
+                minLines = 2
+            )
+        }
     }
 }
-
