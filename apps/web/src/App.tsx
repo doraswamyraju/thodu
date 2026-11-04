@@ -422,26 +422,41 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Initialize Google One Tap / Sign In button if script loaded
-    const win = window as any;
-    if (win.google && win.google.accounts && win.google.accounts.id) {
-      win.google.accounts.id.initialize({
-        client_id: '814572872575-a6av64egoid154idv7f6kj78829fb5pv.apps.googleusercontent.com',
-        callback: handleGoogleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: true,
-      });
-
-      const btnContainer = document.getElementById('googleSignInBtnContainer');
-      if (btnContainer) {
-        btnContainer.innerHTML = '';
-        win.google.accounts.id.renderButton(btnContainer, {
-          theme: 'outline',
-          size: 'large',
-          width: 380,
-          text: 'continue_with',
-          shape: 'pill'
+    // Robust Google Button Renderer: polls until gsi client script finishes downloading
+    const renderGoogleBtn = () => {
+      const win = window as any;
+      if (win.google && win.google.accounts && win.google.accounts.id) {
+        win.google.accounts.id.initialize({
+          client_id: '814572872575-a6av64egoid154idv7f6kj78829fb5pv.apps.googleusercontent.com',
+          callback: handleGoogleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
         });
+
+        const btnContainer = document.getElementById('googleSignInBtnContainer');
+        if (btnContainer) {
+          btnContainer.innerHTML = '';
+          win.google.accounts.id.renderButton(btnContainer, {
+            theme: 'outline',
+            size: 'large',
+            width: 380,
+            text: 'continue_with',
+            shape: 'pill'
+          });
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (!session) {
+      if (!renderGoogleBtn()) {
+        const interval = setInterval(() => {
+          if (renderGoogleBtn()) {
+            clearInterval(interval);
+          }
+        }, 150);
+        return () => clearInterval(interval);
       }
     }
   }, [session, loginRole]);

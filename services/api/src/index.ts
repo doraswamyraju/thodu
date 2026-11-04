@@ -1590,32 +1590,70 @@ app.post('/api/v1/auth/oauth', (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'Provider and email are required' });
   }
 
-  let user = appUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const cleanEmail = email.toLowerCase().trim();
+  let user = appUsers.find(u => u.email.toLowerCase() === cleanEmail);
   const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
 
-  // If user is designated admin email, ensure ADMIN role
-  const isAdminEmail = email.toLowerCase() === 'raju@thodu.sriddha.com' || email.toLowerCase() === 'rajuganiventures@gmail.com';
+  // Strictly only system superadmin email can have ADMIN role
+  const isSuperAdminEmail = cleanEmail === 'raju@thodu.sriddha.com';
+
+  const userRole = isSuperAdminEmail ? 'ADMIN' : 'BENEFICIARY';
 
   if (user) {
     user.lastLoginAt = nowStr;
-    if (name && !user.name) user.name = name;
+    user.role = userRole; // Auto-correct any mistaken ADMIN roles
+    if (name && (!user.name || user.name.includes('@'))) user.name = name;
     if (photoUrl) user.avatarUrl = photoUrl;
     if (phone) user.phone = phone;
-    if (isAdminEmail) user.role = 'ADMIN';
   } else {
-    const assignedRole = isAdminEmail ? 'ADMIN' : (role || 'BENEFICIARY');
     user = {
       id: 'usr-' + Date.now(),
-      email: email.toLowerCase(),
-      name: name || email.split('@')[0],
+      email: cleanEmail,
+      name: name || cleanEmail.split('@')[0],
       avatarUrl: photoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-      role: assignedRole,
+      role: userRole,
       provider: provider.toUpperCase() === 'APPLE' ? 'APPLE' : 'GOOGLE',
-      phone: phone || '', // empty if not yet provided by user
+      phone: phone || '',
       createdAt: nowStr,
       lastLoginAt: nowStr
     };
     appUsers.push(user);
+  }
+
+  // Also ensure this user is present in the Beneficiaries & Families registry
+  if (user.role === 'BENEFICIARY') {
+    let existingBen = beneficiaries.find(b => 
+      (b.guardianEmail && b.guardianEmail.toLowerCase() === cleanEmail) ||
+      (user.phone && b.primaryContact && b.primaryContact.includes(user.phone))
+    );
+
+    if (!existingBen) {
+      const nextNum = (beneficiaries.length + 1).toString().padStart(3, '0');
+      const newBen: Beneficiary = {
+        id: 'ben-' + Date.now(),
+        refNumber: `TH-BEN-${nextNum}`,
+        fullName: user.name + ' (Senior)',
+        category: 'Senior Citizen',
+        age: 68,
+        gender: 'Not Specified',
+        relationship: 'Self / Loved One',
+        primaryGuardian: user.name,
+        guardianEmail: cleanEmail,
+        primaryContact: user.phone || '+91 Not Provided',
+        address: 'Tirupati, Andhra Pradesh',
+        latitude: 13.6288,
+        longitude: 79.4192,
+        accessibilityNeeds: 'Assisted Walking & General Care',
+        status: 'Active',
+        subsidyTier: 'Family Self-Funded',
+        avatarBg: '#0B5D3B'
+      };
+      beneficiaries.unshift(newBen);
+    } else {
+      existingBen.primaryGuardian = user.name;
+      existingBen.guardianEmail = cleanEmail;
+      if (user.phone) existingBen.primaryContact = user.phone;
+    }
   }
 
   const needsPhone = !user.phone || user.phone.trim().length < 10;
@@ -1643,23 +1681,46 @@ app.post('/api/v1/auth/update-phone', (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'Email and phone number are required' });
   }
 
-  let user = appUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const cleanEmail = email.toLowerCase().trim();
+  let user = appUsers.find(u => u.email.toLowerCase() === cleanEmail);
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found' });
   }
 
   user.phone = phone.trim();
 
-  // If also a beneficiary in beneficiary list, update their primaryContact
-  const ben = beneficiaries.find(b => b.guardianEmail && b.guardianEmail.toLowerCase() === email.toLowerCase());
-  if (ben) {
-    ben.primaryContact = phone.trim();
+  // Also update Beneficiary registry
+  let existingBen = beneficiaries.find(b => b.guardianEmail && b.guardianEmail.toLowerCase() === cleanEmail);
+  if (existingBen) {
+    existingBen.primaryContact = phone.trim();
+  } else {
+    const nextNum = (beneficiaries.length + 1).toString().padStart(3, '0');
+    const newBen: Beneficiary = {
+      id: 'ben-' + Date.now(),
+      refNumber: `TH-BEN-${nextNum}`,
+      fullName: user.name + ' (Senior)',
+      category: 'Senior Citizen',
+      age: 68,
+      gender: 'Not Specified',
+      relationship: 'Self / Loved One',
+      primaryGuardian: user.name,
+      guardianEmail: cleanEmail,
+      primaryContact: phone.trim(),
+      address: 'Tirupati, Andhra Pradesh',
+      latitude: 13.6288,
+      longitude: 79.4192,
+      accessibilityNeeds: 'Assisted Walking & General Care',
+      status: 'Active',
+      subsidyTier: 'Family Self-Funded',
+      avatarBg: '#0B5D3B'
+    };
+    beneficiaries.unshift(newBen);
   }
 
   return res.json({
     success: true,
     user,
-    message: 'Mobile number successfully saved'
+    message: 'Mobile number successfully saved and linked to Beneficiary profile'
   });
 });
 

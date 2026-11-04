@@ -36,20 +36,15 @@ object GoogleAuthManager {
 
     /**
      * Gets standard GoogleSignInClient for Play Services OAuth 2.0 account chooser.
-     * Uses standard DEFAULT_SIGN_IN with email and profile for 100% reliable local account chooser,
-     * while requesting idToken with the verified web client ID.
+     * Uses standard DEFAULT_SIGN_IN with email and profile for 100% reliable local account chooser.
+     * This avoids Error 10 (DEVELOPER_ERROR) caused by unlinked server client IDs.
      */
     fun getGoogleSignInClient(activity: Activity): GoogleSignInClient {
-        val builder = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .requestProfile()
-
-        // Only attach requestIdToken if valid client ID is present
-        try {
-            builder.requestIdToken(WEB_CLIENT_ID)
-        } catch (_: Exception) {}
-
-        return GoogleSignIn.getClient(activity, builder.build())
+            .build()
+        return GoogleSignIn.getClient(activity, gso)
     }
 
     /**
