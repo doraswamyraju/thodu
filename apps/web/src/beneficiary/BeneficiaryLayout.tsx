@@ -12,6 +12,7 @@ import { BeneficiaryBookingModal } from './BeneficiaryBookingModal';
 import { BeneficiaryEmergencySosModal } from './BeneficiaryEmergencySosModal';
 
 interface BeneficiaryLayoutProps {
+  currentUser?: any;
   onUpdateBooking?: (bookingId: string, updateData: any) => Promise<void>;
   onCancelBooking?: (bookingId: string) => Promise<void>;
   services?: any[];
@@ -21,11 +22,12 @@ interface BeneficiaryLayoutProps {
   onRefresh: () => void;
   onBookCare: (bookingData: any) => Promise<void>;
   onTriggerSos: (beneficiaryId: string, notes: string) => Promise<void>;
-  onSwitchToAdmin: () => void;
+  onSwitchToAdmin?: () => void;
   onLogout: () => void;
 }
 
 export const BeneficiaryLayout: React.FC<BeneficiaryLayoutProps> = ({
+  currentUser,
   beneficiaries,
   bookings,
   services = [],
@@ -105,13 +107,15 @@ export const BeneficiaryLayout: React.FC<BeneficiaryLayoutProps> = ({
         <div className="sidebar-footer" style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', color: '#FFF' }}>
-              AS
+              {(currentUser?.name || activeBen.primaryGuardian || 'U').slice(0, 2).toUpperCase()}
             </div>
             <div style={{ overflow: 'hidden' }}>
               <p style={{ fontSize: '12px', fontWeight: 700, margin: 0, color: '#FFF', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                {activeBen.primaryGuardian || 'Anita Sharma'}
+                {currentUser?.name || activeBen.primaryGuardian || 'Family Member'}
               </p>
-              <p style={{ fontSize: '10px', color: '#A7F3D0', margin: 0 }}>Family Guardian</p>
+              <p style={{ fontSize: '10px', color: '#A7F3D0', margin: 0 }}>
+                {currentUser?.phone || activeBen.primaryContact || 'Family Guardian'}
+              </p>
             </div>
           </div>
         </div>

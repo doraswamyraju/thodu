@@ -8,6 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
 interface ThoduApiService {
@@ -21,9 +22,12 @@ interface ThoduApiService {
     @GET("/api/v1/auth/users")
     suspend fun getUsers(): UsersListResponse
 
-    // Beneficiary Module
+    // Beneficiary Module - Fetch only the logged in user's loved ones
     @GET("/api/v1/beneficiaries")
-    suspend fun getBeneficiaries(): BeneficiariesResponse
+    suspend fun getBeneficiaries(
+        @Query("email") email: String? = null,
+        @Query("phone") phone: String? = null
+    ): BeneficiariesResponse
 
     @GET("/api/v1/bookings")
     suspend fun getBookings(): BookingsResponse

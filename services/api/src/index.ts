@@ -1252,6 +1252,50 @@ app.patch('/api/v1/beneficiaries/:id', (req: Request, res: Response) => {
 });
 
 app.get('/api/v1/beneficiaries', (req: Request, res: Response) => {
+  const { email, phone, all } = req.query;
+
+  // If specific customer email or phone passed, strictly return only their loved ones
+  if (!all && (email || phone)) {
+    const cleanEmail = (email as string || '').toLowerCase().trim();
+    const cleanPhone = (phone as string || '').trim();
+
+    const userBens = beneficiaries.filter(b => 
+      (cleanEmail && b.guardianEmail && b.guardianEmail.toLowerCase() === cleanEmail) ||
+      (cleanPhone && b.primaryContact && b.primaryContact.includes(cleanPhone))
+    );
+
+    // If customer has no linked loved one yet, auto-provision their own primary profile
+    if (userBens.length === 0 && cleanEmail) {
+      const appUser = appUsers.find(u => u.email.toLowerCase() === cleanEmail);
+      const name = appUser?.name || cleanEmail.split('@')[0];
+      const nextNum = (beneficiaries.length + 1).toString().padStart(3, '0');
+      const primaryProfile: Beneficiary = {
+        id: 'ben-' + Date.now(),
+        refNumber: `TH-BEN-${nextNum}`,
+        fullName: name,
+        category: 'Senior Citizen',
+        age: 65,
+        gender: 'Not Specified',
+        relationship: 'Self (Primary Account)',
+        primaryGuardian: name,
+        guardianEmail: cleanEmail,
+        primaryContact: appUser?.phone || cleanPhone || '+91 Not Provided',
+        address: 'Tirupati, Andhra Pradesh',
+        latitude: 13.6288,
+        longitude: 79.4192,
+        accessibilityNeeds: 'General Elder Care & Home Support',
+        status: 'Active',
+        subsidyTier: 'Family Self-Funded',
+        avatarBg: '#0B5D3B'
+      };
+      beneficiaries.unshift(primaryProfile);
+      return res.json({ success: true, beneficiaries: [primaryProfile] });
+    }
+
+    return res.json({ success: true, beneficiaries: userBens });
+  }
+
+  // Admin view: returns all
   res.json({ success: true, beneficiaries });
 });
 

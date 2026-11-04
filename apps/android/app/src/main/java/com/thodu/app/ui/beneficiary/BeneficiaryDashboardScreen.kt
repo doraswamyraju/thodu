@@ -44,12 +44,34 @@ fun BeneficiaryDashboardScreen(
         isLoading = true
         coroutineScope.launch {
             try {
-                val benRes = ApiClient.apiService.getBeneficiaries()
+                // Fetch strictly only the loved ones belonging to currentUser
+                val benRes = ApiClient.apiService.getBeneficiaries(
+                    email = currentUser.email,
+                    phone = currentUser.phone
+                )
                 if (benRes.success && benRes.beneficiaries.isNotEmpty()) {
                     beneficiaries = benRes.beneficiaries
-                    if (selectedBeneficiary == null) {
-                        selectedBeneficiary = benRes.beneficiaries.first()
-                    }
+                    // Keep currently selected or default to the first one
+                    selectedBeneficiary = beneficiaries.firstOrNull { it.id == selectedBeneficiary?.id } 
+                        ?: benRes.beneficiaries.first()
+                } else {
+                    // Fallback to current user's profile if empty
+                    val fallback = Beneficiary(
+                        id = "ben-${currentUser.id}",
+                        refNumber = "TH-BEN-001",
+                        fullName = currentUser.name,
+                        category = "Senior Citizen",
+                        age = 65,
+                        gender = "Not Specified",
+                        relationship = "Self (Primary)",
+                        primaryGuardian = currentUser.name,
+                        primaryContact = currentUser.phone ?: "+91 98765 43210",
+                        address = "Tirupati, Andhra Pradesh",
+                        status = "Active",
+                        subsidyTier = "Family Self-Funded"
+                    )
+                    beneficiaries = listOf(fallback)
+                    selectedBeneficiary = fallback
                 }
 
                 val bkRes = ApiClient.apiService.getBookings()

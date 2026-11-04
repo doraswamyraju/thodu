@@ -1185,9 +1185,32 @@ export default function App() {
   }
 
   if (currentPortal === 'beneficiary') {
+    // Filter strictly to loved ones belonging to this logged-in account
+    const myLovedOnes = beneficiaries.filter(b => 
+      (session?.email && b.guardianEmail && b.guardianEmail.toLowerCase() === session.email.toLowerCase()) ||
+      (session?.phone && b.primaryContact && b.primaryContact.includes(session.phone))
+    );
+
+    // If no loved ones found, create their personal profile
+    const displayBeneficiaries = myLovedOnes.length > 0 ? myLovedOnes : [{
+      id: session?.id || 'ben-user',
+      refNumber: 'TH-BEN-001',
+      fullName: session?.name || 'My Profile',
+      category: 'Senior Citizen',
+      relationship: 'Self (Primary Account)',
+      primaryGuardian: session?.name || 'Self',
+      primaryContact: session?.phone || '+91 Not Provided',
+      guardianEmail: session?.email,
+      address: 'Tirupati, Andhra Pradesh',
+      status: 'Active',
+      subsidyTier: 'Family Self-Funded',
+      avatarBg: '#0B5D3B'
+    }];
+
     return (
       <BeneficiaryLayout
-        beneficiaries={beneficiaries}
+        currentUser={session}
+        beneficiaries={displayBeneficiaries as any}
         bookings={bookings}
         services={careServicesList}
         caregivers={caregivers}
