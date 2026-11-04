@@ -1164,6 +1164,33 @@ app.post('/api/v1/bookings', (req: Request, res: Response) => {
   res.status(201).json({ success: true, booking: newBooking });
 });
 
+
+// Update Booking (Reschedule, Change Instructions, Cancel, etc.)
+app.patch('/api/v1/bookings/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const bk = bookings.find(b => b.id === id);
+  if (!bk) return res.status(404).json({ error: 'Booking not found' });
+
+  const { scheduledDate, scheduledTimeSlot, serviceAddress, status, caregiverNotes, specialInstructions, fundingType } = req.body;
+  if (scheduledDate !== undefined) bk.scheduledDate = scheduledDate;
+  if (scheduledTimeSlot !== undefined) bk.scheduledTimeSlot = scheduledTimeSlot;
+  if (serviceAddress !== undefined) bk.serviceAddress = serviceAddress;
+  if (status !== undefined) bk.status = status;
+  if (caregiverNotes !== undefined) bk.caregiverNotes = caregiverNotes;
+  if (fundingType !== undefined) bk.fundingType = fundingType;
+
+  auditLogs.unshift({
+    id: 'aud-' + Date.now(),
+    adminUser: 'Family / Beneficiary Portal',
+    action: 'BOOKING_UPDATED',
+    module: 'Care Bookings',
+    details: 'Updated booking ' + bk.bookingNumber + ' for ' + bk.beneficiaryName + ' (Status: ' + bk.status + ')',
+    timestamp: new Date().toLocaleString()
+  });
+
+  res.json({ success: true, booking: bk });
+});
+
 app.delete('/api/v1/bookings/:id', (req: Request, res: Response) => {
   bookings = bookings.filter(b => b.id !== req.params.id);
   res.json({ success: true, message: 'Booking removed' });

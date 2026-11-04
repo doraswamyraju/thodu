@@ -12,6 +12,8 @@ import { BeneficiaryBookingModal } from './BeneficiaryBookingModal';
 import { BeneficiaryEmergencySosModal } from './BeneficiaryEmergencySosModal';
 
 interface BeneficiaryLayoutProps {
+  onUpdateBooking?: (bookingId: string, updateData: any) => Promise<void>;
+  onCancelBooking?: (bookingId: string) => Promise<void>;
   services?: any[];
   beneficiaries: Beneficiary[];
   bookings: CareBooking[];
@@ -29,6 +31,8 @@ export const BeneficiaryLayout: React.FC<BeneficiaryLayoutProps> = ({
   services = [],
   onRefresh,
   onBookCare,
+  onUpdateBooking,
+  onCancelBooking,
   onTriggerSos,
   onLogout
 }) => {
@@ -219,6 +223,9 @@ export const BeneficiaryLayout: React.FC<BeneficiaryLayoutProps> = ({
               beneficiary={activeBen}
               bookings={benBookings}
               onOpenBookModal={() => setIsBookModalOpen(true)}
+              onUpdateBooking={onUpdateBooking}
+              onCancelBooking={onCancelBooking}
+              onRefresh={onRefresh}
             />
           )}
 

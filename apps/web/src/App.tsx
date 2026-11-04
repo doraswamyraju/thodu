@@ -375,6 +375,41 @@ export default function App() {
     }
   };
 
+  
+  const handleUpdateBooking = async (bookingId: string, updateData: any) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/bookings/${bookingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      });
+      const data = await res.json();
+      if (data.success || data.booking) {
+        await fetchData();
+        alert('Booking updated successfully!');
+      }
+    } catch (e) {
+      alert('Error updating booking');
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/bookings/${bookingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Cancelled' })
+      });
+      const data = await res.json();
+      if (data.success || data.booking) {
+        await fetchData();
+        alert('Booking cancelled successfully.');
+      }
+    } catch (e) {
+      alert('Error cancelling booking');
+    }
+  };
+
   const handleBeneficiaryBookCare = async (bookingData: any) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/bookings`, {
@@ -736,6 +771,8 @@ export default function App() {
         caregivers={caregivers}
         onRefresh={fetchData}
         onBookCare={handleBeneficiaryBookCare}
+        onUpdateBooking={handleUpdateBooking}
+        onCancelBooking={handleCancelBooking}
         onTriggerSos={handleBeneficiaryTriggerSos}
         onSwitchToAdmin={() => setCurrentPortal('admin')}
         onLogout={handleLogout}
