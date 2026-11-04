@@ -1,3 +1,16 @@
+
+export interface CareService {
+  id: string;
+  name: string;
+  category: string;
+  pricingType: 'FIXED_PRICE' | 'ENQUIRY_CUSTOM';
+  pricePaise?: number;
+  durationHours?: number;
+  description: string;
+  iconName?: string;
+  isActive: boolean;
+}
+
 export interface Beneficiary {
   id: string;
   refNumber: string;

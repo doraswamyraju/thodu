@@ -5,7 +5,7 @@ import {
 import './style.css';
 import { BeneficiaryLayout } from './beneficiary';
 
-type NavSection = 'overview' | 'map' | 'bookings' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'staff' | 'funding' | 'sos' | 'audit';
+type NavSection = 'overview' | 'map' | 'bookings' | 'services' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'staff' | 'funding' | 'sos' | 'audit';
 
 interface UserSession {
   id: string;
@@ -37,6 +37,19 @@ export default function App() {
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [caregivers, setCaregivers] = useState<any[]>([]);
+
+  const [careServicesList, setCareServicesList] = useState<any[]>([]);
+  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+  const [editingService, setEditingService] = useState<any | null>(null);
+  const [serviceForm, setServiceForm] = useState({
+    name: '',
+    category: 'DAILY_LIVING',
+    pricingType: 'FIXED_PRICE' as 'FIXED_PRICE' | 'ENQUIRY_CUSTOM',
+    priceInr: 450,
+    durationHours: 2,
+    description: ''
+  });
+
   const [sponsorships, setSponsorships] = useState<any[]>([]);
   const [sosQueue, setSosQueue] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -195,7 +208,7 @@ export default function App() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [analyticsRes, benRes, bkRes, cgRes, spRes, sosRes, audRes, payRes, txRes, stRes] = await Promise.all([
+      const [analyticsRes, benRes, bkRes, cgRes, spRes, sosRes, audRes, payRes, txRes, stRes, srvRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/v1/analytics`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/beneficiaries`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/bookings`).then(r => r.json()).catch(() => null),
@@ -205,7 +218,8 @@ export default function App() {
         fetch(`${API_BASE_URL}/api/v1/audit-logs`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/caregiver-payouts`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/payments`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE_URL}/api/v1/staff`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE_URL}/api/v1/staff`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE_URL}/api/v1/services`).then(r => r.json()).catch(() => null)
       ]);
 
       if (analyticsRes?.data) setAnalytics(analyticsRes.data);
@@ -218,6 +232,7 @@ export default function App() {
       if (payRes?.payouts) setCaregiverPayouts(payRes.payouts);
       if (txRes?.payments) setPaymentTransactions(txRes.payments);
       if (stRes?.staff) setStaffList(stRes.staff);
+      if (srvRes?.services) setCareServicesList(srvRes.services);
     } catch (e) {
       console.error('Fetch error:', e);
     } finally {
@@ -306,6 +321,60 @@ export default function App() {
   };
 
   
+  
+  const handleSaveService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingService) {
+        const res = await fetch(`${API_BASE_URL}/api/v1/services/${editingService.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(serviceForm)
+        });
+        const data = await res.json();
+        if (data.success) {
+          setShowAddServiceModal(false);
+          setEditingService(null);
+          fetchData();
+        }
+      } else {
+        const res = await fetch(`${API_BASE_URL}/api/v1/services`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(serviceForm)
+        });
+        const data = await res.json();
+        if (data.success) {
+          setShowAddServiceModal(false);
+          setServiceForm({
+            name: '',
+            category: 'DAILY_LIVING',
+            pricingType: 'FIXED_PRICE',
+            priceInr: 450,
+            durationHours: 2,
+            description: ''
+          });
+          fetchData();
+        }
+      }
+    } catch (err) {
+      alert('Error saving care service');
+    }
+  };
+
+  const handleDeleteService = async (serviceId: string) => {
+    if (!window.confirm('Delete this care service from the catalog?')) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/services/${serviceId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        fetchData();
+      }
+    } catch (err) {
+      alert('Error deleting service');
+    }
+  };
+
   const handleBeneficiaryBookCare = async (bookingData: any) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/bookings`, {
@@ -663,6 +732,7 @@ export default function App() {
       <BeneficiaryLayout
         beneficiaries={beneficiaries}
         bookings={bookings}
+        services={careServicesList}
         caregivers={caregivers}
         onRefresh={fetchData}
         onBookCare={handleBeneficiaryBookCare}
@@ -690,6 +760,11 @@ export default function App() {
           <button className={`nav-link ${activeSection === 'map' ? 'active' : ''}`} onClick={() => setActiveSection('map')}>
             <MapPin size={18} />
             <span>Live Dispatch Map</span>
+          </button>
+          
+          <button className={`nav-link ${activeSection === 'services' ? 'active' : ''}`} onClick={() => setActiveSection('services')}>
+            <Award size={18} />
+            <span>Care Services Catalog</span>
           </button>
           <button className={`nav-link ${activeSection === 'bookings' ? 'active' : ''}`} onClick={() => setActiveSection('bookings')}>
             <Calendar size={18} />
@@ -762,6 +837,7 @@ export default function App() {
               {activeSection === 'payments' && 'Financial Ledger & Invoices'}
               {activeSection === 'staff' && 'Trust Staff Management & Operations'}
 
+              {activeSection === 'services' && 'Care Services & Pricing Catalog'}
               {activeSection === 'bookings' && 'Care Service Bookings & Dispatch Board'}
               {activeSection === 'beneficiaries' && 'Beneficiaries & Families'}
               {activeSection === 'overview' && 'Overview & Analytics'}
@@ -771,6 +847,7 @@ export default function App() {
             </h1>
             <p style={{ fontSize: '12px', color: '#6B7C72' }}>
               {activeSection === 'workforce' && 'Manage caregivers, their employment, availability and verification'}
+              {activeSection === 'services' && 'Configure fixed price services and custom enquiry options for beneficiaries'}
               {activeSection === 'bookings' && 'Manage salaried roster assignment, gig broadcasts, and status'}
               {activeSection === 'beneficiaries' && 'Manage all registered beneficiaries and their family/guardian details'}
             </p>
@@ -1335,6 +1412,221 @@ export default function App() {
             </div>
           )}
 
+
+          
+          {activeSection === 'services' && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <div>
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#1B382B', margin: 0 }}>Care Services & Pricing Catalog</h2>
+                  <p style={{ fontSize: '12px', color: '#688273', margin: '4px 0 0 0' }}>Manage services offered to families, fixed rates, and custom quote enquiry options</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingService(null);
+                    setServiceForm({
+                      name: '',
+                      category: 'DAILY_LIVING',
+                      pricingType: 'FIXED_PRICE',
+                      priceInr: 450,
+                      durationHours: 2,
+                      description: ''
+                    });
+                    setShowAddServiceModal(true);
+                  }}
+                  className="btn-primary"
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', fontSize: '13px' }}
+                >
+                  <Plus size={16} /> + Create New Care Service
+                </button>
+              </div>
+
+              {/* Grid of Services Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                {careServicesList.map(srv => {
+                  const isFixed = srv.pricingType === 'FIXED_PRICE';
+                  return (
+                    <div key={srv.id} style={{ background: '#FFF', borderRadius: '16px', border: '1px solid #E5E9E6', padding: '22px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: isFixed ? '#E8F5E9' : '#EFF6FF', color: isFixed ? '#166534' : '#1D4ED8', textTransform: 'uppercase' }}>
+                            {isFixed ? 'Fixed Price' : 'Price on Enquiry'}
+                          </span>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button
+                              onClick={() => {
+                                setEditingService(srv);
+                                setServiceForm({
+                                  name: srv.name,
+                                  category: srv.category || 'DAILY_LIVING',
+                                  pricingType: srv.pricingType,
+                                  priceInr: srv.pricePaise ? (srv.pricePaise / 100) : 450,
+                                  durationHours: srv.durationHours || 2,
+                                  description: srv.description || ''
+                                });
+                                setShowAddServiceModal(true);
+                              }}
+                              style={{ background: '#F1F5F3', border: 'none', borderRadius: '8px', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1B5E3C' }}
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteService(srv.id)}
+                              style={{ background: '#FEF2F2', border: 'none', borderRadius: '8px', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#DC2626' }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#1B382B', margin: '0 0 6px 0' }}>{srv.name}</h3>
+                        <p style={{ fontSize: '12px', color: '#5A6E63', margin: '0 0 16px 0', lineHeight: 1.5 }}>{srv.description || 'Professional caregiver service.'}</p>
+                      </div>
+
+                      <div style={{ borderTop: '1px solid #F1F5F3', paddingTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <span style={{ fontSize: '10px', color: '#7E9287', textTransform: 'uppercase', fontWeight: 700 }}>Billing Route</span>
+                          {isFixed ? (
+                            <p style={{ fontSize: '17px', fontWeight: 800, color: '#0B5D3B', margin: '2px 0 0 0' }}>
+                              ₹{srv.pricePaise / 100} <span style={{ fontSize: '12px', fontWeight: 500, color: '#5A6E63' }}>/ {srv.durationHours || 2} hrs</span>
+                            </p>
+                          ) : (
+                            <p style={{ fontSize: '14px', fontWeight: 800, color: '#2563EB', margin: '2px 0 0 0' }}>
+                              Price Undisclosed (Custom Quote)
+                            </p>
+                          )}
+                        </div>
+                        <span style={{ fontSize: '11px', color: srv.isActive !== false ? '#166534' : '#6B7280', fontWeight: 700 }}>
+                          {srv.isActive !== false ? '● Active in Portal' : '○ Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Modal: Create / Edit Care Service */}
+              {showAddServiceModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 120, padding: '16px' }}>
+                  <div style={{ background: '#FFF', borderRadius: '20px', maxWidth: '520px', width: '100%', padding: '28px', maxHeight: '90vh', overflowY: 'auto' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                      <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1B382B', margin: 0 }}>
+                        {editingService ? 'Edit Care Service' : 'Create New Care Service'}
+                      </h3>
+                      <button onClick={() => setShowAddServiceModal(false)} style={{ background: '#F1F5F3', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleSaveService}>
+                      <div style={{ marginBottom: '14px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '6px' }}>Service Name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={serviceForm.name}
+                          onChange={e => setServiceForm({ ...serviceForm, name: e.target.value })}
+                          placeholder="e.g. 24/7 Live-in Critical Elder Care"
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1.5px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+
+                      {/* Pricing Mode Selector */}
+                      <div style={{ marginBottom: '16px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '8px' }}>Pricing & Disclosure Mode *</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                          <button
+                            type="button"
+                            onClick={() => setServiceForm({ ...serviceForm, pricingType: 'FIXED_PRICE' })}
+                            style={{
+                              padding: '12px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                              border: serviceForm.pricingType === 'FIXED_PRICE' ? '2px solid #0B5D3B' : '1px solid #CBD5E1',
+                              background: serviceForm.pricingType === 'FIXED_PRICE' ? '#E8F5E9' : '#FFF'
+                            }}
+                          >
+                            <p style={{ fontSize: '13px', fontWeight: 700, color: '#0B5D3B', margin: 0 }}>Fixed Price</p>
+                            <p style={{ fontSize: '11px', color: '#5A6E63', margin: '3px 0 0 0' }}>Disclose fixed rate upfront (e.g. ₹450 / 2h)</p>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setServiceForm({ ...serviceForm, pricingType: 'ENQUIRY_CUSTOM' })}
+                            style={{
+                              padding: '12px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                              border: serviceForm.pricingType === 'ENQUIRY_CUSTOM' ? '2px solid #2563EB' : '1px solid #CBD5E1',
+                              background: serviceForm.pricingType === 'ENQUIRY_CUSTOM' ? '#EFF6FF' : '#FFF'
+                            }}
+                          >
+                            <p style={{ fontSize: '13px', fontWeight: 700, color: '#1D4ED8', margin: 0 }}>Enquiry Only</p>
+                            <p style={{ fontSize: '11px', color: '#5A6E63', margin: '3px 0 0 0' }}>Price undisclosed. Custom quote post-enquiry</p>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Fixed Price Fields (Visible only if FIXED_PRICE) */}
+                      {serviceForm.pricingType === 'FIXED_PRICE' && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: '14px', background: '#F8FAF9', padding: '14px', borderRadius: '10px' }}>
+                          <div>
+                            <label style={{ fontSize: '11px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>Fixed Price (INR ₹)</label>
+                            <input
+                              type="number"
+                              value={serviceForm.priceInr}
+                              onChange={e => setServiceForm({ ...serviceForm, priceInr: Number(e.target.value) })}
+                              style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '11px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>Standard Duration (Hours)</label>
+                            <input
+                              type="number"
+                              step="0.5"
+                              value={serviceForm.durationHours}
+                              onChange={e => setServiceForm({ ...serviceForm, durationHours: Number(e.target.value) })}
+                              style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Enquiry mode hint */}
+                      {serviceForm.pricingType === 'ENQUIRY_CUSTOM' && (
+                        <div style={{ marginBottom: '14px', padding: '12px', borderRadius: '10px', background: '#EFF6FF', border: '1px solid #BFDBFE', fontSize: '12px', color: '#1E40AF' }}>
+                          💡 <strong>Enquiry Mode Active:</strong> Families will see <em>"Price on Enquiry"</em> instead of an upfront rate. When booked, it alerts coordinators to review the patient's acuity and issue an invoice.
+                        </div>
+                      )}
+
+                      <div style={{ marginBottom: '18px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '6px' }}>Description & Scope of Care</label>
+                        <textarea
+                          rows={3}
+                          value={serviceForm.description}
+                          onChange={e => setServiceForm({ ...serviceForm, description: e.target.value })}
+                          placeholder="Describe caregiver duties, clinical qualifications required, and what is covered..."
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1.5px solid #CBD5E1', fontSize: '12px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddServiceModal(false)}
+                          style={{ flex: 1, padding: '12px', background: '#F1F5F3', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          style={{ flex: 2, padding: '12px', background: '#0B5D3B', color: '#FFF', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
+                        >
+                          {editingService ? 'Update Care Service' : 'Save & Publish Service →'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {activeSection === 'bookings' && (
             <div>

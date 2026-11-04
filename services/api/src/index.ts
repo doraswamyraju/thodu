@@ -14,6 +14,19 @@ app.use(express.json());
 // CENTRAL DATABASE (Single Source of Truth)
 // ==========================================
 
+
+export interface CareService {
+  id: string;
+  name: string;
+  category: 'DAILY_LIVING' | 'NURSING_CLINICAL' | 'MOBILITY_PHYSIO' | 'SPECIALIZED';
+  pricingType: 'FIXED_PRICE' | 'ENQUIRY_CUSTOM';
+  pricePaise?: number; // In paise if fixed price (e.g. 45000 = Rs 450)
+  durationHours?: number;
+  description: string;
+  iconName?: string;
+  isActive: boolean;
+}
+
 export interface Beneficiary {
   id: string;
   refNumber: string;
@@ -286,6 +299,83 @@ let caregivers: Caregiver[] = [
 ];
 
 // 2. Live Beneficiaries Database (with GPS Coordinates for Tirupati)
+
+let careServices: CareService[] = [
+  {
+    id: 'srv-1',
+    name: 'Household Support & Meal Preparation',
+    category: 'DAILY_LIVING',
+    pricingType: 'FIXED_PRICE',
+    pricePaise: 45000,
+    durationHours: 2,
+    description: 'Nutritious cooking, light housekeeping, kitchen hygiene, and grocery assistance.',
+    iconName: 'Home',
+    isActive: true
+  },
+  {
+    id: 'srv-2',
+    name: 'Bedside & Mobility Assistance',
+    category: 'DAILY_LIVING',
+    pricingType: 'FIXED_PRICE',
+    pricePaise: 50000,
+    durationHours: 2,
+    description: 'Wheelchair transfer, bed-to-chair assistance, sponge bath, and fall prevention accompaniment.',
+    iconName: 'UserCheck',
+    isActive: true
+  },
+  {
+    id: 'srv-3',
+    name: 'Medication & Vitals Supervision',
+    category: 'NURSING_CLINICAL',
+    pricingType: 'FIXED_PRICE',
+    pricePaise: 40000,
+    durationHours: 1.5,
+    description: 'Blood pressure, SpO2, blood sugar logging, insulin accompaniment, and pill organizer auditing.',
+    iconName: 'Activity',
+    isActive: true
+  },
+  {
+    id: 'srv-4',
+    name: 'Companion Care & Assisted Walking',
+    category: 'DAILY_LIVING',
+    pricingType: 'FIXED_PRICE',
+    pricePaise: 40000,
+    durationHours: 2,
+    description: 'Park walking, emotional companionship, cognitive exercises, reading, and mental wellness support.',
+    iconName: 'Heart',
+    isActive: true
+  },
+  {
+    id: 'srv-5',
+    name: 'Physiotherapy & Rehabilitation',
+    category: 'MOBILITY_PHYSIO',
+    pricingType: 'FIXED_PRICE',
+    pricePaise: 60000,
+    durationHours: 1.5,
+    description: 'Post-stroke rehab, joint mobility exercises, gait retraining, and neurological recovery sessions.',
+    iconName: 'Activity',
+    isActive: true
+  },
+  {
+    id: 'srv-6',
+    name: '24/7 Live-in Critical Elder Care',
+    category: 'SPECIALIZED',
+    pricingType: 'ENQUIRY_CUSTOM',
+    description: 'Full-time round-the-clock dedicated caregiver stationed at residence. Custom pricing assessed based on medical acuity and shifts.',
+    iconName: 'Shield',
+    isActive: true
+  },
+  {
+    id: 'srv-7',
+    name: 'Palliative & Post-Surgical Home Nursing',
+    category: 'SPECIALIZED',
+    pricingType: 'ENQUIRY_CUSTOM',
+    description: 'Catheter care, wound dressing, tracheostomy support, and doctor-prescribed home clinical nursing. Price determined upon doctor prescription review.',
+    iconName: 'ShieldPlus',
+    isActive: true
+  }
+];
+
 let beneficiaries: Beneficiary[] = [
   {
     id: 'ben-1',
@@ -890,6 +980,95 @@ app.post('/api/v1/caregivers', (req: Request, res: Response) => {
 });
 
 // 3. Bookings CRUD + Assign & Broadcast
+
+// ==========================================
+// CARE SERVICES CATALOG ENDPOINTS
+// ==========================================
+app.get('/api/v1/services', (req: Request, res: Response) => {
+  res.json({ success: true, services: careServices });
+});
+
+app.post('/api/v1/services', (req: Request, res: Response) => {
+  const { name, category, pricingType, priceInr, durationHours, description } = req.body;
+  if (!name) return res.status(400).json({ error: 'Service name is required' });
+
+  const newService: CareService = {
+    id: `srv-${Date.now()}`,
+    name,
+    category: category || 'DAILY_LIVING',
+    pricingType: pricingType || 'FIXED_PRICE',
+    pricePaise: pricingType === 'FIXED_PRICE' ? (Number(priceInr || 450) * 100) : undefined,
+    durationHours: Number(durationHours) || 2,
+    description: description || '',
+    isActive: true
+  };
+
+  careServices.unshift(newService);
+
+  auditLogs.unshift({
+    id: `aud-${Date.now()}`,
+    adminUser: 'Raju Kumar (Super Admin)',
+    action: 'SERVICE_CREATED',
+    module: 'Care Services',
+    details: `Created new care service "${newService.name}" (${newService.pricingType === 'FIXED_PRICE' ? '₹' + (newService.pricePaise! / 100) : 'Custom Enquiry'})`,
+    timestamp: new Date().toLocaleString()
+  });
+
+  res.status(201).json({ success: true, service: newService });
+});
+
+app.patch('/api/v1/services/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const srv = careServices.find(s => s.id === id);
+  if (!srv) return res.status(404).json({ error: 'Service not found' });
+
+  const { name, category, pricingType, priceInr, durationHours, description, isActive } = req.body;
+  if (name !== undefined) srv.name = name;
+  if (category !== undefined) srv.category = category;
+  if (pricingType !== undefined) {
+    srv.pricingType = pricingType;
+    if (pricingType === 'ENQUIRY_CUSTOM') {
+      srv.pricePaise = undefined;
+    }
+  }
+  if (priceInr !== undefined && srv.pricingType === 'FIXED_PRICE') {
+    srv.pricePaise = Number(priceInr) * 100;
+  }
+  if (durationHours !== undefined) srv.durationHours = Number(durationHours);
+  if (description !== undefined) srv.description = description;
+  if (isActive !== undefined) srv.isActive = Boolean(isActive);
+
+  auditLogs.unshift({
+    id: `aud-${Date.now()}`,
+    adminUser: 'Raju Kumar (Super Admin)',
+    action: 'SERVICE_UPDATED',
+    module: 'Care Services',
+    details: `Updated service "${srv.name}"`,
+    timestamp: new Date().toLocaleString()
+  });
+
+  res.json({ success: true, service: srv });
+});
+
+app.delete('/api/v1/services/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const target = careServices.find(s => s.id === id);
+  careServices = careServices.filter(s => s.id !== id);
+
+  if (target) {
+    auditLogs.unshift({
+      id: `aud-${Date.now()}`,
+      adminUser: 'Raju Kumar (Super Admin)',
+      action: 'SERVICE_DELETED',
+      module: 'Care Services',
+      details: `Removed care service "${target.name}"`,
+      timestamp: new Date().toLocaleString()
+    });
+  }
+
+  res.json({ success: true });
+});
+
 app.get('/api/v1/bookings', (req: Request, res: Response) => {
   res.json({ success: true, bookings });
 });
