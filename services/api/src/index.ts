@@ -1466,6 +1466,119 @@ app.get('/api/v1/audit-logs', (req: Request, res: Response) => {
   res.json({ success: true, auditLogs });
 });
 
+
+// ==========================================
+// USER & AUTHENTICATION (Database)
+// ==========================================
+export interface AppUser {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl?: string;
+  role: 'BENEFICIARY' | 'CAREGIVER' | 'FREELANCER' | 'ADMIN';
+  provider: 'GOOGLE' | 'APPLE';
+  phone?: string;
+  createdAt: string;
+  lastLoginAt: string;
+}
+
+let appUsers: AppUser[] = [
+  {
+    id: 'usr-ben-1',
+    email: 'anita.sharma@example.com',
+    name: 'Anita Sharma',
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80',
+    role: 'BENEFICIARY',
+    provider: 'GOOGLE',
+    phone: '+91 98765 43210',
+    createdAt: '2026-10-01 09:00',
+    lastLoginAt: '2026-11-04 10:00'
+  },
+  {
+    id: 'usr-cg-1',
+    email: 'anitha.care@example.com',
+    name: 'Anitha',
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80',
+    role: 'CAREGIVER',
+    provider: 'GOOGLE',
+    phone: '+91 98480 22334',
+    createdAt: '2026-10-05 09:00',
+    lastLoginAt: '2026-11-04 08:30'
+  },
+  {
+    id: 'usr-fl-1',
+    email: 'suresh.kumar@example.com',
+    name: 'Suresh Kumar',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+    role: 'FREELANCER',
+    provider: 'GOOGLE',
+    phone: '+91 98480 33445',
+    createdAt: '2026-10-10 09:00',
+    lastLoginAt: '2026-11-04 09:15'
+  },
+  {
+    id: 'usr-adm-1',
+    email: 'raju@thodu.sriddha.com',
+    name: 'Raju Kumar',
+    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80',
+    role: 'ADMIN',
+    provider: 'GOOGLE',
+    phone: '+91 98765 00001',
+    createdAt: '2026-09-01 09:00',
+    lastLoginAt: '2026-11-04 07:00'
+  }
+];
+
+// Auth Endpoints
+app.get('/api/v1/auth/users', (req: Request, res: Response) => {
+  res.json({ success: true, count: appUsers.length, users: appUsers });
+});
+
+app.post('/api/v1/auth/oauth', (req: Request, res: Response) => {
+  const { provider, email, name, role, photoUrl, idToken } = req.body;
+  if (!email || !provider) {
+    return res.status(400).json({ success: false, message: 'Provider and email are required' });
+  }
+
+  let user = appUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
+
+  if (user) {
+    user.lastLoginAt = nowStr;
+    if (name) user.name = name;
+    if (photoUrl) user.avatarUrl = photoUrl;
+    if (role) user.role = role;
+  } else {
+    user = {
+      id: 'usr-' + Date.now(),
+      email: email.toLowerCase(),
+      name: name || email.split('@')[0],
+      avatarUrl: photoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+      role: role || 'BENEFICIARY',
+      provider: provider.toUpperCase() === 'APPLE' ? 'APPLE' : 'GOOGLE',
+      phone: '+91 98765 ' + Math.floor(10000 + Math.random() * 90000),
+      createdAt: nowStr,
+      lastLoginAt: nowStr
+    };
+    appUsers.push(user);
+  }
+
+  auditLogs.unshift({
+    id: 'aud-' + Date.now(),
+    adminUser: user.name + ' (' + user.role + ')',
+    action: 'OAUTH_LOGIN',
+    module: 'Authentication',
+    details: 'User authenticated via ' + user.provider + ' (' + user.email + ') with role ' + user.role,
+    timestamp: new Date().toLocaleString()
+  });
+
+  return res.json({
+    success: true,
+    user,
+    token: 'thodu_jwt_' + Buffer.from(user.id + ':' + user.email).toString('base64')
+  });
+});
+
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'healthy', service: 'Thodu API Engine' });
 });
