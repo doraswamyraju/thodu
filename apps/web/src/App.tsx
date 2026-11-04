@@ -22,15 +22,16 @@ const API_BASE_URL = window.location.hostname === 'localhost'
   : '';
 
 
-const getServiceVisual = (name: string) => {
+const getServiceVisual = (name: string, iconName?: string) => {
+  const ic = (iconName || '').toLowerCase();
   const n = (name || '').toLowerCase();
-  if (n.includes('household') || n.includes('meal')) return { icon: <Home size={18} />, color: '#15803D', bg: '#DCFCE7' };
-  if (n.includes('bedside') || n.includes('mobility')) return { icon: <Heart size={18} />, color: '#2563EB', bg: '#EFF6FF' };
-  if (n.includes('medication') || n.includes('vitals')) return { icon: <Activity size={18} />, color: '#E11D48', bg: '#FFE4E6' };
-  if (n.includes('companion') || n.includes('walking')) return { icon: <Users size={18} />, color: '#D97706', bg: '#FEF3C7' };
-  if (n.includes('physio') || n.includes('rehab')) return { icon: <HeartPulse size={18} />, color: '#7C3AED', bg: '#F3E8FF' };
-  if (n.includes('live-in') || n.includes('critical')) return { icon: <ShieldAlert size={18} />, color: '#047857', bg: '#D1FAE5' };
-  if (n.includes('palliative') || n.includes('nursing')) return { icon: <Stethoscope size={18} />, color: '#0284C7', bg: '#E0F2FE' };
+  if (ic === 'home' || n.includes('household') || n.includes('meal')) return { icon: <Home size={18} />, color: '#15803D', bg: '#DCFCE7' };
+  if (ic === 'heart' || n.includes('bedside') || n.includes('mobility')) return { icon: <Heart size={18} />, color: '#2563EB', bg: '#EFF6FF' };
+  if (ic === 'activity' || n.includes('medication') || n.includes('vitals')) return { icon: <Activity size={18} />, color: '#E11D48', bg: '#FFE4E6' };
+  if (ic === 'users' || n.includes('companion') || n.includes('walking')) return { icon: <Users size={18} />, color: '#D97706', bg: '#FEF3C7' };
+  if (ic === 'heartpulse' || n.includes('physio') || n.includes('rehab')) return { icon: <HeartPulse size={18} />, color: '#7C3AED', bg: '#F3E8FF' };
+  if (ic === 'shieldalert' || n.includes('live-in') || n.includes('critical')) return { icon: <ShieldAlert size={18} />, color: '#047857', bg: '#D1FAE5' };
+  if (ic === 'stethoscope' || n.includes('palliative') || n.includes('nursing')) return { icon: <Stethoscope size={18} />, color: '#0284C7', bg: '#E0F2FE' };
   return { icon: <Shield size={18} />, color: '#0B5D3B', bg: '#E8F5E9' };
 };
 
@@ -62,7 +63,8 @@ export default function App() {
     pricingType: 'FIXED_PRICE' as 'FIXED_PRICE' | 'ENQUIRY_CUSTOM',
     priceInr: 450,
     durationHours: 2,
-    description: ''
+    description: '',
+    iconName: 'Home'
   });
 
   const [sponsorships, setSponsorships] = useState<any[]>([]);
@@ -402,7 +404,8 @@ export default function App() {
             pricingType: 'FIXED_PRICE',
             priceInr: 450,
             durationHours: 2,
-            description: ''
+            description: '',
+            iconName: 'Home'
           });
           fetchData();
         }
@@ -1617,7 +1620,8 @@ export default function App() {
                       pricingType: 'FIXED_PRICE',
                       priceInr: 450,
                       durationHours: 2,
-                      description: ''
+                      description: '',
+                      iconName: 'Home'
                     });
                     setShowAddServiceModal(true);
                   }}
@@ -1649,7 +1653,8 @@ export default function App() {
                                   pricingType: srv.pricingType,
                                   priceInr: srv.pricePaise ? (srv.pricePaise / 100) : 450,
                                   durationHours: srv.durationHours || 2,
-                                  description: srv.description || ''
+                                  description: srv.description || '',
+                                  iconName: srv.iconName || 'Home'
                                 });
                                 setShowAddServiceModal(true);
                               }}
@@ -1668,8 +1673,8 @@ export default function App() {
 
                         
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 8px 0' }}>
-                          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: getServiceVisual(srv.name).bg, color: getServiceVisual(srv.name).color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {getServiceVisual(srv.name).icon}
+                          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: getServiceVisual(srv.name, srv.iconName).bg, color: getServiceVisual(srv.name, srv.iconName).color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {getServiceVisual(srv.name, srv.iconName).icon}
                           </div>
                           <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#1B382B', margin: 0 }}>{srv.name}</h3>
                         </div>
@@ -1788,6 +1793,48 @@ export default function App() {
                           💡 <strong>Enquiry Mode Active:</strong> Families will see <em>"Price on Enquiry"</em> instead of an upfront rate. When booked, it alerts coordinators to review the patient's acuity and issue an invoice.
                         </div>
                       )}
+
+                      
+                      {/* Icon Selector */}
+                      <div style={{ marginBottom: '14px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '6px' }}>Service Icon Badge *</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
+                          {[
+                            { id: 'Home', label: 'Home', icon: <Home size={18} /> },
+                            { id: 'Heart', label: 'Care', icon: <Heart size={18} /> },
+                            { id: 'Activity', label: 'Clinical', icon: <Activity size={18} /> },
+                            { id: 'Users', label: 'Escort', icon: <Users size={18} /> },
+                            { id: 'HeartPulse', label: 'Physio', icon: <HeartPulse size={18} /> },
+                            { id: 'ShieldAlert', label: 'Critical', icon: <ShieldAlert size={18} /> },
+                            { id: 'Stethoscope', label: 'Nursing', icon: <Stethoscope size={18} /> }
+                          ].map(icItem => {
+                            const isSel = (serviceForm.iconName || 'Home') === icItem.id;
+                            return (
+                              <button
+                                key={icItem.id}
+                                type="button"
+                                onClick={() => setServiceForm({ ...serviceForm, iconName: icItem.id })}
+                                title={icItem.label}
+                                style={{
+                                  padding: '10px 4px',
+                                  borderRadius: '10px',
+                                  border: isSel ? '2px solid #0B5D3B' : '1px solid #CBD5E1',
+                                  background: isSel ? '#E8F5E9' : '#FFF',
+                                  color: isSel ? '#0B5D3B' : '#475569',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  gap: 4,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {icItem.icon}
+                                <span style={{ fontSize: '9px', fontWeight: 700 }}>{icItem.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
 
                       <div style={{ marginBottom: '18px' }}>
                         <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '6px' }}>Description & Scope of Care</label>
