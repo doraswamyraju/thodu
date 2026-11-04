@@ -43,8 +43,20 @@ export default function App() {
 
   const [emailInput, setEmailInput] = useState('raju@thodu.sriddha.com');
   const [passwordInput, setPasswordInput] = useState('admin123');
-  const [loginRole, setLoginRole] = useState<'admin' | 'family' | 'caregiver' | 'freelancer'>('admin');
-  const [currentPortal, setCurrentPortal] = useState<'admin' | 'beneficiary' | 'caregiver' | 'freelancer'>('admin');
+  const [loginRole, setLoginRole] = useState<'admin' | 'family' | 'caregiver' | 'freelancer'>('family');
+  const [currentPortal, setCurrentPortal] = useState<'admin' | 'beneficiary' | 'caregiver' | 'freelancer'>(() => {
+    const saved = localStorage.getItem('thodu_session');
+    if (saved) {
+      try {
+        const u = JSON.parse(saved);
+        if (u.role?.includes('Admin')) return 'admin';
+        if (u.role?.includes('Salaried') || u.role?.includes('Caregiver')) return 'caregiver';
+        if (u.role?.includes('Freelance')) return 'freelancer';
+        return 'beneficiary';
+      } catch (_) {}
+    }
+    return 'beneficiary';
+  });
   const [activeSection, setActiveSection] = useState<NavSection>('overview'); // Direct to requested screen
   const [loading, setLoading] = useState(false);
 
