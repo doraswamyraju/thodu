@@ -95,3 +95,4 @@ export const CaregiverEarnings: React.FC<CaregiverEarningsProps> = ({
     </div>
   );
 };
+

@@ -94,3 +94,4 @@ export const CaregiverProfile: React.FC<CaregiverProfileProps> = ({ caregiver })
     </div>
   );
 };
+

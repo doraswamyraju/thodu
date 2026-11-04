@@ -115,3 +115,4 @@ export const CaregiverSchedule: React.FC<CaregiverScheduleProps> = ({ visits }) 
     </div>
   );
 };
+
