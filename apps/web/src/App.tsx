@@ -331,6 +331,89 @@ export default function App() {
     }
   };
 
+  const handleGoogleCredentialResponse = async (response: any) => {
+    try {
+      setLoading(true);
+      // Decode JWT payload from Google ID Token
+      const base64Url = response.credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const googleUser = JSON.parse(jsonPayload);
+
+      const targetRole = loginRole === 'admin' 
+        ? 'ADMIN' 
+        : (loginRole === 'caregiver' ? 'CAREGIVER' : (loginRole === 'freelancer' ? 'FREELANCER' : 'BENEFICIARY'));
+
+      // Call Central API to authenticate / register user
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/oauth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'GOOGLE',
+          email: googleUser.email,
+          name: googleUser.name,
+          role: targetRole,
+          photoUrl: googleUser.picture,
+          idToken: response.credential
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.user) {
+        const user: UserSession = {
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role === 'ADMIN' ? 'Super Admin' : (data.user.role === 'CAREGIVER' ? 'Salaried Caregiver' : (data.user.role === 'FREELANCER' ? 'Freelance Caregiver' : 'Family Guardian / Beneficiary')),
+          phone: data.user.phone || '+91 94444 56789'
+        };
+        localStorage.setItem('thodu_session', JSON.stringify(user));
+        setSession(user);
+        if (loginRole === 'family') setCurrentPortal('beneficiary');
+        else if (loginRole === 'caregiver') setCurrentPortal('caregiver');
+        else if (loginRole === 'freelancer') setCurrentPortal('freelancer');
+        else setCurrentPortal('admin');
+      } else {
+        alert(data.message || 'Google authentication failed');
+      }
+    } catch (err) {
+      console.error('Google Sign-In Error:', err);
+      alert('Unable to authenticate with Google: ' + String(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initialize Google One Tap / Sign In button if script loaded
+    const win = window as any;
+    if (win.google && win.google.accounts && win.google.accounts.id) {
+      win.google.accounts.id.initialize({
+        client_id: '814572872575-a6av64egoid154idv7f6kj78829fb5pv.apps.googleusercontent.com',
+        callback: handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+
+      const btnContainer = document.getElementById('googleSignInBtnContainer');
+      if (btnContainer) {
+        btnContainer.innerHTML = '';
+        win.google.accounts.id.renderButton(btnContainer, {
+          theme: 'outline',
+          size: 'large',
+          width: 380,
+          text: 'continue_with',
+          shape: 'pill'
+        });
+      }
+    }
+  }, [session, loginRole]);
+
   const handleLogout = () => {
     if (window.confirm('Log out from Thodu Admin Panel?')) {
       localStorage.removeItem('thodu_session');
@@ -872,9 +955,21 @@ export default function App() {
               )}
             </div>
 
-            <button type="submit" className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px', justifyContent: 'center' }}>
+            <button type="submit" className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px', justifyContent: 'center', marginBottom: '16px' }}>
               {loginRole === 'admin' ? 'Sign In to Super Admin Workspace →' : (loginRole === 'freelancer' ? 'Sign In to Freelance Gig Portal →' : (loginRole === 'caregiver' ? 'Sign In to Caregiver Staff Portal →' : 'Sign In to Family & Beneficiary Portal →'))}
             </button>
+
+            {/* OR Divider */}
+            <div style={{ display: 'flex', alignItems: 'center', margin: '14px 0 16px', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>
+              <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }}></div>
+              <span style={{ padding: '0 10px', letterSpacing: '0.05em' }}>OR CONTINUE WITH</span>
+              <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }}></div>
+            </div>
+
+            {/* Native Google Sign-In Container */}
+            <div style={{ display: 'flex', justifyContent: 'center', minHeight: '44px' }}>
+              <div id="googleSignInBtnContainer"></div>
+            </div>
           </form>
         </div>
       </div>

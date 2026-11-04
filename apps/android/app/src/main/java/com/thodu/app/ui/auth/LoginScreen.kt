@@ -23,7 +23,9 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import com.thodu.app.data.auth.GoogleAuthManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -46,6 +48,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     onLoginSuccess: (AppUser) -> Unit = {}
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
 
@@ -97,51 +100,71 @@ fun LoginScreen(
         }
     }
 
-    fun handleGoogleLogin(emailOverride: String? = null, nameOverride: String? = null) {
+    fun handleGoogleLogin() {
         isLoading = true
         errorMessage = null
         coroutineScope.launch {
-            try {
-                val email = emailOverride ?: when (selectedRole) {
-                    "BENEFICIARY" -> "anita.sharma@example.com"
-                    "CAREGIVER" -> "anitha.care@example.com"
-                    "FREELANCER" -> "suresh.kumar@example.com"
-                    else -> "raju@thodu.sriddha.com"
+            when (val result = GoogleAuthManager.signInWithGoogle(context)) {
+                is GoogleAuthManager.GoogleAuthResult.Success -> {
+                    try {
+                        val req = OAuthLoginRequest(
+                            provider = "GOOGLE",
+                            email = result.email,
+                            name = result.displayName ?: result.email.substringBefore("@"),
+                            role = selectedRole,
+                            photoUrl = result.profilePictureUri,
+                            idToken = result.idToken
+                        )
+                        val response = ApiClient.apiService.loginWithOAuth(req)
+                        if (response.success && response.user != null) {
+                            onLoginSuccess(response.user)
+                        } else {
+                            errorMessage = response.message ?: "Authentication failed on central server."
+                        }
+                    } catch (e: Exception) {
+                        errorMessage = "Network error: ${e.localizedMessage ?: "Unable to connect to server"}"
+                    } finally {
+                        isLoading = false
+                    }
                 }
-                val name = nameOverride ?: when (selectedRole) {
-                    "BENEFICIARY" -> "Anita Sharma"
-                    "CAREGIVER" -> "Anitha"
-                    "FREELANCER" -> "Suresh Kumar"
-                    else -> "Raju Kumar"
+                is GoogleAuthManager.GoogleAuthResult.Cancelled -> {
+                    isLoading = false
+                    // User cancelled account selection - nothing to show
                 }
-
-                val req = OAuthLoginRequest(
-                    provider = "GOOGLE",
-                    email = email,
-                    name = name,
-                    role = selectedRole,
-                    idToken = "android_g_token_${System.currentTimeMillis()}"
-                )
-
-                val response = ApiClient.apiService.loginWithOAuth(req)
-                if (response.success && response.user != null) {
-                    onLoginSuccess(response.user)
-                } else {
-                    errorMessage = response.message ?: "Authentication failed on server."
+                is GoogleAuthManager.GoogleAuthResult.Error -> {
+                    isLoading = false
+                    errorMessage = result.message
                 }
-            } catch (e: Exception) {
-                errorMessage = "Network error: ${e.localizedMessage ?: "Unable to connect to server"}"
-            } finally {
-                isLoading = false
             }
         }
     }
 
     fun handleBiometricLogin() {
-        // Fast biometrics auth fallback to active database user
         if (existingUsers.isNotEmpty()) {
             val user = existingUsers.firstOrNull { it.role == selectedRole } ?: existingUsers.first()
-            handleGoogleLogin(user.email, user.name)
+            coroutineScope.launch {
+                try {
+                    isLoading = true
+                    val req = OAuthLoginRequest(
+                        provider = "BIOMETRIC",
+                        email = user.email,
+                        name = user.name,
+                        role = selectedRole,
+                        photoUrl = user.avatarUrl,
+                        idToken = "bio_${System.currentTimeMillis()}"
+                    )
+                    val response = ApiClient.apiService.loginWithOAuth(req)
+                    if (response.success && response.user != null) {
+                        onLoginSuccess(response.user)
+                    } else {
+                        errorMessage = response.message ?: "Biometric login failed."
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Network error: ${e.localizedMessage ?: "Unable to connect to server"}"
+                } finally {
+                    isLoading = false
+                }
+            }
         } else {
             handleGoogleLogin()
         }
@@ -499,7 +522,26 @@ fun LoginScreen(
                                             .clickable {
                                                 selectedRole = dbUser.role
                                                 credential = dbUser.email
-                                                handleGoogleLogin(dbUser.email, dbUser.name)
+                                                coroutineScope.launch {
+                                                    try {
+                                                        isLoading = true
+                                                        val req = OAuthLoginRequest(
+                                                            provider = dbUser.provider ?: "GOOGLE",
+                                                            email = dbUser.email,
+                                                            name = dbUser.name,
+                                                            role = dbUser.role,
+                                                            photoUrl = dbUser.avatarUrl,
+                                                            idToken = "quick_switch_${System.currentTimeMillis()}"
+                                                        )
+                                                        val response = ApiClient.apiService.loginWithOAuth(req)
+                                                        if (response.success && response.user != null) {
+                                                            onLoginSuccess(response.user)
+                                                        }
+                                                    } catch (_: Exception) {}
+                                                    finally {
+                                                        isLoading = false
+                                                    }
+                                                }
                                             }
                                     ) {
                                         Row(
