@@ -42,3 +42,4 @@ public struct UsersListResponse: Codable {
     public let count: Int
     public let users: [AppUser]
 }
+

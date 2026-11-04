@@ -35,3 +35,4 @@ public struct AppleSignInButton: View {
         .disabled(isLoading)
     }
 }
+

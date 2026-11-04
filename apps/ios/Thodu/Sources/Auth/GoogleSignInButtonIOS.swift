@@ -41,3 +41,4 @@ public struct GoogleSignInButtonIOS: View {
         .disabled(isLoading)
     }
 }
+

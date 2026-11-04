@@ -35,3 +35,4 @@ data class UsersListResponse(
     @SerializedName("count") val count: Int,
     @SerializedName("users") val users: List<AppUser>
 )
+

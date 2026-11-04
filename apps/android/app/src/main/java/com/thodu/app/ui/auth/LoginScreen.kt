@@ -377,3 +377,4 @@ private data class RoleOption(
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val subtitle: String
 )
+
