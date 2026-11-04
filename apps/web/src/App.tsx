@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Activity, AlertTriangle, ArrowUpRight, Award, Bell, Calendar, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, DollarSign, Download, Edit3, Eye, FileText, Filter, Heart, LayoutDashboard, Lock, LogOut, Mail, MapPin, MoreVertical, PhoneCall, Plus, Radio, RefreshCw, Search, Send, Shield, ShieldCheck, Trash2, TrendingUp, UserPlus, Users, X
+  Activity, AlertTriangle, Home, Stethoscope, HeartPulse, ShieldAlert, ArrowUpRight, Award, Bell, Calendar, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, DollarSign, Download, Edit3, Eye, FileText, Filter, Heart, LayoutDashboard, Lock, LogOut, Mail, MapPin, MoreVertical, PhoneCall, Plus, Radio, RefreshCw, Search, Send, Shield, ShieldCheck, Trash2, TrendingUp, UserPlus, Users, X
 } from 'lucide-react';
 import './style.css';
 import { BeneficiaryLayout } from './beneficiary';
@@ -20,6 +20,19 @@ interface UserSession {
 const API_BASE_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5089' 
   : '';
+
+
+const getServiceVisual = (name: string) => {
+  const n = (name || '').toLowerCase();
+  if (n.includes('household') || n.includes('meal')) return { icon: <Home size={18} />, color: '#15803D', bg: '#DCFCE7' };
+  if (n.includes('bedside') || n.includes('mobility')) return { icon: <Heart size={18} />, color: '#2563EB', bg: '#EFF6FF' };
+  if (n.includes('medication') || n.includes('vitals')) return { icon: <Activity size={18} />, color: '#E11D48', bg: '#FFE4E6' };
+  if (n.includes('companion') || n.includes('walking')) return { icon: <Users size={18} />, color: '#D97706', bg: '#FEF3C7' };
+  if (n.includes('physio') || n.includes('rehab')) return { icon: <HeartPulse size={18} />, color: '#7C3AED', bg: '#F3E8FF' };
+  if (n.includes('live-in') || n.includes('critical')) return { icon: <ShieldAlert size={18} />, color: '#047857', bg: '#D1FAE5' };
+  if (n.includes('palliative') || n.includes('nursing')) return { icon: <Stethoscope size={18} />, color: '#0284C7', bg: '#E0F2FE' };
+  return { icon: <Shield size={18} />, color: '#0B5D3B', bg: '#E8F5E9' };
+};
 
 export default function App() {
   const [session, setSession] = useState<UserSession | null>(() => {
@@ -1653,7 +1666,14 @@ export default function App() {
                           </div>
                         </div>
 
-                        <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#1B382B', margin: '0 0 6px 0' }}>{srv.name}</h3>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 8px 0' }}>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: getServiceVisual(srv.name).bg, color: getServiceVisual(srv.name).color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {getServiceVisual(srv.name).icon}
+                          </div>
+                          <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#1B382B', margin: 0 }}>{srv.name}</h3>
+                        </div>
+
                         <p style={{ fontSize: '12px', color: '#5A6E63', margin: '0 0 16px 0', lineHeight: 1.5 }}>{srv.description || 'Professional caregiver service.'}</p>
                       </div>
 

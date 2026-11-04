@@ -1,12 +1,11 @@
 package com.thodu.app.ui.beneficiary.today
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,30 +20,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thodu.app.data.model.CareService
 
-data class ServiceGridItem(
-    val id: String,
-    val title: String,
-    val icon: ImageVector,
-    val cardBg: Color,
-    val iconTint: Color
-)
-
 @Composable
 fun CareServicesCatalogCard(
     services: List<CareService>,
     onSelectServiceToBook: (CareService?) -> Unit
 ) {
-    // 8 Beautiful Care Services matching the design inspiration
-    val catalogItems = listOf(
-        ServiceGridItem("srv-1", "Personal\nCare", Icons.Default.Elderly, Color(0xFFF0FDF4), Color(0xFF15803D)),
-        ServiceGridItem("srv-2", "Health\nMonitoring", Icons.Default.Favorite, Color(0xFFFEF2F2), Color(0xFFDC2626)),
-        ServiceGridItem("srv-3", "Medication\nAssistance", Icons.Default.Medication, Color(0xFFFFF1F2), Color(0xFFE11D48)),
-        ServiceGridItem("srv-4", "Meals &\nNutrition", Icons.Default.Restaurant, Color(0xFFFFFBEB), Color(0xFFD97706)),
-        ServiceGridItem("srv-5", "Physio\nSupport", Icons.Default.FitnessCenter, Color(0xFFF0FDF4), Color(0xFF16A34A)),
-        ServiceGridItem("srv-6", "Doctor\nConsultation", Icons.Default.MedicalServices, Color(0xFFF0FDF4), Color(0xFF0D5C3A)),
-        ServiceGridItem("srv-7", "Lab Sample\nCollection", Icons.Default.Science, Color(0xFFEFF6FF), Color(0xFF2563EB)),
-        ServiceGridItem("srv-8", "More\nServices", Icons.Default.MoreHoriz, Color(0xFFF0FDF4), Color(0xFF0D5C3A))
-    )
+    // Dynamically render the exact live care services updated in the Admin panel
+    val activeServices = if (services.isNotEmpty()) {
+        services.filter { it.isActive }
+    } else {
+        emptyList()
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Section Header: "Our Services" and "Book a Service ->"
@@ -75,7 +61,7 @@ fun CareServicesCatalogCard(
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 Icon(
-                    imageVector = Icons.Default.ArrowForward,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
                     tint = Color(0xFF0D5C3A),
                     modifier = Modifier.size(13.dp)
@@ -85,84 +71,137 @@ fun CareServicesCatalogCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Row 1 (4 Items)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            catalogItems.take(4).forEach { item ->
-                ServiceBox(
-                    item = item,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        val matched = services.firstOrNull { it.name.contains(item.title.replace("\n", " "), ignoreCase = true) }
-                        onSelectServiceToBook(matched)
+        // Grid of Services dynamically mapped from Admin database
+        // Chunk into rows of 4 for a clean visual grid
+        val rows = activeServices.chunked(4)
+
+        rows.forEachIndexed { index, rowServices ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowServices.forEach { srv ->
+                    val (icon, bgCol, tintCol, shortTitle) = getAdminServiceVisual(srv.name)
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = bgCol,
+                        border = BorderStroke(1.dp, Color.White),
+                        shadowElevation = 1.dp,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable { onSelectServiceToBook(srv) }
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(vertical = 12.dp, horizontal = 4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = srv.name,
+                                tint = tintCol,
+                                modifier = Modifier.size(28.dp)
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = shortTitle,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF1E293B),
+                                textAlign = TextAlign.Center,
+                                lineHeight = 13.sp,
+                                maxLines = 2,
+                                minLines = 2
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = if (srv.pricingType == "FIXED_PRICE") "₹${(srv.pricePaise ?: 0) / 100}" else "Enquiry",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (srv.pricingType == "FIXED_PRICE") Color(0xFF0D5C3A) else Color(0xFF2563EB)
+                            )
+                        }
                     }
-                )
+                }
+
+                // Balance any unfilled slots in row
+                if (rowServices.size < 4) {
+                    repeat(4 - rowServices.size) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Row 2 (4 Items)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            catalogItems.drop(4).take(4).forEach { item ->
-                ServiceBox(
-                    item = item,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        val matched = services.firstOrNull { it.name.contains(item.title.replace("\n", " "), ignoreCase = true) }
-                        onSelectServiceToBook(matched)
-                    }
-                )
+            if (index < rows.size - 1) {
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
 }
 
-@Composable
-private fun ServiceBox(
-    item: ServiceGridItem,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = item.cardBg,
-        border = BorderStroke(1.dp, Color.White),
-        shadowElevation = 1.dp,
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(vertical = 12.dp, horizontal = 4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = item.title,
-                tint = item.iconTint,
-                modifier = Modifier.size(28.dp)
-            )
+// Maps admin service names directly to their icons and clean two-line labels
+private data class ServiceVisualConfig(
+    val icon: ImageVector,
+    val bg: Color,
+    val tint: Color,
+    val shortTitle: String
+)
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = item.title,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1E293B),
-                textAlign = TextAlign.Center,
-                lineHeight = 13.sp,
-                maxLines = 2,
-                minLines = 2
-            )
-        }
+private fun getAdminServiceVisual(serviceName: String): ServiceVisualConfig {
+    val n = serviceName.lowercase()
+    return when {
+        n.contains("household") || n.contains("meal") -> ServiceVisualConfig(
+            Icons.Default.Home,
+            Color(0xFFF0FDF4),
+            Color(0xFF15803D),
+            "Household\n& Meal Prep"
+        )
+        n.contains("bedside") || n.contains("mobility") -> ServiceVisualConfig(
+            Icons.Default.AccessibilityNew,
+            Color(0xFFEFF6FF),
+            Color(0xFF2563EB),
+            "Bedside &\nMobility"
+        )
+        n.contains("medication") || n.contains("vitals") -> ServiceVisualConfig(
+            Icons.Default.Medication,
+            Color(0xFFFFF1F2),
+            Color(0xFFE11D48),
+            "Medication &\nVitals"
+        )
+        n.contains("companion") || n.contains("walking") -> ServiceVisualConfig(
+            Icons.Default.Elderly,
+            Color(0xFFFFFBEB),
+            Color(0xFFD97706),
+            "Companion\nCare"
+        )
+        n.contains("physio") || n.contains("rehab") -> ServiceVisualConfig(
+            Icons.Default.FitnessCenter,
+            Color(0xFFF3E8FF),
+            Color(0xFF7C3AED),
+            "Physio &\nRehab"
+        )
+        n.contains("live-in") || n.contains("critical") -> ServiceVisualConfig(
+            Icons.Default.MedicalServices,
+            Color(0xFFD1FAE5),
+            Color(0xFF047857),
+            "24/7 Live-in\nCritical Care"
+        )
+        n.contains("palliative") || n.contains("nursing") -> ServiceVisualConfig(
+            Icons.Default.Healing,
+            Color(0xFFE0F2FE),
+            Color(0xFF0284C7),
+            "Palliative\nHome Nursing"
+        )
+        else -> ServiceVisualConfig(
+            Icons.Default.VolunteerActivism,
+            Color(0xFFF0FDF4),
+            Color(0xFF0D5C3A),
+            serviceName.take(15)
+        )
     }
 }
