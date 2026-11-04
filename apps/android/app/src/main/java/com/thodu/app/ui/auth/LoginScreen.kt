@@ -1,5 +1,8 @@
 package com.thodu.app.ui.auth
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -61,6 +64,49 @@ fun LoginScreen(
     var existingUsers by remember { mutableStateOf<List<AppUser>>(emptyList()) }
     var showUserPicker by remember { mutableStateOf(false) }
 
+    val activity = context as? Activity
+
+    // Play Services Google Account Chooser Activity Result Launcher
+    val googlePlayServicesLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { activityResult ->
+        isLoading = false
+        val authResult = GoogleAuthManager.parseSignInResult(activityResult.data)
+        when (authResult) {
+            is GoogleAuthManager.GoogleAuthResult.Success -> {
+                coroutineScope.launch {
+                    try {
+                        isLoading = true
+                        val req = OAuthLoginRequest(
+                            provider = "GOOGLE",
+                            email = authResult.email,
+                            name = authResult.displayName ?: authResult.email.substringBefore("@"),
+                            role = selectedRole,
+                            photoUrl = authResult.profilePictureUri,
+                            idToken = authResult.idToken
+                        )
+                        val response = ApiClient.apiService.loginWithOAuth(req)
+                        if (response.success && response.user != null) {
+                            onLoginSuccess(response.user)
+                        } else {
+                            errorMessage = response.message ?: "Server authentication error"
+                        }
+                    } catch (e: Exception) {
+                        errorMessage = "Network error: ${e.localizedMessage ?: "Unable to connect"}"
+                    } finally {
+                        isLoading = false
+                    }
+                }
+            }
+            is GoogleAuthManager.GoogleAuthResult.Cancelled -> {
+                // User closed dialog
+            }
+            is GoogleAuthManager.GoogleAuthResult.Error -> {
+                errorMessage = authResult.message
+            }
+        }
+    }
+
     // Fetch existing live database users
     LaunchedEffect(Unit) {
         try {
@@ -100,40 +146,61 @@ fun LoginScreen(
         }
     }
 
+    fun launchPlayServicesChooser() {
+        if (activity != null) {
+            val client = GoogleAuthManager.getGoogleSignInClient(activity)
+            // Sign out first to ensure account picker is always shown
+            client.signOut().addOnCompleteListener {
+                googlePlayServicesLauncher.launch(client.signInIntent)
+            }
+        } else {
+            isLoading = false
+            errorMessage = "Activity context unavailable"
+        }
+    }
+
     fun handleGoogleLogin() {
         isLoading = true
         errorMessage = null
         coroutineScope.launch {
-            when (val result = GoogleAuthManager.signInWithGoogle(context)) {
-                is GoogleAuthManager.GoogleAuthResult.Success -> {
-                    try {
-                        val req = OAuthLoginRequest(
-                            provider = "GOOGLE",
-                            email = result.email,
-                            name = result.displayName ?: result.email.substringBefore("@"),
-                            role = selectedRole,
-                            photoUrl = result.profilePictureUri,
-                            idToken = result.idToken
-                        )
-                        val response = ApiClient.apiService.loginWithOAuth(req)
-                        if (response.success && response.user != null) {
-                            onLoginSuccess(response.user)
-                        } else {
-                            errorMessage = response.message ?: "Authentication failed on central server."
+            val result = GoogleAuthManager.signInWithCredentialManager(
+                context = context,
+                onFallbackToPlayServices = {
+                    launchPlayServicesChooser()
+                }
+            )
+
+            if (result != null) {
+                when (result) {
+                    is GoogleAuthManager.GoogleAuthResult.Success -> {
+                        try {
+                            val req = OAuthLoginRequest(
+                                provider = "GOOGLE",
+                                email = result.email,
+                                name = result.displayName ?: result.email.substringBefore("@"),
+                                role = selectedRole,
+                                photoUrl = result.profilePictureUri,
+                                idToken = result.idToken
+                            )
+                            val response = ApiClient.apiService.loginWithOAuth(req)
+                            if (response.success && response.user != null) {
+                                onLoginSuccess(response.user)
+                            } else {
+                                errorMessage = response.message ?: "Authentication failed on central server."
+                            }
+                        } catch (e: Exception) {
+                            errorMessage = "Network error: ${e.localizedMessage ?: "Unable to connect to server"}"
+                        } finally {
+                            isLoading = false
                         }
-                    } catch (e: Exception) {
-                        errorMessage = "Network error: ${e.localizedMessage ?: "Unable to connect to server"}"
-                    } finally {
+                    }
+                    is GoogleAuthManager.GoogleAuthResult.Cancelled -> {
                         isLoading = false
                     }
-                }
-                is GoogleAuthManager.GoogleAuthResult.Cancelled -> {
-                    isLoading = false
-                    // User cancelled account selection - nothing to show
-                }
-                is GoogleAuthManager.GoogleAuthResult.Error -> {
-                    isLoading = false
-                    errorMessage = result.message
+                    is GoogleAuthManager.GoogleAuthResult.Error -> {
+                        isLoading = false
+                        errorMessage = result.message
+                    }
                 }
             }
         }
