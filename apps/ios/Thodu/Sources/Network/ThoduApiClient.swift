@@ -3,8 +3,8 @@ import Foundation
 public final class ThoduApiClient {
     public static let shared = ThoduApiClient()
     
-    // Central Live Server
-    private let baseURL = "http://147.93.107.21"
+    // Central Live Server Domain (HTTPS)
+    private let baseURL = "https://thodu.sriddha.com"
     
     private init() {}
     

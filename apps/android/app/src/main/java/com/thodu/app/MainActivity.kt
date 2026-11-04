@@ -33,11 +33,10 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     } else {
-                        // Render authenticated dashboard
-                        FamilyDashboardScreen(
-                            onNavigateToServices = {},
-                            onNavigateToBookings = {},
-                            onTriggerSos = {}
+                        // Render full Beneficiary Panel for beneficiary/family role
+                        com.thodu.app.ui.beneficiary.BeneficiaryDashboardScreen(
+                            currentUser = currentUser!!,
+                            onLogout = { currentUser = null }
                         )
                     }
                 }

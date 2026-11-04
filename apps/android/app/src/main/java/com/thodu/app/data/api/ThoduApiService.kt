@@ -1,9 +1,6 @@
 package com.thodu.app.data.api
 
-import com.thodu.app.data.model.CredentialLoginRequest
-import com.thodu.app.data.model.OAuthLoginRequest
-import com.thodu.app.data.model.OAuthLoginResponse
-import com.thodu.app.data.model.UsersListResponse
+import com.thodu.app.data.model.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -14,6 +11,7 @@ import retrofit2.http.POST
 import java.util.concurrent.TimeUnit
 
 interface ThoduApiService {
+    // Auth
     @POST("/api/v1/auth/login")
     suspend fun loginWithCredentials(@Body request: CredentialLoginRequest): OAuthLoginResponse
 
@@ -22,11 +20,27 @@ interface ThoduApiService {
 
     @GET("/api/v1/auth/users")
     suspend fun getUsers(): UsersListResponse
+
+    // Beneficiary Module
+    @GET("/api/v1/beneficiaries")
+    suspend fun getBeneficiaries(): BeneficiariesResponse
+
+    @GET("/api/v1/bookings")
+    suspend fun getBookings(): BookingsResponse
+
+    @POST("/api/v1/bookings")
+    suspend fun createBooking(@Body request: CreateBookingRequest): GenericResponse
+
+    @GET("/api/v1/services")
+    suspend fun getServices(): ServicesResponse
+
+    @POST("/api/v1/sos/queue")
+    suspend fun triggerSos(@Body request: SosRequest): GenericResponse
 }
 
 object ApiClient {
-    // Live Cloud Server for Thodu Platform
-    private const val BASE_URL = "http://147.93.107.21/"
+    // Live Cloud Server Domain for Thodu Platform (HTTPS)
+    private const val BASE_URL = "https://thodu.sriddha.com/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
