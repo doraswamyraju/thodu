@@ -7,7 +7,7 @@ import { BeneficiaryLayout } from './beneficiary';
 import { CaregiverLayout } from './caregiver';
 import { FreelancerLayout } from './freelancer';
 
-type NavSection = 'overview' | 'map' | 'bookings' | 'services' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'staff' | 'funding' | 'sos' | 'audit';
+type NavSection = 'overview' | 'map' | 'bookings' | 'services' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'users' | 'staff' | 'funding' | 'sos' | 'audit';
 
 interface UserSession {
   id: string;
@@ -88,6 +88,9 @@ export default function App() {
   const [sponsorships, setSponsorships] = useState<any[]>([]);
   const [sosQueue, setSosQueue] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [registeredUsersList, setRegisteredUsersList] = useState<any[]>([]);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('ALL');
 
   // 1. Caregiver Workforce Filter States (Matching Image 1)
   const [cgTab, setCgTab] = useState<'ALL' | 'SALARIED' | 'FREELANCE' | 'ON_DUTY' | 'AVAILABLE'>('ALL');
@@ -243,7 +246,7 @@ export default function App() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [analyticsRes, benRes, bkRes, cgRes, spRes, sosRes, audRes, payRes, txRes, stRes, srvRes] = await Promise.all([
+      const [analyticsRes, benRes, bkRes, cgRes, spRes, sosRes, audRes, payRes, txRes, stRes, srvRes, usrRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/v1/analytics`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/beneficiaries`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/bookings`).then(r => r.json()).catch(() => null),
@@ -254,7 +257,8 @@ export default function App() {
         fetch(`${API_BASE_URL}/api/v1/caregiver-payouts`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/payments`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/staff`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE_URL}/api/v1/services`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE_URL}/api/v1/services`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE_URL}/api/v1/auth/users`).then(r => r.json()).catch(() => null)
       ]);
 
       if (analyticsRes?.data) setAnalytics(analyticsRes.data);
@@ -268,6 +272,7 @@ export default function App() {
       if (txRes?.payments) setPaymentTransactions(txRes.payments);
       if (stRes?.staff) setStaffList(stRes.staff);
       if (srvRes?.services) setCareServicesList(srvRes.services);
+      if (usrRes?.users) setRegisteredUsersList(usrRes.users);
     } catch (e) {
       console.error('Fetch error:', e);
     } finally {
@@ -1240,6 +1245,10 @@ export default function App() {
           <button className={`nav-link ${activeSection === 'payments' ? 'active' : ''}`} onClick={() => setActiveSection('payments')}>
             <DollarSign size={18} />
             <span>Billing & Payments</span>
+          </button>
+          <button className={`nav-link ${activeSection === 'users' ? 'active' : ''}`} onClick={() => setActiveSection('users')}>
+            <Users size={18} />
+            <span>Users & Roles</span>
           </button>
           <button className={`nav-link ${activeSection === 'staff' ? 'active' : ''}`} onClick={() => setActiveSection('staff')}>
             <Users size={18} />
@@ -2748,6 +2757,197 @@ export default function App() {
 
 
           
+          {/* ========================================================================= */}
+          {/* USERS & ROLE ACCESS MANAGEMENT                                              */}
+          {/* ========================================================================= */}
+          {activeSection === 'users' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0B5D3B' }}>Users & Role Access Control</h2>
+                  <p style={{ fontSize: '13px', color: '#6B7C72', marginTop: 2 }}>
+                    View all registered users from Google OAuth and Mobile signups, verify phone contacts, and grant or adjust system access roles
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button 
+                    onClick={fetchData} 
+                    className="btn-outline" 
+                    style={{ padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <RefreshCw size={14} /> Refresh List
+                  </button>
+                </div>
+              </div>
+
+              {/* Stat Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+                <div style={{ background: '#FFF', padding: '16px 20px', borderRadius: 14, border: '1px solid #E5E9E6' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#5A6E63', textTransform: 'uppercase' }}>Total Registered Users</span>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#0B5D3B', marginTop: 6 }}>{registeredUsersList.length}</div>
+                </div>
+                <div style={{ background: '#FFF', padding: '16px 20px', borderRadius: 14, border: '1px solid #E5E9E6' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#5A6E63', textTransform: 'uppercase' }}>Beneficiaries / Families</span>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#1B5E3C', marginTop: 6 }}>
+                    {registeredUsersList.filter(u => u.role === 'BENEFICIARY').length}
+                  </div>
+                </div>
+                <div style={{ background: '#FFF', padding: '16px 20px', borderRadius: 14, border: '1px solid #E5E9E6' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#5A6E63', textTransform: 'uppercase' }}>Caregivers & Freelancers</span>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#D97706', marginTop: 6 }}>
+                    {registeredUsersList.filter(u => u.role === 'CAREGIVER' || u.role === 'FREELANCER').length}
+                  </div>
+                </div>
+                <div style={{ background: '#FFF', padding: '16px 20px', borderRadius: 14, border: '1px solid #E5E9E6' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#5A6E63', textTransform: 'uppercase' }}>Super Administrators</span>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#DC2626', marginTop: 6 }}>
+                    {registeredUsersList.filter(u => u.role === 'ADMIN').length}
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters & Search */}
+              <div style={{ display: 'flex', gap: 14, marginBottom: 18, background: '#FFF', padding: '14px 18px', borderRadius: 14, border: '1px solid #E5E9E6', alignItems: 'center' }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <Search size={16} color="#6B7C72" style={{ position: 'absolute', left: 14, top: 11 }} />
+                  <input 
+                    type="text" 
+                    placeholder="Search users by name, email, or mobile..." 
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    style={{ width: '100%', padding: '9px 14px 9px 38px', borderRadius: 10, border: '1.5px solid #E5E9E6', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#4B5563' }}>Role:</span>
+                  <select 
+                    value={userRoleFilter} 
+                    onChange={(e) => setUserRoleFilter(e.target.value)}
+                    style={{ padding: '8px 14px', borderRadius: 10, border: '1.5px solid #E5E9E6', fontSize: '13px', background: '#FFF', fontWeight: 600, outline: 'none' }}
+                  >
+                    <option value="ALL">All Roles</option>
+                    <option value="BENEFICIARY">Beneficiary / Family</option>
+                    <option value="CAREGIVER">Salaried Caregiver</option>
+                    <option value="FREELANCER">Freelance Gig Partner</option>
+                    <option value="ADMIN">Super Admin</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Users Table */}
+              <div style={{ background: '#FFF', borderRadius: 16, border: '1px solid #E5E9E6', overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                  <thead>
+                    <tr style={{ background: '#F8FAF9', borderBottom: '1px solid #E5E9E6' }}>
+                      <th style={{ padding: '14px 20px', fontWeight: 700, color: '#1B382B' }}>User</th>
+                      <th style={{ padding: '14px 16px', fontWeight: 700, color: '#1B382B' }}>Contact Mobile</th>
+                      <th style={{ padding: '14px 16px', fontWeight: 700, color: '#1B382B' }}>Auth Provider</th>
+                      <th style={{ padding: '14px 16px', fontWeight: 700, color: '#1B382B' }}>Registered At</th>
+                      <th style={{ padding: '14px 16px', fontWeight: 700, color: '#1B382B' }}>Current Role & Access</th>
+                      <th style={{ padding: '14px 20px', fontWeight: 700, color: '#1B382B', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {registeredUsersList
+                      .filter(u => {
+                        const matchSearch = (u.name || '').toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                          (u.email || '').toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                          (u.phone || '').includes(userSearchQuery);
+                        const matchRole = userRoleFilter === 'ALL' || u.role === userRoleFilter;
+                        return matchSearch && matchRole;
+                      })
+                      .map((u) => (
+                        <tr key={u.id} style={{ borderBottom: '1px solid #F0F2F1' }}>
+                          <td style={{ padding: '14px 20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                              <img 
+                                src={u.avatarUrl || '/brand_logo.png'} 
+                                alt={u.name} 
+                                style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #0B5D3B' }} 
+                              />
+                              <div>
+                                <div style={{ fontWeight: 700, color: '#111827' }}>{u.name}</div>
+                                <div style={{ fontSize: '11.5px', color: '#6B7280' }}>{u.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ padding: '14px 16px', fontWeight: 600, color: '#374151' }}>
+                            {u.phone ? (
+                              <span style={{ color: '#047857' }}>{u.phone}</span>
+                            ) : (
+                              <span style={{ color: '#EF4444', fontStyle: 'italic', fontSize: '11.5px' }}>Pending Mobile</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <span style={{
+                              padding: '4px 10px', borderRadius: 8, fontSize: '11px', fontWeight: 700,
+                              background: u.provider === 'GOOGLE' ? '#EFF6FF' : '#F3F4F6',
+                              color: u.provider === 'GOOGLE' ? '#1D4ED8' : '#374151',
+                              border: u.provider === 'GOOGLE' ? '1px solid #BFDBFE' : '1px solid #E5E7EB'
+                            }}>
+                              {u.provider === 'GOOGLE' ? 'Google OAuth' : (u.provider === 'APPLE' ? 'Apple ID' : 'Password')}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 16px', fontSize: '12px', color: '#6B7280' }}>
+                            {u.createdAt || 'Recent'}
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <select 
+                              value={u.role}
+                              onChange={async (e) => {
+                                const newRole = e.target.value;
+                                if (window.confirm(`Change role for ${u.name} to ${newRole}?`)) {
+                                  try {
+                                    const res = await fetch(`${API_BASE_URL}/api/v1/auth/users/${u.id}/role`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ role: newRole })
+                                    });
+                                    const resData = await res.json();
+                                    if (resData.success) {
+                                      fetchData();
+                                    } else {
+                                      alert(resData.message || 'Failed to update role');
+                                    }
+                                  } catch (err) {
+                                    alert('Error: ' + String(err));
+                                  }
+                                }
+                              }}
+                              style={{
+                                padding: '6px 10px', borderRadius: 8, fontSize: '12px', fontWeight: 700,
+                                background: u.role === 'ADMIN' ? '#FEF2F2' : (u.role === 'CAREGIVER' ? '#EFF6FF' : (u.role === 'FREELANCER' ? '#FFFBEB' : '#F0FDF4')),
+                                color: u.role === 'ADMIN' ? '#DC2626' : (u.role === 'CAREGIVER' ? '#2563EB' : (u.role === 'FREELANCER' ? '#D97706' : '#15803D')),
+                                border: '1.5px solid #E5E7EB', outline: 'none', cursor: 'pointer'
+                              }}
+                            >
+                              <option value="BENEFICIARY">Beneficiary / Family</option>
+                              <option value="CAREGIVER">Salaried Caregiver</option>
+                              <option value="FREELANCER">Freelance Gig Partner</option>
+                              <option value="ADMIN">Super Admin</option>
+                            </select>
+                          </td>
+                          <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                            <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                              ID: {u.id.slice(-6)}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    {registeredUsersList.length === 0 && (
+                      <tr>
+                        <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#6B7280' }}>
+                          No users registered yet. Users will appear here automatically when they log in via Google or Mobile.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+
           {/* ========================================================================= */}
           {/* STAFF MANAGEMENT & SUPERVISOR ROLES                                       */}
           {/* ========================================================================= */}

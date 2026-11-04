@@ -1724,6 +1724,40 @@ app.post('/api/v1/auth/update-phone', (req: Request, res: Response) => {
   });
 });
 
+// Update User Role Endpoint (Admin Controlled)
+app.patch('/api/v1/auth/users/:id/role', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  const validRoles = ['ADMIN', 'BENEFICIARY', 'CAREGIVER', 'FREELANCER'];
+  if (!role || !validRoles.includes(role)) {
+    return res.status(400).json({ success: false, message: 'Invalid role. Must be one of: ' + validRoles.join(', ') });
+  }
+
+  const user = appUsers.find(u => u.id === id);
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'User not found' });
+  }
+
+  const previousRole = user.role;
+  user.role = role;
+
+  auditLogs.unshift({
+    id: 'aud-' + Date.now(),
+    adminUser: 'Super Admin',
+    action: 'USER_ROLE_CHANGE',
+    module: 'User Management',
+    details: `Updated role for ${user.name} (${user.email}) from ${previousRole} to ${role}`,
+    timestamp: new Date().toLocaleString()
+  });
+
+  return res.json({
+    success: true,
+    user,
+    message: `Role for ${user.name} successfully updated to ${role}`
+  });
+});
+
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'healthy', service: 'Thodu API Engine' });
 });
