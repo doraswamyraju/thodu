@@ -162,3 +162,4 @@ export const BeneficiaryBookingModal: React.FC<BeneficiaryBookingModalProps> = (
     </div>
   );
 };
+

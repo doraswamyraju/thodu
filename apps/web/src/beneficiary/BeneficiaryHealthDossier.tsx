@@ -117,3 +117,4 @@ export const BeneficiaryHealthDossier: React.FC<BeneficiaryHealthDossierProps> =
     </div>
   );
 };
+

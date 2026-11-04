@@ -196,3 +196,4 @@ export const BeneficiaryOverview: React.FC<BeneficiaryOverviewProps> = ({
     </div>
   );
 };
+

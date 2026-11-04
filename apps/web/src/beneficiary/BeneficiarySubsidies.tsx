@@ -62,3 +62,4 @@ export const BeneficiarySubsidies: React.FC<BeneficiarySubsidiesProps> = ({ bene
     </div>
   );
 };
+

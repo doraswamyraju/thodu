@@ -118,3 +118,4 @@ export const BeneficiaryBookings: React.FC<BeneficiaryBookingsProps> = ({
     </div>
   );
 };
+

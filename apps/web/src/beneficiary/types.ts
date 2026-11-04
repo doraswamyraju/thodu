@@ -82,3 +82,4 @@ export interface Caregiver {
 }
 
 export type BeneficiaryNavTab = 'overview' | 'bookings' | 'health' | 'subsidies' | 'profile';
+
