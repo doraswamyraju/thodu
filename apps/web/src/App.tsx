@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import './style.css';
 import { BeneficiaryLayout } from './beneficiary';
+import { CaregiverLayout } from './caregiver';
 
 type NavSection = 'overview' | 'map' | 'bookings' | 'services' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'staff' | 'funding' | 'sos' | 'audit';
 
@@ -27,8 +28,8 @@ export default function App() {
 
   const [emailInput, setEmailInput] = useState('raju@thodu.sriddha.com');
   const [passwordInput, setPasswordInput] = useState('admin123');
-  const [loginRole, setLoginRole] = useState<'admin' | 'family'>('admin');
-  const [currentPortal, setCurrentPortal] = useState<'admin' | 'beneficiary'>('admin');
+  const [loginRole, setLoginRole] = useState<'admin' | 'family' | 'caregiver'>('admin');
+  const [currentPortal, setCurrentPortal] = useState<'admin' | 'beneficiary' | 'caregiver'>('admin');
   const [activeSection, setActiveSection] = useState<NavSection>('overview'); // Direct to requested screen
   const [loading, setLoading] = useState(false);
 
@@ -265,6 +266,24 @@ export default function App() {
       localStorage.setItem('thodu_session', JSON.stringify(user));
       setSession(user);
       setCurrentPortal('beneficiary');
+
+    } else if (loginRole === 'caregiver') {
+      const targetCg = caregivers.find(c => 
+        (c.email && c.email.toLowerCase() === emailInput.toLowerCase()) ||
+        (c.phone && c.phone.includes(emailInput)) ||
+        (c.fullName && c.fullName.toLowerCase().includes(emailInput.toLowerCase()))
+      ) || caregivers[0];
+
+      const user: UserSession = {
+        id: targetCg?.id || 'usr-cg-1',
+        name: targetCg?.fullName || 'Anitha (Salaried Specialist)',
+        email: emailInput || 'anitha.care@gmail.com',
+        role: 'Salaried Caregiver',
+        phone: targetCg?.phone || '+91 98765 11111'
+      };
+      localStorage.setItem('thodu_session', JSON.stringify(user));
+      setSession(user);
+      setCurrentPortal('caregiver');
     } else {
       const user: UserSession = {
         id: 'usr-admin',
@@ -665,7 +684,7 @@ export default function App() {
           </div>
 
           {/* Role Switcher Tabs */}
-          <div style={{ display: 'flex', background: '#F0F4F1', borderRadius: '12px', padding: '4px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', background: '#F0F4F1', borderRadius: '12px', padding: '4px', marginBottom: '24px', gap: 4 }}>
             <button
               type="button"
               onClick={() => {
@@ -674,8 +693,8 @@ export default function App() {
                 setPasswordInput('admin123');
               }}
               style={{
-                flex: 1, padding: '10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-                fontWeight: 700, fontSize: '13px',
+                flex: 1, padding: '9px 4px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                fontWeight: 700, fontSize: '11px',
                 background: loginRole === 'admin' ? '#0B5D3B' : 'transparent',
                 color: loginRole === 'admin' ? '#FFF' : '#5A6E63',
                 transition: 'all 0.2s'
@@ -691,8 +710,8 @@ export default function App() {
                 setPasswordInput('family123');
               }}
               style={{
-                flex: 1, padding: '10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-                fontWeight: 700, fontSize: '13px',
+                flex: 1, padding: '9px 4px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                fontWeight: 700, fontSize: '11px',
                 background: loginRole === 'family' ? '#0B5D3B' : 'transparent',
                 color: loginRole === 'family' ? '#FFF' : '#5A6E63',
                 transition: 'all 0.2s'
@@ -700,19 +719,36 @@ export default function App() {
             >
               Beneficiary / Family
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginRole('caregiver');
+                setEmailInput('anitha.care@gmail.com');
+                setPasswordInput('care123');
+              }}
+              style={{
+                flex: 1, padding: '9px 4px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                fontWeight: 700, fontSize: '11px',
+                background: loginRole === 'caregiver' ? '#0B5D3B' : 'transparent',
+                color: loginRole === 'caregiver' ? '#FFF' : '#5A6E63',
+                transition: 'all 0.2s'
+              }}
+            >
+              Salaried Caregiver
+            </button>
           </div>
 
           <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0B5D3B', marginBottom: '4px' }}>
-            {loginRole === 'admin' ? 'Operations Admin Workspace' : 'Family & Beneficiary Portal'}
+            {loginRole === 'admin' ? 'Operations Admin Workspace' : (loginRole === 'caregiver' ? 'Caregiver Staff Portal' : 'Family & Beneficiary Portal')}
           </h2>
           <p style={{ fontSize: '12px', fontWeight: 600, color: '#1B5E3C', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '22px' }}>
-            {loginRole === 'admin' ? 'Central Operations & Fleet Dispatch' : 'Track Loved Ones & Manage Care Visits'}
+            {loginRole === 'admin' ? 'Central Operations & Fleet Dispatch' : (loginRole === 'caregiver' ? 'Shift Rosters, Clinical Vitals & Visit Checklists' : 'Track Loved Ones & Manage Care Visits')}
           </p>
 
           <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
             <div style={{ marginBottom: '16px' }}>
               <label style={{ fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '6px', color: '#1B382B' }}>
-                {loginRole === 'admin' ? 'Admin Email Address' : 'Guardian Email or Mobile'}
+                {loginRole === 'admin' ? 'Admin Email Address' : (loginRole === 'caregiver' ? 'Caregiver Email or Mobile' : 'Guardian Email or Mobile')}
               </label>
               <div style={{ position: 'relative' }}>
                 <Mail size={16} color="#6B7C72" style={{ position: 'absolute', left: 14, top: 14 }} />
@@ -745,15 +781,19 @@ export default function App() {
             {/* Quick Demo Credentials Reminder Box */}
             <div style={{ background: '#F8FAF9', border: '1px solid #E5E9E6', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px', fontSize: '11px', color: '#5A6E63' }}>
               <strong>Demo Credentials:</strong><br />
-              {loginRole === 'admin' ? (
+              {loginRole === 'admin' && (
                 <span>Email: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>raju@thodu.sriddha.com</code> | Pass: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>admin123</code></span>
-              ) : (
+              )}
+              {loginRole === 'family' && (
                 <span>Guardian Email: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>anita.sharma@gmail.com</code> | Pass: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>family123</code></span>
+              )}
+              {loginRole === 'caregiver' && (
+                <span>Caregiver Email: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>anitha.care@gmail.com</code> | Pass: <code style={{ color: '#0B5D3B', fontWeight: 700 }}>care123</code></span>
               )}
             </div>
 
             <button type="submit" className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px', justifyContent: 'center' }}>
-              {loginRole === 'admin' ? 'Sign In to Super Admin Workspace →' : 'Sign In to Family & Beneficiary Portal →'}
+              {loginRole === 'admin' ? 'Sign In to Super Admin Workspace →' : (loginRole === 'caregiver' ? 'Sign In to Caregiver Staff Portal →' : 'Sign In to Family & Beneficiary Portal →')}
             </button>
           </form>
         </div>
@@ -762,6 +802,21 @@ export default function App() {
   }
 
   
+  
+  if (currentPortal === 'caregiver') {
+    const activeCaregiver = caregivers.find(c => c.id === session?.id || c.email === session?.email) || caregivers[0];
+    return (
+      <CaregiverLayout
+        caregiver={activeCaregiver}
+        bookings={bookings}
+        onRefresh={fetchData}
+        onUpdateVisit={handleUpdateBooking}
+        onTriggerSos={(notes) => handleBeneficiaryTriggerSos(bookings[0]?.beneficiaryId || 'ben-1', notes)}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   if (currentPortal === 'beneficiary') {
     return (
       <BeneficiaryLayout
