@@ -106,7 +106,13 @@ fun BeneficiaryDashboardScreen(
                     onMenuClick = {
                         coroutineScope.launch { drawerState.open() }
                     },
-                    onRefreshClick = { refreshData() }
+                    onLogoClick = {
+                        currentTab = BeneficiaryNavTab.TODAY
+                    },
+                    onLogoutClick = onLogout,
+                    onNotificationClick = {
+                        // Future: open notifications sheet
+                    }
                 )
             },
             bottomBar = {

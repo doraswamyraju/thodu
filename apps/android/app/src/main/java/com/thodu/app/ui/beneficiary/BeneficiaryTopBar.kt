@@ -7,31 +7,41 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thodu.app.data.model.Beneficiary
 import com.thodu.app.ui.theme.ThoduGreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BeneficiaryTopBar(
     beneficiaries: List<Beneficiary>,
     selectedBeneficiary: Beneficiary?,
     onSelectBeneficiary: (Beneficiary) -> Unit,
     onMenuClick: () -> Unit,
-    onRefreshClick: () -> Unit
+    onLogoClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onNotificationClick: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     Surface(
         color = Color.White,
-        shadowElevation = 3.dp,
+        shadowElevation = 2.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -42,67 +52,95 @@ fun BeneficiaryTopBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Left: Hamburger Menu Icon + Thodu Brand Crest
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onMenuClick) {
+                // 1. LEFT: Hamburger Menu Icon + Clickable Logo that navigates Home
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
+                    IconButton(
+                        onClick = onMenuClick,
+                        modifier = Modifier.size(38.dp)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Menu,
-                            contentDescription = "Open Sidebar",
+                            contentDescription = "Open Sidebar Menu",
                             tint = Color(0xFF143627),
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
 
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Thodu",
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0D5C3A)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = Color(0xFFFEF9C3)
-                            ) {
-                                Text(
-                                    text = "Family",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFB45309),
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                    Spacer(modifier = Modifier.width(2.dp))
+
+                    // Clickable Logo -> Takes user to Home tab
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable(onClick = onLogoClick)
+                            .padding(horizontal = 4.dp, vertical = 4.dp)
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = ThoduGreen.copy(alpha = 0.12f),
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.VolunteerActivism,
+                                    contentDescription = "Thodu Home",
+                                    tint = ThoduGreen,
+                                    modifier = Modifier.size(16.dp)
                                 )
                             }
                         }
-                        Text(
-                            text = "Tirupati Service Region",
-                            fontSize = 10.sp,
-                            color = Color(0xFF6B7280)
-                        )
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        Column {
+                            Text(
+                                text = "Thodu",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0D5C3A),
+                                lineHeight = 16.sp
+                            )
+                            Text(
+                                text = "Elder Care",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF6B7280),
+                                lineHeight = 9.sp
+                            )
+                        }
                     }
                 }
 
-                // Center/Right: Loved One Selector Dropdown Pill
-                Box {
+                // 2. CENTER: Active Loved One Switcher Dropdown Pill
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .weight(1.3f, fill = false)
+                ) {
                     Surface(
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(18.dp),
                         color = Color(0xFFF0FDF4),
                         border = BorderStroke(1.dp, Color(0xFFBBF7D0)),
-                        modifier = Modifier.clickable { expanded = true }
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(18.dp))
+                            .clickable { expanded = true }
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Surface(
                                 shape = CircleShape,
                                 color = Color(0xFF0D5C3A),
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(
@@ -113,38 +151,46 @@ fun BeneficiaryTopBar(
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.width(6.dp))
+
+                            Spacer(modifier = Modifier.width(5.dp))
+
                             Text(
                                 text = selectedBeneficiary?.fullName?.split(" ")?.first() ?: "Saraswathi",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF143627)
+                                color = Color(0xFF143627),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
+
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = null,
+                                contentDescription = "Switch loved one",
                                 tint = Color(0xFF0D5C3A),
                                 modifier = Modifier.size(18.dp)
                             )
                         }
                     }
 
+                    // Dropdown Options
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
                         modifier = Modifier.background(Color.White)
                     ) {
                         beneficiaries.forEach { ben ->
+                            val isSelected = ben.id == selectedBeneficiary?.id
                             DropdownMenuItem(
                                 text = {
                                     Column {
                                         Text(
                                             text = "${ben.fullName} (${ben.relationship})",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.sp
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 13.sp,
+                                            color = if (isSelected) Color(0xFF0D5C3A) else Color(0xFF1F2937)
                                         )
                                         Text(
-                                            text = "Ref: ${ben.refNumber} • ${ben.age} yrs",
+                                            text = "Ref: ${ben.refNumber} • ${ben.age} yrs • ${ben.category}",
                                             fontSize = 11.sp,
                                             color = Color.Gray
                                         )
@@ -159,27 +205,93 @@ fun BeneficiaryTopBar(
                     }
                 }
 
-                // Right Icons: Refresh & Notification
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onRefreshClick) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh",
-                            tint = Color(0xFF4B5563),
-                            modifier = Modifier.size(20.dp)
-                        )
+                // 3. RIGHT: Notifications Bell & Logout Icon
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    // Notification Bell Icon
+                    IconButton(
+                        onClick = onNotificationClick,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.TopEnd) {
+                            Icon(
+                                imageVector = Icons.Default.NotificationsNone,
+                                contentDescription = "Notifications",
+                                tint = Color(0xFF374151),
+                                modifier = Modifier.size(22.dp)
+                            )
+                            // Subtle notification indicator dot
+                            Surface(
+                                shape = CircleShape,
+                                color = Color(0xFFDC2626),
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .offset(x = (-1).dp, y = 1.dp)
+                            ) {}
+                        }
                     }
 
-                    IconButton(onClick = {}) {
+                    Spacer(modifier = Modifier.width(2.dp))
+
+                    // Logout Icon (AutoMirrored)
+                    IconButton(
+                        onClick = { showLogoutDialog = true },
+                        modifier = Modifier.size(36.dp)
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.NotificationsNone,
-                            contentDescription = "Notifications",
-                            tint = Color(0xFF4B5563),
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Log out",
+                            tint = Color(0xFFDC2626),
                             modifier = Modifier.size(20.dp)
                         )
                     }
                 }
             }
         }
+    }
+
+    // Confirmation Logout Dialog
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = {
+                Text(
+                    text = "Confirm Logout",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp,
+                    color = Color(0xFF111827)
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to log out of Thodu Family Portal?",
+                    fontSize = 13.sp,
+                    color = Color(0xFF4B5563)
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogoutClick()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFDC2626),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Logout", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel", color = Color(0xFF4B5563))
+                }
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(16.dp)
+        )
     }
 }
