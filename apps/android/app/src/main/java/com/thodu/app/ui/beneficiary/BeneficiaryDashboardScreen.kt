@@ -1,6 +1,5 @@
 package com.thodu.app.ui.beneficiary
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,11 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thodu.app.data.api.ApiClient
 import com.thodu.app.data.model.*
+import com.thodu.app.ui.beneficiary.notifications.NotificationsBottomSheet
+import com.thodu.app.ui.beneficiary.today.BeneficiaryTodayTabContent
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +38,7 @@ fun BeneficiaryDashboardScreen(
     var services by remember { mutableStateOf<List<CareService>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showBookCareSheet by remember { mutableStateOf(false) }
+    var showNotificationsSheet by remember { mutableStateOf(false) }
 
     fun refreshData() {
         isLoading = true
@@ -111,7 +112,7 @@ fun BeneficiaryDashboardScreen(
                     },
                     onLogoutClick = onLogout,
                     onNotificationClick = {
-                        // Future: open notifications sheet
+                        showNotificationsSheet = true
                     }
                 )
             },
@@ -191,31 +192,13 @@ fun BeneficiaryDashboardScreen(
                     ) {
                         when (currentTab) {
                             BeneficiaryNavTab.TODAY -> {
-                                // 1. Beneficiary Profile Card with Book Care Button
                                 selectedBeneficiary?.let { ben ->
-                                    BeneficiaryProfileCard(
-                                        beneficiary = ben,
-                                        onBookCareClick = { showBookCareSheet = true }
-                                    )
-                                }
-
-                                // 2. Today's Caregiver Dispatch & Live Clinical Vitals Card
-                                BeneficiaryDispatchVitalsCard(
-                                    activeBooking = activeBooking
-                                )
-
-                                // 3. Emergency Rapid Response SOS Card
-                                selectedBeneficiary?.let { ben ->
-                                    BeneficiarySosCard(
-                                        beneficiary = ben,
-                                        onSosTriggered = { refreshData() }
-                                    )
-                                }
-
-                                // 4. Partner Grant & Subsidy Tier
-                                selectedBeneficiary?.let { ben ->
-                                    BeneficiarySubsidyTierCard(
-                                        beneficiary = ben
+                                    BeneficiaryTodayTabContent(
+                                        selectedBeneficiary = ben,
+                                        activeBooking = activeBooking,
+                                        services = services,
+                                        onBookCareClick = { showBookCareSheet = true },
+                                        onSelectServiceToBook = { _ -> showBookCareSheet = true }
                                     )
                                 }
                             }
@@ -289,6 +272,13 @@ fun BeneficiaryDashboardScreen(
                     services = services,
                     onDismiss = { showBookCareSheet = false },
                     onBookingCreated = { refreshData() }
+                )
+            }
+
+            // Modal Bottom Sheet: Notification Center
+            if (showNotificationsSheet) {
+                NotificationsBottomSheet(
+                    onDismiss = { showNotificationsSheet = false }
                 )
             }
         }
