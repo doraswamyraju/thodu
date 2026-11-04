@@ -428,3 +428,27 @@ tr:hover td {
   font-size: 12px;
   font-weight: 600;
 }
+
+/* Beneficiary Responsive Navigation & Docks */
+@media (max-width: 900px) {
+  .web-sidebar {
+    display: none !important;
+  }
+  .web-sidebar.mobile-open {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 200;
+  }
+  .mobile-bottom-dock {
+    display: flex !important;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}

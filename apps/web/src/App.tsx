@@ -3,7 +3,7 @@ import {
   Activity, AlertTriangle, ArrowUpRight, Award, Bell, Calendar, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, DollarSign, Download, Edit3, Eye, FileText, Filter, Heart, LayoutDashboard, Lock, LogOut, Mail, MapPin, MoreVertical, PhoneCall, Plus, Radio, RefreshCw, Search, Send, Shield, ShieldCheck, Trash2, TrendingUp, UserPlus, Users, X
 } from 'lucide-react';
 import './style.css';
-import { BeneficiaryPortal } from './BeneficiaryPortal';
+import { BeneficiaryLayout } from './beneficiary';
 
 type NavSection = 'overview' | 'map' | 'bookings' | 'beneficiaries' | 'workforce' | 'earnings' | 'payments' | 'staff' | 'funding' | 'sos' | 'audit';
 
@@ -660,7 +660,7 @@ export default function App() {
   
   if (currentPortal === 'beneficiary') {
     return (
-      <BeneficiaryPortal
+      <BeneficiaryLayout
         beneficiaries={beneficiaries}
         bookings={bookings}
         caregivers={caregivers}
@@ -668,6 +668,7 @@ export default function App() {
         onBookCare={handleBeneficiaryBookCare}
         onTriggerSos={handleBeneficiaryTriggerSos}
         onSwitchToAdmin={() => setCurrentPortal('admin')}
+        onLogout={handleLogout}
       />
     );
   }

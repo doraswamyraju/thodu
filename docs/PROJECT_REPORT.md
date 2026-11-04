@@ -60,3 +60,4 @@ While Thodu operates as a self-sustaining commercial technology product, it inte
 - **Family Health Dossier**: View & update medical conditions, allergies, and attending doctor details.
 - **Funding & Subsidy Status**: Track active grants provided by partner trusts like Sri Divyang Seva Kendram Trust.
 - **Invoices & Receipts**: View billing breakdown, copayments, and downloadable receipts.
+
