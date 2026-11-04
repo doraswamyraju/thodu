@@ -1,6 +1,7 @@
 package com.thodu.app.ui.beneficiary
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,17 +12,19 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NotificationsNone
-import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.thodu.app.R
 import com.thodu.app.data.model.Beneficiary
 import com.thodu.app.ui.theme.ThoduGreen
 
@@ -75,48 +78,17 @@ fun BeneficiaryTopBar(
 
                     Spacer(modifier = Modifier.width(2.dp))
 
-                    // Clickable Logo -> Takes user to Home tab
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                    // Official Thodu Horizontal Brand Logo -> Clicking takes user to Home tab
+                    Image(
+                        painter = painterResource(id = R.drawable.thodu_topbar_logo),
+                        contentDescription = "Thodu Elder Care Services",
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable(onClick = onLogoClick)
-                            .padding(horizontal = 4.dp, vertical = 4.dp)
-                    ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = ThoduGreen.copy(alpha = 0.12f),
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.VolunteerActivism,
-                                    contentDescription = "Thodu Home",
-                                    tint = ThoduGreen,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(6.dp))
-
-                        Column {
-                            Text(
-                                text = "Thodu",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0D5C3A),
-                                lineHeight = 16.sp
-                            )
-                            Text(
-                                text = "Elder Care",
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF6B7280),
-                                lineHeight = 9.sp
-                            )
-                        }
-                    }
+                            .height(32.dp)
+                            .wrapContentWidth()
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable(onClick = onLogoClick),
+                        contentScale = ContentScale.Fit
+                    )
                 }
 
                 // 2. CENTER: Active Loved One Switcher Dropdown Pill
