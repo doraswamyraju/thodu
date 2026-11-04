@@ -1585,7 +1585,7 @@ app.post('/api/v1/auth/login', (req: Request, res: Response) => {
 });
 
 app.post('/api/v1/auth/oauth', (req: Request, res: Response) => {
-  const { provider, email, name, role, photoUrl, idToken } = req.body;
+  const { provider, email, name, role, photoUrl, phone, idToken } = req.body;
   if (!email || !provider) {
     return res.status(400).json({ success: false, message: 'Provider and email are required' });
   }
@@ -1593,39 +1593,73 @@ app.post('/api/v1/auth/oauth', (req: Request, res: Response) => {
   let user = appUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
   const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
 
+  // If user is designated admin email, ensure ADMIN role
+  const isAdminEmail = email.toLowerCase() === 'raju@thodu.sriddha.com' || email.toLowerCase() === 'rajuganiventures@gmail.com';
+
   if (user) {
     user.lastLoginAt = nowStr;
-    if (name) user.name = name;
+    if (name && !user.name) user.name = name;
     if (photoUrl) user.avatarUrl = photoUrl;
-    if (role) user.role = role;
+    if (phone) user.phone = phone;
+    if (isAdminEmail) user.role = 'ADMIN';
   } else {
+    const assignedRole = isAdminEmail ? 'ADMIN' : (role || 'BENEFICIARY');
     user = {
       id: 'usr-' + Date.now(),
       email: email.toLowerCase(),
       name: name || email.split('@')[0],
       avatarUrl: photoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-      role: role || 'BENEFICIARY',
+      role: assignedRole,
       provider: provider.toUpperCase() === 'APPLE' ? 'APPLE' : 'GOOGLE',
-      phone: '+91 98765 ' + Math.floor(10000 + Math.random() * 90000),
+      phone: phone || '', // empty if not yet provided by user
       createdAt: nowStr,
       lastLoginAt: nowStr
     };
     appUsers.push(user);
   }
 
+  const needsPhone = !user.phone || user.phone.trim().length < 10;
+
   auditLogs.unshift({
     id: 'aud-' + Date.now(),
     adminUser: user.name + ' (' + user.role + ')',
     action: 'OAUTH_LOGIN',
     module: 'Authentication',
-    details: 'User authenticated via ' + user.provider + ' (' + user.email + ') with role ' + user.role,
+    details: 'User authenticated via ' + user.provider + ' (' + user.email + ') with role ' + user.role + (needsPhone ? ' [Pending Phone]' : ''),
     timestamp: new Date().toLocaleString()
   });
 
   return res.json({
     success: true,
     user,
+    needsPhone,
     token: 'thodu_jwt_' + Buffer.from(user.id + ':' + user.email).toString('base64')
+  });
+});
+
+app.post('/api/v1/auth/update-phone', (req: Request, res: Response) => {
+  const { email, phone } = req.body;
+  if (!email || !phone) {
+    return res.status(400).json({ success: false, message: 'Email and phone number are required' });
+  }
+
+  let user = appUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'User not found' });
+  }
+
+  user.phone = phone.trim();
+
+  // If also a beneficiary in beneficiary list, update their primaryContact
+  const ben = beneficiaries.find(b => b.guardianEmail && b.guardianEmail.toLowerCase() === email.toLowerCase());
+  if (ben) {
+    ben.primaryContact = phone.trim();
+  }
+
+  return res.json({
+    success: true,
+    user,
+    message: 'Mobile number successfully saved'
   });
 });
 

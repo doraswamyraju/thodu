@@ -48,6 +48,12 @@ export default function App() {
   const [activeSection, setActiveSection] = useState<NavSection>('overview'); // Direct to requested screen
   const [loading, setLoading] = useState(false);
 
+  // Phone registration prompt state for OAuth signups
+  const [showPhonePrompt, setShowPhonePrompt] = useState(false);
+  const [pendingOAuthUser, setPendingOAuthUser] = useState<any | null>(null);
+  const [phoneNumberInput, setPhoneNumberInput] = useState('');
+  const [beneficiaryNameInput, setBeneficiaryNameInput] = useState('');
+
   // Live Database States
   const [analytics, setAnalytics] = useState<any>(null);
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
@@ -365,19 +371,33 @@ export default function App() {
 
       const data = await res.json();
       if (data.success && data.user) {
+        // Check if user needs phone number verification
+        if (data.needsPhone || !data.user.phone) {
+          setPendingOAuthUser(data.user);
+          setShowPhonePrompt(true);
+          return;
+        }
+
         const user: UserSession = {
           id: data.user.id,
           name: data.user.name,
           email: data.user.email,
           role: data.user.role === 'ADMIN' ? 'Super Admin' : (data.user.role === 'CAREGIVER' ? 'Salaried Caregiver' : (data.user.role === 'FREELANCER' ? 'Freelance Caregiver' : 'Family Guardian / Beneficiary')),
-          phone: data.user.phone || '+91 94444 56789'
+          phone: data.user.phone
         };
         localStorage.setItem('thodu_session', JSON.stringify(user));
         setSession(user);
-        if (loginRole === 'family') setCurrentPortal('beneficiary');
-        else if (loginRole === 'caregiver') setCurrentPortal('caregiver');
-        else if (loginRole === 'freelancer') setCurrentPortal('freelancer');
-        else setCurrentPortal('admin');
+
+        // Strict role routing - only designated admin enters admin portal
+        if (data.user.role === 'ADMIN') {
+          setCurrentPortal('admin');
+        } else if (data.user.role === 'CAREGIVER') {
+          setCurrentPortal('caregiver');
+        } else if (data.user.role === 'FREELANCER') {
+          setCurrentPortal('freelancer');
+        } else {
+          setCurrentPortal('beneficiary');
+        }
       } else {
         alert(data.message || 'Google authentication failed');
       }
@@ -413,6 +433,57 @@ export default function App() {
       }
     }
   }, [session, loginRole]);
+
+  const handleSavePhoneAndProceed = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phoneNumberInput || phoneNumberInput.trim().length < 10) {
+      alert('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/update-phone`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: pendingOAuthUser.email,
+          phone: phoneNumberInput.trim()
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.user) {
+        const user: UserSession = {
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role === 'ADMIN' ? 'Super Admin' : (data.user.role === 'CAREGIVER' ? 'Salaried Caregiver' : (data.user.role === 'FREELANCER' ? 'Freelance Caregiver' : 'Family Guardian / Beneficiary')),
+          phone: data.user.phone
+        };
+        localStorage.setItem('thodu_session', JSON.stringify(user));
+        setSession(user);
+        setShowPhonePrompt(false);
+        setPendingOAuthUser(null);
+
+        if (data.user.role === 'ADMIN') {
+          setCurrentPortal('admin');
+        } else if (data.user.role === 'CAREGIVER') {
+          setCurrentPortal('caregiver');
+        } else if (data.user.role === 'FREELANCER') {
+          setCurrentPortal('freelancer');
+        } else {
+          setCurrentPortal('beneficiary');
+        }
+      } else {
+        alert(data.message || 'Failed to update mobile number');
+      }
+    } catch (err) {
+      alert('Error updating phone number: ' + String(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     if (window.confirm('Log out from Thodu Admin Panel?')) {
@@ -971,6 +1042,77 @@ export default function App() {
               <div id="googleSignInBtnContainer"></div>
             </div>
           </form>
+
+          {/* New User Mobile Number & Beneficiary Onboarding Modal */}
+          {showPhonePrompt && pendingOAuthUser && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)',
+              zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px'
+            }}>
+              <div style={{
+                background: '#FFFFFF', borderRadius: '20px', maxWidth: '440px', width: '100%',
+                padding: '28px', boxShadow: '0 20px 40px rgba(0,0,0,0.25)', textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                  <img 
+                    src={pendingOAuthUser.avatarUrl || '/brand_logo.png'} 
+                    alt="avatar" 
+                    style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #0B5D3B' }} 
+                  />
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0B5D3B' }}>Welcome, {pendingOAuthUser.name}! 👋</h3>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#6B7280' }}>{pendingOAuthUser.email}</p>
+                  </div>
+                </div>
+
+                <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '12px', padding: '12px 14px', marginBottom: '20px' }}>
+                  <p style={{ margin: 0, fontSize: '12.5px', color: '#166534', lineHeight: 1.5 }}>
+                    <strong>Almost done!</strong> To coordinate home care visits, send live dispatch SMS, and handle SOS alerts, please enter your mobile phone number.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSavePhoneAndProceed}>
+                  <div style={{ marginBottom: '18px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#1F2937', marginBottom: '6px' }}>
+                      Mobile Number (Required) *
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ padding: '12px 14px', background: '#F3F4F6', borderRadius: '10px', fontWeight: 700, fontSize: '14px', color: '#374151', border: '1.5px solid #E5E7EB' }}>
+                        +91
+                      </div>
+                      <input 
+                        type="tel"
+                        pattern="[0-9]{10}"
+                        maxLength={10}
+                        placeholder="9876543210"
+                        value={phoneNumberInput}
+                        onChange={(e) => setPhoneNumberInput(e.target.value.replace(/\D/g, ''))}
+                        required
+                        autoFocus
+                        style={{
+                          flex: 1, padding: '12px 14px', borderRadius: '10px',
+                          border: '1.5px solid #D1D5DB', fontSize: '15px', fontWeight: 600, outline: 'none'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    disabled={loading || phoneNumberInput.length < 10}
+                    style={{
+                      width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
+                      background: phoneNumberInput.length === 10 ? '#0B5D3B' : '#9CA3AF',
+                      color: '#FFF', fontSize: '15px', fontWeight: 700, cursor: phoneNumberInput.length === 10 ? 'pointer' : 'not-allowed',
+                      transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                    }}
+                  >
+                    {loading ? 'Saving Profile...' : 'Complete & Enter Beneficiary Portal →'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
