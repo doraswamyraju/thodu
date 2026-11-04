@@ -82,3 +82,4 @@ export const FreelancerProfile: React.FC<FreelancerProfileProps> = ({ caregiver 
     </div>
   );
 };
+

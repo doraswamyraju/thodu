@@ -74,3 +74,4 @@ export interface CaregiverPayout {
 }
 
 export type FreelancerNavTab = 'broadcasts' | 'active_gig' | 'my_gigs' | 'wallet' | 'profile';
+

@@ -11,7 +11,7 @@ import { FreelancerWallet } from './FreelancerWallet';
 import { FreelancerProfile } from './FreelancerProfile';
 
 interface FreelancerLayoutProps {
-  caregiver: FreelanceCaregiver;
+  caregiver?: FreelanceCaregiver;
   bookings: GigBroadcastBooking[];
   payouts: CaregiverPayout[];
   onRefresh: () => void;
@@ -34,14 +34,38 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
   onLogout
 }) => {
   const [activeTab, setActiveTab] = useState<FreelancerNavTab>('broadcasts');
-  const [availability, setAvailability] = useState<'Available' | 'On Duty' | 'Off Duty'>(caregiver.availability || 'Available');
+  const [availability, setAvailability] = useState<'Available' | 'On Duty' | 'Off Duty'>(caregiver?.availability || 'Available');
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+
+  // Safe fallback if caregiver is loading from API
+  const activeCg: FreelanceCaregiver = caregiver || {
+    id: 'cg-2',
+    refNumber: 'TH-CAR-1002',
+    fullName: 'K. Ramesh',
+    phone: '+91 98765 22222',
+    email: 'ramesh.k@thodu.org',
+    gender: 'Male',
+    age: 38,
+    address: 'Near Alipiri Gate, Tirupati - 517507',
+    pincode: '517507',
+    employmentType: 'Freelance / Gig',
+    verificationStatus: 'Verified',
+    rating: 4.9,
+    ratingReviewsCount: 214,
+    activeAssignments: 1,
+    skills: ['Cooking Assistance', 'Errands', 'Medication Reminders'],
+    zone: 'T.T.D. Colony',
+    availability: 'Available',
+    avatarBg: '#E1F5FE',
+    latitude: 13.6335,
+    longitude: 79.4180
+  };
 
   // Filter broadcasts and accepted gigs
   const broadcastBookings = bookings.filter(b => b.status === 'Awaiting Assignment' || b.broadcasted);
   const myGigs = bookings.filter(b =>
-    b.caregiverName && caregiver.fullName &&
-    b.caregiverName.toLowerCase().includes(caregiver.fullName.toLowerCase())
+    b.caregiverName && activeCg.fullName &&
+    b.caregiverName.toLowerCase().includes(activeCg.fullName.toLowerCase())
   );
 
   const activeGig = myGigs.find(g => g.status === 'In Progress' || g.status === 'Confirmed');
@@ -101,10 +125,10 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
         <div className="sidebar-footer" style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', color: '#FFF' }}>
-              {caregiver.fullName.charAt(0)}
+              {activeCg.fullName.charAt(0)}
             </div>
             <div style={{ overflow: 'hidden' }}>
-              <p style={{ fontSize: '12px', fontWeight: 700, margin: 0, color: '#FFF' }}>{caregiver.fullName}</p>
+              <p style={{ fontSize: '12px', fontWeight: 700, margin: 0, color: '#FFF' }}>{activeCg.fullName}</p>
               <p style={{ fontSize: '10px', color: '#93C5FD', margin: 0 }}>Freelance Partner</p>
             </div>
           </div>
@@ -123,7 +147,7 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
               {activeTab === 'profile' && "Freelancer Verification Badges"}
             </h1>
             <p style={{ fontSize: '12px', color: '#688273', margin: '2px 0 0 0' }}>
-              Gig Partner ID: {caregiver.refNumber} • Zone: {caregiver.zone}
+              Gig Partner ID: {activeCg.refNumber} • Zone: {activeCg.zone}
             </p>
           </div>
 
@@ -162,7 +186,7 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
         <div className="web-content" style={{ paddingBottom: '90px' }}>
           {activeTab === 'broadcasts' && (
             <FreelancerBroadcasts
-              caregiver={caregiver}
+              caregiver={activeCg}
               broadcastBookings={broadcastBookings}
               onAcceptGig={handleAcceptAndOpen}
               onNavigateToActiveGig={() => setActiveTab('active_gig')}
@@ -172,7 +196,7 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
 
           {activeTab === 'active_gig' && (
             <FreelancerActiveGig
-              caregiver={caregiver}
+              caregiver={activeCg}
               activeGig={activeGig}
               onUpdateGig={onUpdateGig}
               onTriggerSos={onTriggerSos}
@@ -187,7 +211,7 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
 
           {activeTab === 'wallet' && (
             <FreelancerWallet
-              caregiver={caregiver}
+              caregiver={activeCg}
               payouts={payouts}
               onRequestPayout={onRequestPayout}
             />
@@ -195,7 +219,7 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
 
           {activeTab === 'profile' && (
             <FreelancerProfile
-              caregiver={caregiver}
+              caregiver={activeCg}
             />
           )}
         </div>
@@ -204,7 +228,7 @@ export const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
       {/* Floating SOS */}
       <div style={{ position: 'fixed', right: 28, bottom: 28, zIndex: 90 }}>
         <button
-          onClick={() => onTriggerSos(`Emergency SOS from freelance caregiver ${caregiver.fullName}`)}
+          onClick={() => onTriggerSos(`Emergency SOS from freelance caregiver ${activeCg.fullName}`)}
           style={{ width: 54, height: 54, borderRadius: '50%', background: '#DC2626', color: '#FFF', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 6px 18px rgba(220,38,38,0.4)', animation: 'pulse 2s infinite' }}
         >
           <AlertTriangle size={24} />

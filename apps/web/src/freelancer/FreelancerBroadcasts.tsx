@@ -147,3 +147,4 @@ export const FreelancerBroadcasts: React.FC<FreelancerBroadcastsProps> = ({
     </div>
   );
 };
+

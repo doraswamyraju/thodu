@@ -11,7 +11,7 @@ import { CaregiverEarnings } from './CaregiverEarnings';
 import { CaregiverProfile } from './CaregiverProfile';
 
 interface CaregiverLayoutProps {
-  caregiver: SalariedCaregiver;
+  caregiver?: SalariedCaregiver;
   bookings: CaregiverVisit[];
   onRefresh: () => void;
   onUpdateVisit: (visitId: string, updates: any) => Promise<void>;
@@ -28,13 +28,41 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
   onLogout
 }) => {
   const [activeTab, setActiveTab] = useState<CaregiverNavTab>('overview');
-  const [availability, setAvailability] = useState<'Available' | 'On Duty' | 'Off Duty'>(caregiver.availability || 'Available');
+  const [availability, setAvailability] = useState<'Available' | 'On Duty' | 'Off Duty'>(caregiver?.availability || 'Available');
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+
+  // Safe fallback if caregiver data is still loading
+  const activeCg: SalariedCaregiver = caregiver || {
+    id: 'cg-1',
+    refNumber: 'TH-CAR-1001',
+    fullName: 'Anitha',
+    phone: '+91 98765 11111',
+    email: 'anitha.care@thodu.org',
+    gender: 'Female',
+    age: 36,
+    address: '#12-4-56, T.T.D. Colony, Tirupati - 517501, Andhra Pradesh',
+    pincode: '517501',
+    employmentType: 'Salaried',
+    verificationStatus: 'Verified',
+    rating: 4.8,
+    ratingReviewsCount: 126,
+    activeAssignments: 2,
+    skills: ['Elder Companionship', 'Cooking', 'Mobility Support', 'Vitals Monitoring'],
+    zone: 'Tirupati Urban',
+    availability: 'On Duty',
+    avatarBg: '#E8F5E9',
+    latitude: 13.6300,
+    longitude: 79.4215,
+    experienceYears: 6,
+    aadhaarNumber: 'XXXX-XXXX-4589',
+    policeClearanceStatus: 'Verified',
+    workingShift: 'Morning (08:00 AM - 02:00 PM)'
+  };
 
   // Filter visits assigned to this caregiver
   const myVisits = bookings.filter(b => 
-    b.caregiverName && caregiver.fullName &&
-    b.caregiverName.toLowerCase().includes(caregiver.fullName.toLowerCase())
+    b.caregiverName && activeCg.fullName &&
+    b.caregiverName.toLowerCase().includes(activeCg.fullName.toLowerCase())
   );
 
   const activeVisit = myVisits.find(v => v.status === 'In Progress');
@@ -101,13 +129,13 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
         <div className="sidebar-footer" style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', color: '#FFF' }}>
-              {caregiver.fullName.charAt(0)}
+              {activeCg.fullName.charAt(0)}
             </div>
             <div style={{ overflow: 'hidden' }}>
               <p style={{ fontSize: '12px', fontWeight: 700, margin: 0, color: '#FFF', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                {caregiver.fullName}
+                {activeCg.fullName}
               </p>
-              <p style={{ fontSize: '10px', color: '#A7F3D0', margin: 0 }}>Staff: {caregiver.refNumber}</p>
+              <p style={{ fontSize: '10px', color: '#A7F3D0', margin: 0 }}>Staff: {activeCg.refNumber}</p>
             </div>
           </div>
         </div>
@@ -127,7 +155,7 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
               {activeTab === 'profile' && "Caregiver Identity & Badges"}
             </h1>
             <p style={{ fontSize: '12px', color: '#688273', margin: '2px 0 0 0' }}>
-              Salaried Staff Specialist • Zone: {caregiver.zone}
+              Salaried Staff Specialist • Zone: {activeCg.zone}
             </p>
           </div>
 
@@ -196,7 +224,7 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
         <div className="web-content" style={{ paddingBottom: '90px' }}>
           {activeTab === 'overview' && (
             <CaregiverShiftOverview
-              caregiver={caregiver}
+              caregiver={activeCg}
               todaysVisits={myVisits}
               activeVisit={activeVisit}
               onStartVisit={handleStartShift}
@@ -206,7 +234,7 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
 
           {activeTab === 'duty' && (
             <CaregiverActiveDuty
-              caregiver={caregiver}
+              caregiver={activeCg}
               activeVisit={activeVisit}
               onUpdateVisit={onUpdateVisit}
               onTriggerSos={onTriggerSos}
@@ -221,14 +249,14 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
 
           {activeTab === 'earnings' && (
             <CaregiverEarnings
-              caregiver={caregiver}
+              caregiver={activeCg}
               completedVisitsCount={completedVisits.length}
             />
           )}
 
           {activeTab === 'profile' && (
             <CaregiverProfile
-              caregiver={caregiver}
+              caregiver={activeCg}
             />
           )}
         </div>
@@ -237,7 +265,7 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
       {/* Floating Emergency SOS */}
       <div style={{ position: 'fixed', right: 28, bottom: 28, zIndex: 90 }}>
         <button
-          onClick={() => onTriggerSos(`Emergency SOS signaled by salaried caregiver ${caregiver.fullName} (${caregiver.phone})`)}
+          onClick={() => onTriggerSos(`Emergency SOS signaled by salaried caregiver ${activeCg.fullName} (${activeCg.phone})`)}
           title="Emergency Responder SOS"
           style={{ width: 54, height: 54, borderRadius: '50%', background: '#DC2626', color: '#FFF', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 6px 18px rgba(220,38,38,0.4)', animation: 'pulse 2s infinite' }}
         >
@@ -247,4 +275,3 @@ export const CaregiverLayout: React.FC<CaregiverLayoutProps> = ({
     </div>
   );
 };
-

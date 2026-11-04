@@ -88,3 +88,4 @@ export const FreelancerMyGigs: React.FC<FreelancerMyGigsProps> = ({ gigs }) => {
     </div>
   );
 };
+
