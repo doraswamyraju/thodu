@@ -15,31 +15,38 @@ fun BeneficiaryTodayTabContent(
     services: List<CareService>,
     onBookCareClick: () -> Unit,
     onSelectServiceToBook: (CareService?) -> Unit,
-    onNotificationCenterClick: () -> Unit = {}
+    onNotificationCenterClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Beneficiary Profile Header Card (Deep Green gradient with portrait photo, badge, age, Tirupati location & View Profile action)
+        // 1. Beneficiary Profile Header Card
         BeneficiaryProfileHeaderCard(
             beneficiary = selectedBeneficiary,
-            onViewProfileClick = onBookCareClick
+            onViewProfileClick = onProfileClick
         )
 
-        // 2. Today's Caregiver Dispatch Card (Shown only when there is an active booking)
+        // 2. Promotional & Trust Subsidy Image / Banner Slider (New Offers, Trust Grants, Health Camps)
+        BeneficiaryBannersCarousel(
+            onBannerClick = { onBookCareClick() }
+        )
+
+        // 3. Today's Caregiver Dispatch & Live Status Card (Redesigned)
         TodayCaregiverDispatchCard(
             activeBooking = activeBooking,
-            onLiveTrackingClick = onBookCareClick
+            onLiveTrackingClick = onBookCareClick,
+            onBookCareClick = onBookCareClick
         )
 
-        // 3. Our Services 8-Icon Grid with Book a Service
+        // 4. Our Services 8-Icon Grid with "Book a Service ->"
         CareServicesCatalogCard(
             services = services,
             onSelectServiceToBook = onSelectServiceToBook
         )
 
-        // 4. Daily Tasks & Medication Notification Dual Cards Row
+        // 5. Daily Tasks & Medication Notification Dual Cards Row
         TasksAndMedicationCardsRow(
             completedTasksCount = 3,
             totalTasksCount = 5,
@@ -48,7 +55,7 @@ fun BeneficiaryTodayTabContent(
             onMedicationClick = onNotificationCenterClick
         )
 
-        // 5. Today's Tasks Detailed Checklist Card with Completed & Pending Pills
+        // 6. Today's Tasks Detailed Checklist Card
         TodayTasksListCard(
             onViewAllClick = {}
         )

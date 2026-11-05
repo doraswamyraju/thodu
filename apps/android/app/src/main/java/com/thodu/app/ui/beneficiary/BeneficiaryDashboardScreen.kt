@@ -125,6 +125,7 @@ fun BeneficiaryDashboardScreen(
                 BeneficiaryTopBar(
                     beneficiaries = beneficiaries,
                     selectedBeneficiary = selectedBeneficiary,
+                    currentUser = currentUser,
                     onSelectBeneficiary = { selectedBeneficiary = it },
                     onMenuClick = {
                         coroutineScope.launch { drawerState.open() }
@@ -135,6 +136,12 @@ fun BeneficiaryDashboardScreen(
                     onLogoutClick = onLogout,
                     onNotificationClick = {
                         showNotificationsSheet = true
+                    },
+                    onProfileClick = {
+                        currentTab = BeneficiaryNavTab.PROFILE
+                    },
+                    onAddNewLovedOneClick = {
+                        showBookCareSheet = true
                     }
                 )
             },
@@ -221,7 +228,8 @@ fun BeneficiaryDashboardScreen(
                                         services = services,
                                         onBookCareClick = { showBookCareSheet = true },
                                         onSelectServiceToBook = { _ -> showBookCareSheet = true },
-                                        onNotificationCenterClick = { showNotificationsSheet = true }
+                                        onNotificationCenterClick = { showNotificationsSheet = true },
+                                        onProfileClick = { currentTab = BeneficiaryNavTab.PROFILE }
                                     )
                                 }
                             }

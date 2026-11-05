@@ -9,9 +9,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thodu.app.R
+import com.thodu.app.data.model.AppUser
 import com.thodu.app.data.model.Beneficiary
 import com.thodu.app.ui.theme.ThoduGreen
 
@@ -33,11 +36,14 @@ import com.thodu.app.ui.theme.ThoduGreen
 fun BeneficiaryTopBar(
     beneficiaries: List<Beneficiary>,
     selectedBeneficiary: Beneficiary?,
+    currentUser: AppUser? = null,
     onSelectBeneficiary: (Beneficiary) -> Unit,
     onMenuClick: () -> Unit,
     onLogoClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onAddNewLovedOneClick: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -174,27 +180,76 @@ fun BeneficiaryTopBar(
                                 }
                             )
                         }
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = Color(0xFFE5E7EB))
+
+                        // + Add New Elder / Loved One Option
+                        DropdownMenuItem(
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null,
+                                        tint = Color(0xFF0D5C3A),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Add Elder / Family Member",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.5.sp,
+                                        color = Color(0xFF0D5C3A)
+                                    )
+                                }
+                            },
+                            onClick = {
+                                expanded = false
+                                onAddNewLovedOneClick()
+                            }
+                        )
                     }
                 }
 
-                // 3. RIGHT: Notifications Bell & Logout Icon
+                // 3. RIGHT: Profile Avatar Icon, Notification Bell & Logout Icon
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
+                    // Profile Icon
+                    Surface(
+                        shape = CircleShape,
+                        color = Color(0xFFE8F5E9),
+                        border = BorderStroke(1.5.dp, Color(0xFF0D5C3A)),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .clickable(onClick = onProfileClick)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = (currentUser?.name?.take(1) ?: selectedBeneficiary?.fullName?.take(1) ?: "U").uppercase(),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFF0D5C3A)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
                     // Notification Bell Icon
                     IconButton(
                         onClick = onNotificationClick,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(34.dp)
                     ) {
                         Box(contentAlignment = Alignment.TopEnd) {
                             Icon(
                                 imageVector = Icons.Default.NotificationsNone,
                                 contentDescription = "Notifications",
                                 tint = Color(0xFF374151),
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(20.dp)
                             )
-                            // Subtle notification indicator dot
+                            // Notification dot
                             Surface(
                                 shape = CircleShape,
                                 color = Color(0xFFDC2626),
@@ -207,16 +262,16 @@ fun BeneficiaryTopBar(
 
                     Spacer(modifier = Modifier.width(2.dp))
 
-                    // Logout Icon (AutoMirrored)
+                    // Logout Icon
                     IconButton(
                         onClick = { showLogoutDialog = true },
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(34.dp)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
                             contentDescription = "Log out",
                             tint = Color(0xFFDC2626),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(19.dp)
                         )
                     }
                 }
