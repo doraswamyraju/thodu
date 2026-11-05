@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.SubcomposeAsyncImage
 import com.thodu.app.R
 import com.thodu.app.data.model.Beneficiary
 
@@ -74,12 +75,30 @@ fun BeneficiaryProfileHeaderCard(
                     color = Color.White,
                     modifier = Modifier.size(62.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.avatar_saraswathi),
-                        contentDescription = beneficiary.fullName,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+                    val pUrl = beneficiary.photoUrl
+                    if (!pUrl.isNullOrEmpty() && (pUrl.startsWith("http://") || pUrl.startsWith("https://"))) {
+                        SubcomposeAsyncImage(
+                            model = pUrl,
+                            contentDescription = beneficiary.fullName,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            error = {
+                                Image(
+                                    painter = painterResource(id = R.drawable.avatar_saraswathi),
+                                    contentDescription = beneficiary.fullName,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.avatar_saraswathi),
+                            contentDescription = beneficiary.fullName,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(14.dp))

@@ -78,6 +78,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // Image loading for Google Profile Picture and remote avatars
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
     // Google Play Services Auth & Credential Manager
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("androidx.credentials:credentials:1.3.0")

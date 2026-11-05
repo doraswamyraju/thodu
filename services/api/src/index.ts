@@ -1277,6 +1277,7 @@ app.get('/api/v1/beneficiaries', (req: Request, res: Response) => {
         age: 65,
         gender: 'Not Specified',
         relationship: 'Self (Primary Account)',
+        photoUrl: appUser?.avatarUrl,
         primaryGuardian: name,
         guardianEmail: cleanEmail,
         primaryContact: appUser?.phone || cleanPhone || '+91 Not Provided',
@@ -1681,6 +1682,7 @@ app.post('/api/v1/auth/oauth', (req: Request, res: Response) => {
         age: 68,
         gender: 'Not Specified',
         relationship: 'Self / Loved One',
+        photoUrl: user.avatarUrl,
         primaryGuardian: user.name,
         guardianEmail: cleanEmail,
         primaryContact: user.phone || '+91 Not Provided',
@@ -1697,6 +1699,7 @@ app.post('/api/v1/auth/oauth', (req: Request, res: Response) => {
       existingBen.primaryGuardian = user.name;
       existingBen.guardianEmail = cleanEmail;
       if (user.phone) existingBen.primaryContact = user.phone;
+      if (user.avatarUrl) existingBen.photoUrl = user.avatarUrl;
     }
   }
 

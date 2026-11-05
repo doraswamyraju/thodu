@@ -32,7 +32,8 @@ data class Beneficiary(
     @SerializedName("subsidyTier") val subsidyTier: String? = "Family Self-Funded",
     @SerializedName("rationCardNumber") val rationCardNumber: String? = null,
     @SerializedName("status") val status: String = "Active",
-    @SerializedName("avatarBg") val avatarBg: String? = "#0B5D3B"
+    @SerializedName("avatarBg") val avatarBg: String? = "#0B5D3B",
+    @SerializedName("photoUrl") val photoUrl: String? = null
 )
 
 data class BeneficiariesResponse(

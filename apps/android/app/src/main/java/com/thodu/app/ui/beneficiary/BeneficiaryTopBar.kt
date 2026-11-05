@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.thodu.app.R
 import com.thodu.app.data.model.AppUser
 import com.thodu.app.data.model.Beneficiary
@@ -215,7 +217,8 @@ fun BeneficiaryTopBar(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    // Profile Icon
+                    // Profile Icon with Google Avatar or Letter fallback
+                    val avatarUrl = currentUser?.avatarUrl ?: selectedBeneficiary?.photoUrl
                     Surface(
                         shape = CircleShape,
                         color = Color(0xFFE8F5E9),
@@ -225,13 +228,32 @@ fun BeneficiaryTopBar(
                             .clip(CircleShape)
                             .clickable(onClick = onProfileClick)
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = (currentUser?.name?.take(1) ?: selectedBeneficiary?.fullName?.take(1) ?: "U").uppercase(),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF0D5C3A)
+                        if (!avatarUrl.isNullOrEmpty() && (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://"))) {
+                            SubcomposeAsyncImage(
+                                model = avatarUrl,
+                                contentDescription = "Profile Picture",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                                error = {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = (currentUser?.name?.take(1) ?: selectedBeneficiary?.fullName?.take(1) ?: "U").uppercase(),
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = Color(0xFF0D5C3A)
+                                        )
+                                    }
+                                }
                             )
+                        } else {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = (currentUser?.name?.take(1) ?: selectedBeneficiary?.fullName?.take(1) ?: "U").uppercase(),
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFF0D5C3A)
+                                )
+                            }
                         }
                     }
 

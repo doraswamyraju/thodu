@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thodu.app.data.api.ApiClient
 import com.thodu.app.data.model.*
+import com.thodu.app.ui.beneficiary.bookings.BookServiceScreen
+import com.thodu.app.ui.beneficiary.bookings.MyBookingsScreen
 import com.thodu.app.ui.beneficiary.notifications.NotificationsBottomSheet
 import com.thodu.app.ui.beneficiary.today.BeneficiaryTodayTabContent
 import kotlinx.coroutines.launch
@@ -38,6 +40,8 @@ fun BeneficiaryDashboardScreen(
     var services by remember { mutableStateOf<List<CareService>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showBookCareSheet by remember { mutableStateOf(false) }
+    var showBookServiceScreen by remember { mutableStateOf(false) }
+    var selectedServiceForBooking by remember { mutableStateOf<CareService?>(null) }
     var showNotificationsSheet by remember { mutableStateOf(false) }
 
     fun refreshData() {
@@ -141,59 +145,66 @@ fun BeneficiaryDashboardScreen(
                         currentTab = BeneficiaryNavTab.PROFILE
                     },
                     onAddNewLovedOneClick = {
-                        showBookCareSheet = true
+                        showBookServiceScreen = true
                     }
                 )
             },
             bottomBar = {
-                BeneficiaryBottomNavBar(
-                    currentTab = currentTab,
-                    onTabSelected = { tab -> currentTab = tab }
-                )
+                if (!showBookServiceScreen) {
+                    BeneficiaryBottomNavBar(
+                        currentTab = currentTab,
+                        onTabSelected = { tab -> currentTab = tab }
+                    )
+                }
             },
             floatingActionButton = {
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    // Floating SOS Panic Button
-                    FloatingActionButton(
-                        onClick = {
-                            selectedBeneficiary?.let { ben ->
-                                coroutineScope.launch {
-                                    ApiClient.apiService.triggerSos(
-                                        SosRequest(
-                                            beneficiaryId = ben.id,
-                                            beneficiaryName = ben.fullName,
-                                            beneficiaryAddress = ben.address,
-                                            latitude = ben.latitude,
-                                            longitude = ben.longitude,
-                                            guardianContact = ben.primaryContact,
-                                            emergencyDoctorPhone = ben.emergencyDoctorPhone,
-                                            notes = "1-Tap SOS Distress Triggered for ${ben.fullName}"
+                if (!showBookServiceScreen) {
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Floating SOS Panic Button
+                        FloatingActionButton(
+                            onClick = {
+                                selectedBeneficiary?.let { ben ->
+                                    coroutineScope.launch {
+                                        ApiClient.apiService.triggerSos(
+                                            SosRequest(
+                                                beneficiaryId = ben.id,
+                                                beneficiaryName = ben.fullName,
+                                                beneficiaryAddress = ben.address,
+                                                latitude = ben.latitude,
+                                                longitude = ben.longitude,
+                                                guardianContact = ben.primaryContact,
+                                                emergencyDoctorPhone = ben.emergencyDoctorPhone,
+                                                notes = "1-Tap SOS Distress Triggered for ${ben.fullName}"
+                                            )
                                         )
-                                    )
-                                    refreshData()
+                                        refreshData()
+                                    }
                                 }
-                            }
-                        },
-                        containerColor = Color(0xFFDC2626),
-                        contentColor = Color.White,
-                        shape = CircleShape,
-                        modifier = Modifier.size(52.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Warning, contentDescription = "Emergency SOS")
-                    }
+                            },
+                            containerColor = Color(0xFFDC2626),
+                            contentColor = Color.White,
+                            shape = CircleShape,
+                            modifier = Modifier.size(52.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Warning, contentDescription = "Emergency SOS")
+                        }
 
-                    // Floating Book Visit Action
-                    FloatingActionButton(
-                        onClick = { showBookCareSheet = true },
-                        containerColor = Color(0xFF0D5C3A),
-                        contentColor = Color.White,
-                        shape = CircleShape,
-                        modifier = Modifier.size(52.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Book Visit")
+                        // Floating Book Visit Action
+                        FloatingActionButton(
+                            onClick = {
+                                selectedServiceForBooking = null
+                                showBookServiceScreen = true
+                            },
+                            containerColor = Color(0xFF0D5C3A),
+                            contentColor = Color.White,
+                            shape = CircleShape,
+                            modifier = Modifier.size(52.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "Book Visit")
+                        }
                     }
                 }
             },
@@ -204,7 +215,24 @@ fun BeneficiaryDashboardScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                if (isLoading && beneficiaries.isEmpty()) {
+                if (showBookServiceScreen) {
+                    BookServiceScreen(
+                        currentUser = currentUser,
+                        beneficiaries = beneficiaries,
+                        selectedBeneficiary = selectedBeneficiary,
+                        initialService = selectedServiceForBooking,
+                        onBackClick = {
+                            showBookServiceScreen = false
+                            selectedServiceForBooking = null
+                        },
+                        onBookingSuccess = {
+                            showBookServiceScreen = false
+                            selectedServiceForBooking = null
+                            currentTab = BeneficiaryNavTab.BOOKINGS
+                            refreshData()
+                        }
+                    )
+                } else if (isLoading && beneficiaries.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -226,8 +254,14 @@ fun BeneficiaryDashboardScreen(
                                         selectedBeneficiary = ben,
                                         activeBooking = activeBooking,
                                         services = services,
-                                        onBookCareClick = { showBookCareSheet = true },
-                                        onSelectServiceToBook = { _ -> showBookCareSheet = true },
+                                        onBookCareClick = {
+                                            selectedServiceForBooking = null
+                                            showBookServiceScreen = true
+                                        },
+                                        onSelectServiceToBook = { srv ->
+                                            selectedServiceForBooking = srv
+                                            showBookServiceScreen = true
+                                        },
                                         onNotificationCenterClick = { showNotificationsSheet = true },
                                         onProfileClick = { currentTab = BeneficiaryNavTab.PROFILE }
                                     )
@@ -235,16 +269,24 @@ fun BeneficiaryDashboardScreen(
                             }
 
                             BeneficiaryNavTab.BOOKINGS -> {
-                                // Dedicated Bookings Tab
-                                selectedBeneficiary?.let { ben ->
-                                    BeneficiaryProfileCard(
-                                        beneficiary = ben,
-                                        onBookCareClick = { showBookCareSheet = true }
-                                    )
-                                }
-                                BeneficiaryBookingsListCard(
+                                // Full Dedicated "My Bookings" Screen (Matching reference media_1793882217744_a3b3c838.jpg)
+                                MyBookingsScreen(
                                     bookings = bookings,
-                                    onBookCareClick = { showBookCareSheet = true }
+                                    onBookNewServiceClick = {
+                                        selectedServiceForBooking = null
+                                        showBookServiceScreen = true
+                                    },
+                                    onLiveTrackingClick = { booking ->
+                                        // Focus current active booking or switch to today view
+                                        currentTab = BeneficiaryNavTab.TODAY
+                                    },
+                                    onCallSupportClick = {
+                                        // Call Support
+                                    },
+                                    onRebookClick = { booking ->
+                                        selectedServiceForBooking = services.firstOrNull { it.name.equals(booking.serviceName, ignoreCase = true) }
+                                        showBookServiceScreen = true
+                                    }
                                 )
                             }
 
