@@ -81,15 +81,17 @@ public struct BeneficiaryTopBar: View {
                         Label("Add New Loved One", systemImage: "person.badge.plus")
                     }
                 } label: {
-                    HStack(spacing: 5) {
-                        Image("avatar_saraswathi")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 22, height: 22)
-                            .clipShape(Circle())
+                    HStack(spacing: 6) {
+                        ThoduAvatarView(
+                            urlString: selectedBeneficiary?.photoUrl,
+                            fallbackName: selectedBeneficiary?.fullName ?? "Loved One",
+                            size: 24,
+                            borderColor: Color(hex: "0D5C3A").opacity(0.2),
+                            borderWidth: 1
+                        )
 
-                        Text(selectedBeneficiary?.fullName ?? "Loved One")
-                            .font(.system(size: 12, weight: .bold))
+                        Text(selectedBeneficiary?.fullName.components(separatedBy: " ").first ?? "Loved One")
+                            .font(.system(size: 13, weight: .bold))
                             .foregroundColor(Color(hex: "0D5C3A"))
                             .lineLimit(1)
 
@@ -97,7 +99,7 @@ public struct BeneficiaryTopBar: View {
                             .font(.system(size: 9, weight: .bold))
                             .foregroundColor(Color(hex: "0D5C3A"))
                     }
-                    .padding(.horizontal, 9)
+                    .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background(Color(hex: "F0FDF4"))
                     .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color(hex: "BBF7D0"), lineWidth: 1))
@@ -108,16 +110,16 @@ public struct BeneficiaryTopBar: View {
 
                 // 3. RIGHT: Profile Avatar, Notification Bell, Logout
                 HStack(spacing: 4) {
-                    // Profile Avatar
+                    // Profile Avatar (loads real Google profile pic or fallback initial)
                     Button(action: onProfileClick) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(hex: "DCFCE7"))
-                                .frame(width: 32, height: 32)
-                            Text((currentUser?.name.prefix(1) ?? "A").uppercased())
-                                .font(.system(size: 13, weight: .black))
-                                .foregroundColor(Color(hex: "0D5C3A"))
-                        }
+                        ThoduAvatarView(
+                            urlString: currentUser?.avatarUrl,
+                            fallbackName: currentUser?.name ?? "User",
+                            size: 32,
+                            borderColor: Color(hex: "0D5C3A").opacity(0.3),
+                            borderWidth: 1.5,
+                            backgroundColor: Color(hex: "DCFCE7")
+                        )
                     }
 
                     // Notification Bell with Badge

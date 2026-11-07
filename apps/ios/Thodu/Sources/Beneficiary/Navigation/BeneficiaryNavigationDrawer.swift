@@ -58,14 +58,14 @@ public struct BeneficiaryNavigationDrawer: View {
 
                 // Current User Profile Header
                 HStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "15803D"))
-                            .frame(width: 44, height: 44)
-                        Text(currentUser.name.prefix(1).uppercased())
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                    }
+                    ThoduAvatarView(
+                        urlString: currentUser.avatarUrl,
+                        fallbackName: currentUser.name,
+                        size: 44,
+                        borderColor: .white.opacity(0.4),
+                        borderWidth: 1.5,
+                        backgroundColor: Color(hex: "15803D")
+                    )
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(currentUser.name)
@@ -101,10 +101,13 @@ public struct BeneficiaryNavigationDrawer: View {
                             onCloseDrawer()
                         }) {
                             HStack(spacing: 10) {
-                                Image("avatar_saraswathi")
-                                    .resizable()
-                                    .frame(width: 28, height: 28)
-                                    .clipShape(Circle())
+                                ThoduAvatarView(
+                                    urlString: ben.photoUrl,
+                                    fallbackName: ben.fullName,
+                                    size: 28,
+                                    borderColor: .white.opacity(0.3),
+                                    borderWidth: 1
+                                )
 
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(ben.fullName)

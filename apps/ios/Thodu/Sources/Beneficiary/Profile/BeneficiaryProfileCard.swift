@@ -13,12 +13,13 @@ public struct BeneficiaryProfileCard: View {
         VStack(alignment: .leading, spacing: 14) {
             // Header Row
             HStack(spacing: 12) {
-                Image("avatar_saraswathi")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color(hex: "0D5C3A"), lineWidth: 1.5))
+                ThoduAvatarView(
+                    urlString: beneficiary.photoUrl,
+                    fallbackName: beneficiary.fullName,
+                    size: 50,
+                    borderColor: Color(hex: "0D5C3A"),
+                    borderWidth: 1.5
+                )
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {

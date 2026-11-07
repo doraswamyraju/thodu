@@ -29,6 +29,8 @@ public struct BeneficiaryDashboardView: View {
 
     public var body: some View {
         ZStack {
+            Color(hex: "F8FAF9").ignoresSafeArea()
+
             // Main App Scaffold
             VStack(spacing: 0) {
                 // 1. Top Bar
@@ -156,12 +158,12 @@ public struct BeneficiaryDashboardView: View {
                             }
                         }
 
-                        Spacer(minLength: 80)
+                        Spacer(minLength: 160)
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
                 }
-                .background(Color(hex: "FFF8E6").opacity(0.35).ignoresSafeArea())
+                .background(Color(hex: "F8FAF9").ignoresSafeArea())
 
                 // 3. Bottom Navigation Bar
                 BeneficiaryBottomNavBar(
@@ -309,41 +311,35 @@ public struct BeneficiaryDashboardView: View {
     private func loadData() {
         isLoading = true
         Task {
-            // Default fallback beneficiary matching Android Saraswathi Amma
-            let defaultAmma = Beneficiary(
-                id: "ben-saraswathi-01",
+            // Personalized user fallback beneficiary
+            let userFallbackBen = Beneficiary(
+                id: "ben-\(currentUser.id)",
                 refNumber: "TH-BEN-001",
-                fullName: "Saraswathi Amma",
+                fullName: currentUser.name,
                 category: "Senior Citizen",
                 age: 68,
-                gender: "Female",
-                relationship: "Mother",
+                gender: "Not Specified",
+                relationship: "Self (Loved One)",
                 primaryGuardian: currentUser.name,
-                primaryContact: currentUser.phone ?? "+91 98765 43210",
-                address: "T.T.D. Colony, Tirupati, Andhra Pradesh 517501",
-                mobilityStatus: "Assisted Walking",
-                medicalConditions: ["Hypertension", "Type 2 Diabetes", "Mild Arthritis"],
-                allergies: "Penicillin",
-                accessibilityNeeds: "Assistance with stairs and morning mobility",
-                emergencyDoctorName: "Dr. K. Srinivas (Cardiologist)",
-                emergencyDoctorPhone: "+91 94400 12345",
-                subsidyTier: "Trust Sponsored (100%)",
-                rationCardNumber: "WAP104829103",
-                status: "Active"
+                primaryContact: currentUser.phone ?? "+91 Not Provided",
+                guardianEmail: currentUser.email,
+                address: "Tirupati, Andhra Pradesh",
+                status: "Active",
+                photoUrl: currentUser.avatarUrl
             )
 
-            // Fallback sample booking
+            // Fallback sample booking tailored to this user
             let sampleBooking = Booking(
                 id: "bk-001",
                 bookingNumber: "#TH-BK-8921",
-                beneficiaryId: defaultAmma.id,
-                beneficiaryName: defaultAmma.fullName,
-                beneficiaryAge: defaultAmma.age,
-                guardianPhone: defaultAmma.primaryContact,
+                beneficiaryId: userFallbackBen.id,
+                beneficiaryName: userFallbackBen.fullName,
+                beneficiaryAge: userFallbackBen.age,
+                guardianPhone: userFallbackBen.primaryContact,
                 serviceName: "Household Support & Vitals",
                 scheduledDate: "Today",
                 scheduledTimeSlot: "10:00 AM - 4:00 PM",
-                serviceAddress: defaultAmma.address,
+                serviceAddress: userFallbackBen.address,
                 caregiverId: "cg-anitha",
                 caregiverName: "Anitha",
                 caregiverEtaMinutes: 18,
@@ -359,25 +355,42 @@ public struct BeneficiaryDashboardView: View {
                 )
             )
 
+            // 1. Fetch Beneficiaries (filter by current logged-in user email)
+            var fetchedBens: [Beneficiary] = []
             do {
-                let fetchedBens = try await ThoduApiClient.shared.fetchBeneficiaries(email: currentUser.email, phone: currentUser.phone)
-                let fetchedBks = try await ThoduApiClient.shared.fetchBookings()
-                let fetchedSrvs = try await ThoduApiClient.shared.fetchServices()
-
-                await MainActor.run {
-                    self.beneficiaries = fetchedBens.isEmpty ? [defaultAmma] : fetchedBens
-                    self.selectedBeneficiary = self.beneficiaries.first
-                    self.bookings = fetchedBks.isEmpty ? [sampleBooking] : fetchedBks
-                    self.services = fetchedSrvs
-                    self.isLoading = false
-                }
+                fetchedBens = try await ThoduApiClient.shared.fetchBeneficiaries(email: currentUser.email, phone: currentUser.phone)
             } catch {
-                await MainActor.run {
-                    self.beneficiaries = [defaultAmma]
-                    self.selectedBeneficiary = defaultAmma
-                    self.bookings = [sampleBooking]
-                    self.isLoading = false
+                print("Failed to fetch beneficiaries for \(currentUser.email): \(error)")
+            }
+
+            // If empty, fetch all to allow family switching or check case-insensitive match
+            if fetchedBens.isEmpty {
+                if let allBens = try? await ThoduApiClient.shared.fetchBeneficiaries(), !allBens.isEmpty {
+                    let matching = allBens.filter {
+                        ($0.guardianEmail?.lowercased() == currentUser.email.lowercased()) ||
+                        ($0.primaryContact == currentUser.phone && !(currentUser.phone ?? "").isEmpty)
+                    }
+                    fetchedBens = matching.isEmpty ? allBens : matching
                 }
+            }
+
+            // If still empty, use personalized user fallback
+            if fetchedBens.isEmpty {
+                fetchedBens = [userFallbackBen]
+            }
+
+            // 2. Fetch Bookings independently
+            let fetchedBks = (try? await ThoduApiClient.shared.fetchBookings()) ?? []
+
+            // 3. Fetch Services independently
+            let fetchedSrvs = (try? await ThoduApiClient.shared.fetchServices()) ?? []
+
+            await MainActor.run {
+                self.beneficiaries = fetchedBens
+                self.selectedBeneficiary = fetchedBens.first
+                self.bookings = fetchedBks.isEmpty ? [sampleBooking] : fetchedBks
+                self.services = fetchedSrvs
+                self.isLoading = false
             }
         }
     }

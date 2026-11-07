@@ -34,57 +34,54 @@ public struct BeneficiaryProfileHeaderCard: View {
                 .offset(x: 10, y: -10)
                 .clipped()
 
-            HStack(spacing: 14) {
-                // Circular portrait avatar with double white border
-                ZStack {
-                    Circle()
-                        .strokeBorder(Color.white, lineWidth: 2.5)
-                        .background(Circle().fill(Color.white))
-                        .frame(width: 62, height: 62)
-
-                    Image("avatar_saraswathi")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 58, height: 58)
-                        .clipShape(Circle())
-                }
+            HStack(spacing: 12) {
+                // Circular portrait avatar with double white border (loads real photo)
+                ThoduAvatarView(
+                    urlString: beneficiary.photoUrl,
+                    fallbackName: beneficiary.fullName,
+                    size: 56,
+                    borderColor: .white,
+                    borderWidth: 2.5
+                )
 
                 // Info Column
                 VStack(alignment: .leading, spacing: 3) {
                     // Beneficiary pill badge
                     Text("Beneficiary")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundColor(Color(hex: "074326"))
-                        .padding(.horizontal, 8)
+                        .padding(.horizontal, 7)
                         .padding(.vertical, 2)
                         .background(Color.white.opacity(0.95))
-                        .cornerRadius(12)
+                        .cornerRadius(10)
 
                     // Full name
                     Text(beneficiary.fullName)
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.85)
 
                     // Age & Location Row
-                    HStack(spacing: 3) {
+                    HStack(spacing: 4) {
                         Image(systemName: "calendar")
-                            .font(.system(size: 11))
+                            .font(.system(size: 10))
                             .foregroundColor(Color.white.opacity(0.85))
-                        Text("\(beneficiary.age) Years")
-                            .font(.system(size: 12))
+                        Text("\(beneficiary.age) Yrs")
+                            .font(.system(size: 11))
                             .foregroundColor(Color.white.opacity(0.9))
 
-                        Text("  |  ")
-                            .font(.system(size: 12))
+                        Text("|")
+                            .font(.system(size: 10))
                             .foregroundColor(Color.white.opacity(0.6))
 
                         Image(systemName: "mappin.and.ellipse")
-                            .font(.system(size: 11))
+                            .font(.system(size: 10))
                             .foregroundColor(Color.white.opacity(0.85))
-                        Text("T.T.D. Colony, Tirupati")
-                            .font(.system(size: 12))
+                        Text(beneficiary.address.components(separatedBy: ",").first ?? "Tirupati")
+                            .font(.system(size: 11))
                             .foregroundColor(Color.white.opacity(0.9))
+                            .lineLimit(1)
                     }
                 }
 

@@ -6,18 +6,21 @@ struct ThoduApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if let user = currentUser {
-                BeneficiaryDashboardView(
-                    currentUser: user,
-                    onLogout: {
-                        self.currentUser = nil
+            Group {
+                if let user = currentUser {
+                    BeneficiaryDashboardView(
+                        currentUser: user,
+                        onLogout: {
+                            self.currentUser = nil
+                        }
+                    )
+                } else {
+                    LoginView { user in
+                        self.currentUser = user
                     }
-                )
-            } else {
-                LoginView { user in
-                    self.currentUser = user
                 }
             }
+            .preferredColorScheme(.light)
         }
     }
 }

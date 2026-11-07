@@ -77,12 +77,14 @@ public struct TodayCaregiverDispatchCard: View {
                 // Caregiver Profile Info
                 HStack(spacing: 12) {
                     // Caregiver Avatar
-                    Image("avatar_caregiver_anitha")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 54, height: 54)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color(hex: "38BDF8"), lineWidth: 2))
+                    ThoduAvatarView(
+                        urlString: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80",
+                        fallbackName: booking.caregiverName,
+                        size: 52,
+                        borderColor: Color(hex: "38BDF8"),
+                        borderWidth: 2,
+                        backgroundColor: Color(hex: "E0F2FE")
+                    )
 
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 6) {

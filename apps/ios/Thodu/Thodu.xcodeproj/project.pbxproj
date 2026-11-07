@@ -41,6 +41,7 @@
 		E79F8643C33A1DEA016E9056 /* ThoduApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5B38486FE2A52831B9E54B /* ThoduApiClient.swift */; };
 		EA4A981119D3666D7C6C0C45 /* CareServicesCatalogCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B3A7296AC8522DF3358716 /* CareServicesCatalogCard.swift */; };
 		F4E3997D3F66595907165E99 /* TasksAndMedicationCardsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70960BE914F2FA20D2D8AA9 /* TasksAndMedicationCardsRow.swift */; };
+		F81D6DECCA57EE54B6C8109E /* ThoduAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81630BBC47FCB67A3B5075A1 /* ThoduAvatarView.swift */; };
 		FB80C8F1F54A5B671EAFF6C4 /* BeneficiaryNavigationDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991946C859E8C0F8311E7C69 /* BeneficiaryNavigationDrawer.swift */; };
 		FB8DB7AB34FF3CD46FD6DC8D /* BeneficiaryHealthDossierCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BE0A916A77226EF20223F1 /* BeneficiaryHealthDossierCard.swift */; };
 /* End PBXBuildFile section */
@@ -64,6 +65,7 @@
 		74BC855402788FFE4EA3BA69 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7FE59F0AE8C61E37F4C94B09 /* AuthModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModels.swift; sourceTree = "<group>"; };
 		813C74CF85B5CF160D9EFB47 /* BookServiceScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookServiceScreen.swift; sourceTree = "<group>"; };
+		81630BBC47FCB67A3B5075A1 /* ThoduAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduAvatarView.swift; sourceTree = "<group>"; };
 		8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Thodu.swift"; sourceTree = "<group>"; };
 		8DF8EE35B3DDF64935EDB454 /* BeneficiarySosCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiarySosCard.swift; sourceTree = "<group>"; };
 		934346904963B76D48ED3734 /* BeneficiaryDispatchVitalsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryDispatchVitalsCard.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */,
+				81630BBC47FCB67A3B5075A1 /* ThoduAvatarView.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -371,6 +374,7 @@
 				F4E3997D3F66595907165E99 /* TasksAndMedicationCardsRow.swift in Sources */,
 				E79F8643C33A1DEA016E9056 /* ThoduApiClient.swift in Sources */,
 				02C7E95F00E1B222DC353642 /* ThoduApp.swift in Sources */,
+				F81D6DECCA57EE54B6C8109E /* ThoduAvatarView.swift in Sources */,
 				CBDB77EC383030F37354D8F9 /* TodayCaregiverDispatchCard.swift in Sources */,
 				687B308B62EB1035ABC5761D /* TodayTasksListCard.swift in Sources */,
 			);

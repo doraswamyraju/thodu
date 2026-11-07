@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension Color {
+public extension Color {
     static let thoduForestGreen = Color(red: 11/255, green: 93/255, blue: 59/255)
     static let thoduSecondaryGreen = Color(red: 46/255, green: 125/255, blue: 50/255)
     static let thoduAccentYellow = Color(red: 249/255, green: 178/255, blue: 51/255)
@@ -10,7 +10,7 @@ extension Color {
     static let thoduTextPrimary = Color(red: 30/255, green: 45/255, blue: 36/255)
     static let thoduTextMuted = Color(red: 107/255, green: 124/255, blue: 114/255)
 
-    init(hex: String) {
+    public init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)

@@ -106,7 +106,8 @@ public struct CareServicesCatalogCard: View {
                                 .foregroundColor(Color(hex: "1F2937"))
                                 .multilineTextAlignment(.center)
                                 .lineLimit(2)
-                                .frame(height: 26)
+                                .minimumScaleFactor(0.8)
+                                .frame(height: 28)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)

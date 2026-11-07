@@ -96,6 +96,40 @@ public struct Beneficiary: Codable, Identifiable, Hashable {
         self.avatarBg = avatarBg
         self.photoUrl = photoUrl
     }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = (try? c.decode(String.self, forKey: .id)) ?? "ben-\(UUID().uuidString.prefix(6))"
+        self.refNumber = (try? c.decode(String.self, forKey: .refNumber)) ?? "TH-BEN-001"
+        self.fullName = (try? c.decode(String.self, forKey: .fullName)) ?? "Beneficiary"
+        self.category = (try? c.decodeIfPresent(String.self, forKey: .category)) ?? "Senior Citizen"
+        self.age = (try? c.decodeIfPresent(Int.self, forKey: .age)) ?? 68
+        self.gender = (try? c.decodeIfPresent(String.self, forKey: .gender)) ?? "Not Specified"
+        self.relationship = (try? c.decodeIfPresent(String.self, forKey: .relationship)) ?? "Self / Loved One"
+        self.primaryGuardian = (try? c.decodeIfPresent(String.self, forKey: .primaryGuardian)) ?? ""
+        self.guardianPhone = try? c.decodeIfPresent(String.self, forKey: .guardianPhone)
+        self.primaryContact = (try? c.decodeIfPresent(String.self, forKey: .primaryContact)) ?? "+91 Not Provided"
+        self.alternateGuardianPhone = try? c.decodeIfPresent(String.self, forKey: .alternateGuardianPhone)
+        self.guardianEmail = try? c.decodeIfPresent(String.self, forKey: .guardianEmail)
+        self.dateOfBirth = try? c.decodeIfPresent(String.self, forKey: .dateOfBirth)
+        self.bloodGroup = try? c.decodeIfPresent(String.self, forKey: .bloodGroup)
+        self.address = (try? c.decodeIfPresent(String.self, forKey: .address)) ?? "Tirupati, Andhra Pradesh"
+        self.zone = try? c.decodeIfPresent(String.self, forKey: .zone)
+        self.pincode = try? c.decodeIfPresent(String.self, forKey: .pincode)
+        self.latitude = (try? c.decodeIfPresent(Double.self, forKey: .latitude)) ?? 13.6288
+        self.longitude = (try? c.decodeIfPresent(Double.self, forKey: .longitude)) ?? 79.4192
+        self.mobilityStatus = try? c.decodeIfPresent(String.self, forKey: .mobilityStatus)
+        self.medicalConditions = try? c.decodeIfPresent([String].self, forKey: .medicalConditions)
+        self.allergies = try? c.decodeIfPresent(String.self, forKey: .allergies)
+        self.accessibilityNeeds = try? c.decodeIfPresent(String.self, forKey: .accessibilityNeeds)
+        self.emergencyDoctorName = try? c.decodeIfPresent(String.self, forKey: .emergencyDoctorName)
+        self.emergencyDoctorPhone = try? c.decodeIfPresent(String.self, forKey: .emergencyDoctorPhone)
+        self.subsidyTier = (try? c.decodeIfPresent(String.self, forKey: .subsidyTier)) ?? "Family Self-Funded"
+        self.rationCardNumber = try? c.decodeIfPresent(String.self, forKey: .rationCardNumber)
+        self.status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? "Active"
+        self.avatarBg = try? c.decodeIfPresent(String.self, forKey: .avatarBg)
+        self.photoUrl = try? c.decodeIfPresent(String.self, forKey: .photoUrl)
+    }
 }
 
 public struct BeneficiariesResponse: Codable {
@@ -123,6 +157,52 @@ public struct VitalsLog: Codable, Hashable {
         self.oxygenSpo2 = oxygenSpo2
         self.bloodSugarMgDl = bloodSugarMgDl
         self.recordedAt = recordedAt
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: CodingKeys.self)
+        let bp = (try? container?.decodeIfPresent(String.self, forKey: .bloodPressure)) ?? (try? container?.decodeIfPresent(String.self, forKey: .bp))
+        self.bloodPressure = bp ?? "124/82"
+
+        if let pInt = try? container?.decodeIfPresent(Int.self, forKey: .pulseBpm) {
+            self.pulseBpm = pInt
+        } else if let pStr = try? container?.decodeIfPresent(String.self, forKey: .pulse) {
+            self.pulseBpm = Int(pStr.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()) ?? 74
+        } else {
+            self.pulseBpm = 74
+        }
+
+        if let oInt = try? container?.decodeIfPresent(Int.self, forKey: .oxygenSpo2) {
+            self.oxygenSpo2 = oInt
+        } else if let oStr = try? container?.decodeIfPresent(String.self, forKey: .spo2) {
+            self.oxygenSpo2 = Int(oStr.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()) ?? 98
+        } else {
+            self.oxygenSpo2 = 98
+        }
+
+        if let sInt = try? container?.decodeIfPresent(Int.self, forKey: .bloodSugarMgDl) {
+            self.bloodSugarMgDl = sInt
+        } else if let sStr = try? container?.decodeIfPresent(String.self, forKey: .sugar) {
+            self.bloodSugarMgDl = Int(sStr.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()) ?? 110
+        } else {
+            self.bloodSugarMgDl = 110
+        }
+
+        self.recordedAt = (try? container?.decodeIfPresent(String.self, forKey: .recordedAt)) ?? "Today, 09:15 AM"
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(bloodPressure, forKey: .bloodPressure)
+        try container.encodeIfPresent(pulseBpm, forKey: .pulseBpm)
+        try container.encodeIfPresent(oxygenSpo2, forKey: .oxygenSpo2)
+        try container.encodeIfPresent(bloodSugarMgDl, forKey: .bloodSugarMgDl)
+        try container.encodeIfPresent(recordedAt, forKey: .recordedAt)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case bloodPressure, pulseBpm, oxygenSpo2, bloodSugarMgDl, recordedAt
+        case bp, pulse, spo2, sugar
     }
 }
 
@@ -191,6 +271,55 @@ public struct Booking: Codable, Identifiable, Hashable {
         self.specialInstructions = specialInstructions
         self.vitals = vitals
         self.careTasks = careTasks
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = (try? c.decode(String.self, forKey: .id)) ?? "bk-\(UUID().uuidString.prefix(6))"
+        self.bookingNumber = (try? c.decode(String.self, forKey: .bookingNumber)) ?? "#TH-BK-8921"
+        self.beneficiaryId = (try? c.decode(String.self, forKey: .beneficiaryId)) ?? "ben-1"
+        self.beneficiaryName = (try? c.decode(String.self, forKey: .beneficiaryName)) ?? "Beneficiary"
+        self.beneficiaryAge = (try? c.decodeIfPresent(Int.self, forKey: .beneficiaryAge)) ?? 68
+        self.guardianPhone = (try? c.decodeIfPresent(String.self, forKey: .guardianPhone)) ?? "+91 98765 43210"
+        self.serviceName = (try? c.decode(String.self, forKey: .serviceName)) ?? "Household Support & Vitals"
+        self.scheduledDate = (try? c.decodeIfPresent(String.self, forKey: .scheduledDate)) ?? "Today"
+        self.scheduledTimeSlot = (try? c.decodeIfPresent(String.self, forKey: .scheduledTimeSlot)) ?? "10:00 AM - 4:00 PM"
+        self.serviceAddress = (try? c.decodeIfPresent(String.self, forKey: .serviceAddress)) ?? "T.T.D. Colony, Tirupati"
+        self.caregiverId = try? c.decodeIfPresent(String.self, forKey: .caregiverId)
+        self.caregiverName = (try? c.decodeIfPresent(String.self, forKey: .caregiverName)) ?? "Anitha"
+        self.caregiverEtaMinutes = try? c.decodeIfPresent(Int.self, forKey: .caregiverEtaMinutes)
+        self.status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? "In Progress"
+        self.fundingTier = (try? c.decodeIfPresent(String.self, forKey: .fundingTier)) ?? (try? c.decodeIfPresent(String.self, forKey: .fundingType)) ?? "Trust Sponsored (100%)"
+        self.specialInstructions = try? c.decodeIfPresent(String.self, forKey: .specialInstructions)
+        self.vitals = try? c.decodeIfPresent(VitalsLog.self, forKey: .vitals)
+        self.careTasks = try? c.decodeIfPresent([CareTask].self, forKey: .careTasks)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(bookingNumber, forKey: .bookingNumber)
+        try c.encode(beneficiaryId, forKey: .beneficiaryId)
+        try c.encode(beneficiaryName, forKey: .beneficiaryName)
+        try c.encode(beneficiaryAge, forKey: .beneficiaryAge)
+        try c.encode(guardianPhone, forKey: .guardianPhone)
+        try c.encode(serviceName, forKey: .serviceName)
+        try c.encode(scheduledDate, forKey: .scheduledDate)
+        try c.encode(scheduledTimeSlot, forKey: .scheduledTimeSlot)
+        try c.encode(serviceAddress, forKey: .serviceAddress)
+        try c.encodeIfPresent(caregiverId, forKey: .caregiverId)
+        try c.encode(caregiverName, forKey: .caregiverName)
+        try c.encodeIfPresent(caregiverEtaMinutes, forKey: .caregiverEtaMinutes)
+        try c.encode(status, forKey: .status)
+        try c.encode(fundingTier, forKey: .fundingTier)
+        try c.encodeIfPresent(specialInstructions, forKey: .specialInstructions)
+        try c.encodeIfPresent(vitals, forKey: .vitals)
+        try c.encodeIfPresent(careTasks, forKey: .careTasks)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, bookingNumber, beneficiaryId, beneficiaryName, beneficiaryAge, guardianPhone, serviceName, scheduledDate, scheduledTimeSlot, serviceAddress, caregiverId, caregiverName, caregiverEtaMinutes, status, specialInstructions, vitals, careTasks
+        case fundingTier, fundingType
     }
 }
 
