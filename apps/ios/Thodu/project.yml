@@ -23,5 +23,3 @@ targets:
         INFOPLIST_KEY_NSCameraUsageDescription: "Thodu uses camera for verification"
         INFOPLIST_KEY_NSFaceIDUsageDescription: "Thodu uses Face ID for authentication"
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: ""
-        CODE_SIGNING_ALLOWED: "NO"
