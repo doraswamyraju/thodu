@@ -152,6 +152,7 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					5F539A33118E1004EDB2A88B = {
+						DevelopmentTeam = UDYR7AUVZ7;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -215,6 +216,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UDYR7AUVZ7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Thodu;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Thodu uses camera for verification";
@@ -242,6 +244,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UDYR7AUVZ7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Thodu;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Thodu uses camera for verification";
