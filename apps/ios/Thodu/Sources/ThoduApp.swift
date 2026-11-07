@@ -6,8 +6,13 @@ struct ThoduApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if currentUser != nil {
-                FamilyDashboardView()
+            if let user = currentUser {
+                BeneficiaryDashboardView(
+                    currentUser: user,
+                    onLogout: {
+                        self.currentUser = nil
+                    }
+                )
             } else {
                 LoginView { user in
                     self.currentUser = user
@@ -16,4 +21,3 @@ struct ThoduApp: App {
         }
     }
 }
-
