@@ -12,9 +12,8 @@ public struct CaregiverLiveTrackingView: View {
     @State private var etaMinutes: Int = 12
     @State private var isPulsing: Bool = false
     @State private var selectedMapStyle: Int = 0 // 0: Standard, 1: Hybrid
-
-    // Simulated street route coordinates between Alipiri Road and T.T.D. Colony, Tirupati
-    private let routeCoordinates: [CLLocationCoordinate2D]
+    @State private var routeCoordinates: [CLLocationCoordinate2D]
+    @State private var pollTimer: Timer? = nil
 
     public init(
         booking: Booking,
@@ -29,25 +28,28 @@ public struct CaregiverLiveTrackingView: View {
         let destLng = beneficiary?.longitude ?? 79.4192
         let dest = CLLocationCoordinate2D(latitude: destLat, longitude: destLng)
 
-        // Caregiver is ~1.2 km north-east
-        let cg = CLLocationCoordinate2D(latitude: destLat + 0.0055, longitude: destLng + 0.0038)
+        // Caregiver coordinates from booking if present, else offset
+        let cgLat = booking.caregiverLat ?? (destLat + 0.0055)
+        let cgLng = booking.caregiverLng ?? (destLng + 0.0038)
+        let cg = CLLocationCoordinate2D(latitude: cgLat, longitude: cgLng)
 
         self._destinationCoord = State(initialValue: dest)
         self._caregiverCoord = State(initialValue: cg)
+        self._etaMinutes = State(initialValue: booking.caregiverEtaMinutes ?? 12)
 
-        let midLat = (destLat + cg.latitude) / 2
-        let midLng = (destLng + cg.longitude) / 2
+        let midLat = (destLat + cgLat) / 2
+        let midLng = (destLng + cgLng) / 2
         let span = MKCoordinateSpan(latitudeDelta: 0.016, longitudeDelta: 0.016)
         let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: midLat, longitude: midLng), span: span)
         self._cameraPosition = State(initialValue: .region(region))
 
-        self.routeCoordinates = [
+        self._routeCoordinates = State(initialValue: [
             cg,
             CLLocationCoordinate2D(latitude: destLat + 0.0042, longitude: destLng + 0.0030),
             CLLocationCoordinate2D(latitude: destLat + 0.0028, longitude: destLng + 0.0020),
             CLLocationCoordinate2D(latitude: destLat + 0.0014, longitude: destLng + 0.0008),
             dest
-        ]
+        ])
     }
 
     public var body: some View {
@@ -245,6 +247,43 @@ public struct CaregiverLiveTrackingView: View {
         .onAppear {
             withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
                 isPulsing = true
+            }
+            startPollingLiveLocation()
+        }
+        .onDisappear {
+            pollTimer?.invalidate()
+            pollTimer = nil
+        }
+    }
+
+    private func startPollingLiveLocation() {
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+            Task {
+                do {
+                    let bks = try await ThoduApiClient.shared.fetchBookings()
+                    if let live = bks.first(where: { $0.id == booking.id || $0.bookingNumber == booking.bookingNumber }) {
+                        if let lat = live.caregiverLat, let lng = live.caregiverLng {
+                            await MainActor.run {
+                                withAnimation(.easeInOut(duration: 1.0)) {
+                                    self.caregiverCoord = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+                                    if let liveEta = live.caregiverEtaMinutes {
+                                        self.etaMinutes = liveEta
+                                    }
+                                    self.routeCoordinates = [
+                                        self.caregiverCoord,
+                                        CLLocationCoordinate2D(
+                                            latitude: (lat * 0.6) + (destinationCoord.latitude * 0.4),
+                                            longitude: (lng * 0.6) + (destinationCoord.longitude * 0.4)
+                                        ),
+                                        self.destinationCoord
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                } catch {
+                    // Fail silently on network jitter
+                }
             }
         }
     }

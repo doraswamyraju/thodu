@@ -62,3 +62,4 @@ public class CaregiverLocationManager: NSObject, ObservableObject, CLLocationMan
         return currentLoc.distance(from: targetLoc) / 1000.0
     }
 }
+

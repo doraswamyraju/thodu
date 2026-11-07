@@ -7,6 +7,7 @@ public struct CaregiverTodayTabContent: View {
     public let bookings: [Booking]
     public var onStartShift: (Booking) -> Void
     public var onOpenActiveDuty: () -> Void
+    public var onOpenNavigation: (Booking) -> Void
     public var onRefresh: () -> Void
     
     @ObservedObject private var locationManager = CaregiverLocationManager.shared
@@ -18,12 +19,14 @@ public struct CaregiverTodayTabContent: View {
         bookings: [Booking],
         onStartShift: @escaping (Booking) -> Void,
         onOpenActiveDuty: @escaping () -> Void,
+        onOpenNavigation: @escaping (Booking) -> Void,
         onRefresh: @escaping () -> Void
     ) {
         self.caregiver = caregiver
         self.bookings = bookings
         self.onStartShift = onStartShift
         self.onOpenActiveDuty = onOpenActiveDuty
+        self.onOpenNavigation = onOpenNavigation
         self.onRefresh = onRefresh
     }
     
@@ -347,23 +350,23 @@ public struct CaregiverTodayTabContent: View {
                 .frame(height: 190)
                 .cornerRadius(14)
                 
-                // Navigation action button over map
-                if let mapsUrl = URL(string: "http://maps.apple.com/?daddr=\(currentTarget.beneficiaryLat),\(currentTarget.beneficiaryLng)") {
-                    Link(destination: mapsUrl) {
-                        HStack(spacing: 5) {
-                            Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                            Text("Navigate")
-                                .font(.system(size: 12, weight: .bold))
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Color(hex: "0B5D3B"))
-                        .cornerRadius(10)
-                        .shadow(radius: 3)
+                // In-App Navigation button over map
+                Button(action: {
+                    onOpenNavigation(currentTarget)
+                }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                        Text("Live In-App Navigation")
+                            .font(.system(size: 12, weight: .bold))
                     }
-                    .padding(10)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(Color(hex: "0B5D3B"))
+                    .cornerRadius(10)
+                    .shadow(radius: 3)
                 }
+                .padding(10)
             }
             
             HStack(spacing: 6) {

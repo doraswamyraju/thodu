@@ -234,6 +234,8 @@ public struct Booking: Codable, Identifiable, Hashable {
     public let beneficiaryLng: Double
     public let caregiverId: String?
     public let caregiverName: String
+    public let caregiverLat: Double?
+    public let caregiverLng: Double?
     public let caregiverEtaMinutes: Int?
     public let status: String // In Progress, Confirmed, Scheduled, Completed, Awaiting Assignment
     public let fundingTier: String
@@ -257,6 +259,8 @@ public struct Booking: Codable, Identifiable, Hashable {
         beneficiaryLng: Double = 79.4192,
         caregiverId: String? = "cg-anitha",
         caregiverName: String = "Anitha",
+        caregiverLat: Double? = 13.6300,
+        caregiverLng: Double? = 79.4215,
         caregiverEtaMinutes: Int? = 18,
         status: String = "In Progress",
         fundingTier: String = "Trust Sponsored",
@@ -279,6 +283,8 @@ public struct Booking: Codable, Identifiable, Hashable {
         self.beneficiaryLng = beneficiaryLng
         self.caregiverId = caregiverId
         self.caregiverName = caregiverName
+        self.caregiverLat = caregiverLat
+        self.caregiverLng = caregiverLng
         self.caregiverEtaMinutes = caregiverEtaMinutes
         self.status = status
         self.fundingTier = fundingTier
@@ -304,6 +310,8 @@ public struct Booking: Codable, Identifiable, Hashable {
         self.beneficiaryLng = (try? c.decodeIfPresent(Double.self, forKey: .beneficiaryLng)) ?? 79.4192
         self.caregiverId = try? c.decodeIfPresent(String.self, forKey: .caregiverId)
         self.caregiverName = (try? c.decodeIfPresent(String.self, forKey: .caregiverName)) ?? "Anitha"
+        self.caregiverLat = try? c.decodeIfPresent(Double.self, forKey: .caregiverLat)
+        self.caregiverLng = try? c.decodeIfPresent(Double.self, forKey: .caregiverLng)
         self.caregiverEtaMinutes = try? c.decodeIfPresent(Int.self, forKey: .caregiverEtaMinutes)
         self.status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? "In Progress"
         self.fundingTier = (try? c.decodeIfPresent(String.self, forKey: .fundingTier)) ?? (try? c.decodeIfPresent(String.self, forKey: .fundingType)) ?? "Trust Sponsored (100%)"
@@ -329,6 +337,8 @@ public struct Booking: Codable, Identifiable, Hashable {
         try c.encode(beneficiaryLng, forKey: .beneficiaryLng)
         try c.encodeIfPresent(caregiverId, forKey: .caregiverId)
         try c.encode(caregiverName, forKey: .caregiverName)
+        try c.encodeIfPresent(caregiverLat, forKey: .caregiverLat)
+        try c.encodeIfPresent(caregiverLng, forKey: .caregiverLng)
         try c.encodeIfPresent(caregiverEtaMinutes, forKey: .caregiverEtaMinutes)
         try c.encode(status, forKey: .status)
         try c.encode(fundingTier, forKey: .fundingTier)
@@ -339,7 +349,7 @@ public struct Booking: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, bookingNumber, beneficiaryId, beneficiaryName, beneficiaryAge, guardianPhone, serviceName, scheduledDate, scheduledTimeSlot, serviceAddress, beneficiaryLat, beneficiaryLng, caregiverId, caregiverName, caregiverEtaMinutes, status, specialInstructions, caregiverNotes, vitals, careTasks
+        case id, bookingNumber, beneficiaryId, beneficiaryName, beneficiaryAge, guardianPhone, serviceName, scheduledDate, scheduledTimeSlot, serviceAddress, beneficiaryLat, beneficiaryLng, caregiverId, caregiverName, caregiverLat, caregiverLng, caregiverEtaMinutes, status, specialInstructions, caregiverNotes, vitals, careTasks
         case fundingTier, fundingType
     }
 }

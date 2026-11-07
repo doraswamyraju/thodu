@@ -264,3 +264,4 @@ public struct CaregiverNavigationDrawer: View {
         .cornerRadius(6)
     }
 }
+

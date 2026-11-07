@@ -38,6 +38,7 @@
 		A3966FFBEA05255C65CE59C4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 74BC855402788FFE4EA3BA69 /* GoogleService-Info.plist */; };
 		A52754228D0A1636889A6416 /* BeneficiaryProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE26B221A2FDC6F520F69E0 /* BeneficiaryProfileCard.swift */; };
 		ACBB7B094D8CE713FFEC4A04 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F086B750F181AAC427DCE7 /* LoginView.swift */; };
+		B7A7DFAED2D8972D4F138E98 /* CaregiverInAppNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFBCA49548ACA995DBAA8D5D /* CaregiverInAppNavigationView.swift */; };
 		BC7C7A84DA50CF1F1ED39AB6 /* CaregiverLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473974AE20D97F4E0BD2A6DA /* CaregiverLocationManager.swift */; };
 		BD1D73FFB3205FF4AEDDC926 /* CaregiverTopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091D32649A7C8D0D2DECFA4F /* CaregiverTopBar.swift */; };
 		BFAC000B52BAF622E88ACEF8 /* AppleSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */; };
@@ -96,6 +97,7 @@
 		A324FF74A5069BEA492C3799 /* ThoduApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduApp.swift; sourceTree = "<group>"; };
 		A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInButtonIOS.swift; sourceTree = "<group>"; };
 		AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomTirupatiArtworkIOS.swift; sourceTree = "<group>"; };
+		AFBCA49548ACA995DBAA8D5D /* CaregiverInAppNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverInAppNavigationView.swift; sourceTree = "<group>"; };
 		B261B4DA0C3F50112129E22A /* AddBeneficiaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBeneficiaryView.swift; sourceTree = "<group>"; };
 		B70960BE914F2FA20D2D8AA9 /* TasksAndMedicationCardsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksAndMedicationCardsRow.swift; sourceTree = "<group>"; };
 		BA43F8E7F9AE0A2C62EDD8D0 /* CaregiverNavigationDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverNavigationDrawer.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 			isa = PBXGroup;
 			children = (
 				9FE002A11B3DD86570A6A648 /* CaregiverBottomNavBar.swift */,
+				AFBCA49548ACA995DBAA8D5D /* CaregiverInAppNavigationView.swift */,
 				BA43F8E7F9AE0A2C62EDD8D0 /* CaregiverNavigationDrawer.swift */,
 				091D32649A7C8D0D2DECFA4F /* CaregiverTopBar.swift */,
 			);
@@ -487,6 +490,7 @@
 				363BF086C36E49CFA8327D57 /* CaregiverBottomNavBar.swift in Sources */,
 				2593DEC8397BA6F0470A7606 /* CaregiverDashboardView.swift in Sources */,
 				4022E0E5FA51EA75DB4634B7 /* CaregiverEarningsView.swift in Sources */,
+				B7A7DFAED2D8972D4F138E98 /* CaregiverInAppNavigationView.swift in Sources */,
 				9064A3903D28C5784114E390 /* CaregiverLiveTrackingView.swift in Sources */,
 				BC7C7A84DA50CF1F1ED39AB6 /* CaregiverLocationManager.swift in Sources */,
 				68C24ABD9D1D3F74CBF0E8A4 /* CaregiverModels.swift in Sources */,

@@ -19,6 +19,7 @@ public struct CaregiverDashboardView: View {
     @State private var activeTab: CaregiverNavTab = .today
     @State private var availability: String = "Available"
     @State private var isDrawerOpen: Bool = false
+    @State private var navigatingVisit: Booking? = nil
     @State private var isLoading: Bool = false
     @State private var alertMessage: String? = nil
     @State private var showAlert: Bool = false
@@ -87,6 +88,9 @@ public struct CaregiverDashboardView: View {
                             onOpenActiveDuty: {
                                 activeTab = .duty
                             },
+                            onOpenNavigation: { booking in
+                                navigatingVisit = booking
+                            },
                             onRefresh: {
                                 Task { await loadData() }
                             }
@@ -95,6 +99,9 @@ public struct CaregiverDashboardView: View {
                         CaregiverActiveDutyView(
                             caregiver: caregiver,
                             activeVisit: activeVisit,
+                            onOpenNavigation: { booking in
+                                navigatingVisit = booking
+                            },
                             onUpdateVisit: { visitId, req in
                                 await updateVisitProgress(id: visitId, request: req)
                             },
@@ -172,6 +179,19 @@ public struct CaregiverDashboardView: View {
                 }
                 .ignoresSafeArea()
             }
+        }
+        .fullScreenCover(item: $navigatingVisit) { visit in
+            CaregiverInAppNavigationView(
+                visit: visit,
+                caregiver: caregiver,
+                onArrival: {
+                    navigatingVisit = nil
+                    startShift(visit)
+                },
+                onDismiss: {
+                    navigatingVisit = nil
+                }
+            )
         }
         .task {
             locationManager.requestPermission()

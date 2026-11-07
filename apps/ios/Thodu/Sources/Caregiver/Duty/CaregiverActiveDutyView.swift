@@ -5,6 +5,7 @@ import CoreLocation
 public struct CaregiverActiveDutyView: View {
     public let caregiver: Caregiver
     public let activeVisit: Booking?
+    public var onOpenNavigation: ((Booking) -> Void)? = nil
     public var onUpdateVisit: (String, UpdateBookingRequest) async -> Void
     public var onTriggerSos: (String) async -> Void
     public var onCompleteVisit: (Booking, [String: String], [CaregiverChecklistItem], String) async -> Void
@@ -32,12 +33,14 @@ public struct CaregiverActiveDutyView: View {
     public init(
         caregiver: Caregiver,
         activeVisit: Booking?,
+        onOpenNavigation: ((Booking) -> Void)? = nil,
         onUpdateVisit: @escaping (String, UpdateBookingRequest) async -> Void,
         onTriggerSos: @escaping (String) async -> Void,
         onCompleteVisit: @escaping (Booking, [String: String], [CaregiverChecklistItem], String) async -> Void
     ) {
         self.caregiver = caregiver
         self.activeVisit = activeVisit
+        self.onOpenNavigation = onOpenNavigation
         self.onUpdateVisit = onUpdateVisit
         self.onTriggerSos = onTriggerSos
         self.onCompleteVisit = onCompleteVisit
@@ -119,15 +122,15 @@ public struct CaregiverActiveDutyView: View {
                                 }
                             }
                             
-                            if let mapsUrl = URL(string: "http://maps.apple.com/?daddr=\(visit.beneficiaryLat),\(visit.beneficiaryLng)") {
-                                Link(destination: mapsUrl) {
-                                    Image(systemName: "location.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(Color(hex: "0369A1"))
-                                        .frame(width: 40, height: 40)
-                                        .background(Color(hex: "E0F2FE"))
-                                        .clipShape(Circle())
-                                }
+                            Button(action: {
+                                onOpenNavigation?(visit)
+                            }) {
+                                Image(systemName: "location.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(Color(hex: "0369A1"))
+                                    .frame(width: 40, height: 40)
+                                    .background(Color(hex: "E0F2FE"))
+                                    .clipShape(Circle())
                             }
                         }
                     }
@@ -203,21 +206,21 @@ public struct CaregiverActiveDutyView: View {
                         .frame(height: 160)
                         .cornerRadius(12)
                         
-                        if let mapsUrl = URL(string: "http://maps.apple.com/?daddr=\(visit.beneficiaryLat),\(visit.beneficiaryLng)") {
-                            Link(destination: mapsUrl) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                                    Text("Turn-by-turn Navigation")
-                                        .font(.system(size: 11, weight: .bold))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(Color(hex: "0B5D3B"))
-                                .cornerRadius(8)
+                        Button(action: {
+                            onOpenNavigation?(visit)
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                                Text("Live In-App Navigation")
+                                    .font(.system(size: 11, weight: .bold))
                             }
-                            .padding(8)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color(hex: "0B5D3B"))
+                            .cornerRadius(8)
                         }
+                        .padding(8)
                     }
                 }
                 .padding(14)

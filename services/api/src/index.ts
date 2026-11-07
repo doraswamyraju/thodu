@@ -1171,7 +1171,7 @@ app.patch('/api/v1/bookings/:id', (req: Request, res: Response) => {
   const bk = bookings.find(b => b.id === id);
   if (!bk) return res.status(404).json({ error: 'Booking not found' });
 
-  const { scheduledDate, scheduledTimeSlot, serviceAddress, status, caregiverNotes, specialInstructions, fundingType, checklistCompleted, vitals } = req.body;
+  const { scheduledDate, scheduledTimeSlot, serviceAddress, status, caregiverNotes, specialInstructions, fundingType, checklistCompleted, vitals, caregiverLat, caregiverLng, caregiverEtaMinutes } = req.body;
   if (scheduledDate !== undefined) bk.scheduledDate = scheduledDate;
   if (scheduledTimeSlot !== undefined) bk.scheduledTimeSlot = scheduledTimeSlot;
   if (serviceAddress !== undefined) bk.serviceAddress = serviceAddress;
@@ -1180,6 +1180,9 @@ app.patch('/api/v1/bookings/:id', (req: Request, res: Response) => {
   if (fundingType !== undefined) bk.fundingType = fundingType;
   if (checklistCompleted !== undefined) bk.checklistCompleted = checklistCompleted;
   if (vitals !== undefined) bk.vitals = vitals;
+  if (caregiverLat !== undefined) bk.caregiverLat = caregiverLat;
+  if (caregiverLng !== undefined) bk.caregiverLng = caregiverLng;
+  if (caregiverEtaMinutes !== undefined) bk.caregiverEtaMinutes = caregiverEtaMinutes;
 
   auditLogs.unshift({
     id: 'aud-' + Date.now(),
@@ -1191,6 +1194,26 @@ app.patch('/api/v1/bookings/:id', (req: Request, res: Response) => {
   });
 
   res.json({ success: true, booking: bk });
+});
+
+// Lightweight Live Location Streaming Endpoint
+app.patch('/api/v1/bookings/:id/location', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const bk = bookings.find(b => b.id === id);
+  if (!bk) return res.status(404).json({ error: 'Booking not found' });
+
+  const { latitude, longitude, etaMinutes } = req.body;
+  if (latitude !== undefined) bk.caregiverLat = latitude;
+  if (longitude !== undefined) bk.caregiverLng = longitude;
+  if (etaMinutes !== undefined) bk.caregiverEtaMinutes = etaMinutes;
+
+  res.json({
+    success: true,
+    bookingId: bk.id,
+    caregiverLat: bk.caregiverLat,
+    caregiverLng: bk.caregiverLng,
+    caregiverEtaMinutes: bk.caregiverEtaMinutes
+  });
 });
 
 app.delete('/api/v1/bookings/:id', (req: Request, res: Response) => {

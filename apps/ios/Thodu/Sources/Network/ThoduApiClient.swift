@@ -215,4 +215,25 @@ public final class ThoduApiClient {
         let decoded = try JSONDecoder().decode(SingleBookingResponse.self, from: data)
         return decoded.booking
     }
+
+    public func broadcastCaregiverLocation(bookingId: String, latitude: Double, longitude: Double, etaMinutes: Int) async throws {
+        guard let url = URL(string: "\(baseURL)/api/v1/bookings/\(bookingId)/location") else {
+            throw URLError(.badURL)
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "PATCH"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let payload: [String: Any] = [
+            "latitude": latitude,
+            "longitude": longitude,
+            "etaMinutes": etaMinutes
+        ]
+        urlRequest.httpBody = try JSONSerialization.data(withJSONObject: payload)
+
+        let (_, response) = try await URLSession.shared.data(for: urlRequest)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+    }
 }
