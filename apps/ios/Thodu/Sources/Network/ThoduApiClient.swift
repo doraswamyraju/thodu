@@ -158,4 +158,61 @@ public final class ThoduApiClient {
 
         return try JSONDecoder().decode(GenericResponse.self, from: data)
     }
+
+    public func fetchCaregivers() async throws -> [Caregiver] {
+        guard let url = URL(string: "\(baseURL)/api/v1/caregivers") else {
+            throw URLError(.badURL)
+        }
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+
+        let decoded = try JSONDecoder().decode(CaregiversResponse.self, from: data)
+        return decoded.caregivers
+    }
+
+    public func updateCaregiverAvailability(id: String, availability: String) async throws -> Caregiver {
+        guard let url = URL(string: "\(baseURL)/api/v1/caregivers/\(id)") else {
+            throw URLError(.badURL)
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "PATCH"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let payload = ["availability": availability]
+        urlRequest.httpBody = try JSONSerialization.data(withJSONObject: payload)
+
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+
+        struct SingleCaregiverResponse: Codable {
+            let success: Bool
+            let caregiver: Caregiver
+        }
+        let decoded = try JSONDecoder().decode(SingleCaregiverResponse.self, from: data)
+        return decoded.caregiver
+    }
+
+    public func updateBooking(id: String, request: UpdateBookingRequest) async throws -> Booking {
+        guard let url = URL(string: "\(baseURL)/api/v1/bookings/\(id)") else {
+            throw URLError(.badURL)
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "PATCH"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.httpBody = try JSONEncoder().encode(request)
+
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+
+        let decoded = try JSONDecoder().decode(SingleBookingResponse.self, from: data)
+        return decoded.booking
+    }
 }

@@ -85,6 +85,44 @@ public struct LoginView: View {
                                 )
                                 .cornerRadius(16)
                             
+                            // Role Selector Segmented Control
+                            HStack(spacing: 0) {
+                                Button(action: { selectedRole = "BENEFICIARY" }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "heart.circle.fill")
+                                            .font(.system(size: 13))
+                                        Text("Family / Elder")
+                                            .font(.system(size: 12, weight: .bold))
+                                    }
+                                    .foregroundColor(selectedRole == "BENEFICIARY" ? Color(hex: "0D5C3A") : Color(hex: "6B7280"))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 38)
+                                    .background(selectedRole == "BENEFICIARY" ? Color.white : Color.clear)
+                                    .cornerRadius(10)
+                                    .shadow(color: selectedRole == "BENEFICIARY" ? Color.black.opacity(0.08) : Color.clear, radius: 2, x: 0, y: 1)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                Button(action: { selectedRole = "CAREGIVER" }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "cross.case.fill")
+                                            .font(.system(size: 13))
+                                        Text("Caregiver Staff")
+                                            .font(.system(size: 12, weight: .bold))
+                                    }
+                                    .foregroundColor(selectedRole == "CAREGIVER" ? Color(hex: "0D5C3A") : Color(hex: "6B7280"))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 38)
+                                    .background(selectedRole == "CAREGIVER" ? Color.white : Color.clear)
+                                    .cornerRadius(10)
+                                    .shadow(color: selectedRole == "CAREGIVER" ? Color.black.opacity(0.08) : Color.clear, radius: 2, x: 0, y: 1)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                            .padding(4)
+                            .background(Color(hex: "F3F4F6"))
+                            .cornerRadius(12)
+                            
                             // Input 1: Email or Mobile
                             HStack(spacing: 12) {
                                 Image(systemName: "envelope")

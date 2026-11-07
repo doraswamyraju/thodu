@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct BeneficiaryDashboardView: View {
     public let currentUser: AppUser
+    public var onSwitchRole: (() -> Void)? = nil
     public let onLogout: () -> Void
 
     @State private var currentTab: BeneficiaryNavTab = .TODAY
@@ -19,8 +20,9 @@ public struct BeneficiaryDashboardView: View {
     @State private var showCaregiverLiveTracking = false
     @State private var showAddBeneficiaryScreen = false
 
-    public init(currentUser: AppUser, onLogout: @escaping () -> Void) {
+    public init(currentUser: AppUser, onSwitchRole: (() -> Void)? = nil, onLogout: @escaping () -> Void) {
         self.currentUser = currentUser
+        self.onSwitchRole = onSwitchRole
         self.onLogout = onLogout
     }
 
@@ -238,6 +240,7 @@ public struct BeneficiaryDashboardView: View {
                         onAddNewLovedOne: {
                             showAddBeneficiaryScreen = true
                         },
+                        onSwitchRole: onSwitchRole,
                         onLogoutClick: onLogout,
                         onCloseDrawer: {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {

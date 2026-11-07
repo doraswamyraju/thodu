@@ -230,12 +230,15 @@ public struct Booking: Codable, Identifiable, Hashable {
     public let scheduledDate: String
     public let scheduledTimeSlot: String
     public let serviceAddress: String
+    public let beneficiaryLat: Double
+    public let beneficiaryLng: Double
     public let caregiverId: String?
     public let caregiverName: String
     public let caregiverEtaMinutes: Int?
     public let status: String // In Progress, Confirmed, Scheduled, Completed, Awaiting Assignment
     public let fundingTier: String
     public let specialInstructions: String?
+    public let caregiverNotes: String?
     public let vitals: VitalsLog?
     public let careTasks: [CareTask]?
 
@@ -250,12 +253,15 @@ public struct Booking: Codable, Identifiable, Hashable {
         scheduledDate: String = "Today",
         scheduledTimeSlot: String = "10:00 AM - 4:00 PM",
         serviceAddress: String = "T.T.D. Colony, Tirupati",
+        beneficiaryLat: Double = 13.6288,
+        beneficiaryLng: Double = 79.4192,
         caregiverId: String? = "cg-anitha",
         caregiverName: String = "Anitha",
         caregiverEtaMinutes: Int? = 18,
         status: String = "In Progress",
         fundingTier: String = "Trust Sponsored",
         specialInstructions: String? = "Gentle mobility support and blood sugar monitoring",
+        caregiverNotes: String? = nil,
         vitals: VitalsLog? = VitalsLog(),
         careTasks: [CareTask]? = nil
     ) {
@@ -269,12 +275,15 @@ public struct Booking: Codable, Identifiable, Hashable {
         self.scheduledDate = scheduledDate
         self.scheduledTimeSlot = scheduledTimeSlot
         self.serviceAddress = serviceAddress
+        self.beneficiaryLat = beneficiaryLat
+        self.beneficiaryLng = beneficiaryLng
         self.caregiverId = caregiverId
         self.caregiverName = caregiverName
         self.caregiverEtaMinutes = caregiverEtaMinutes
         self.status = status
         self.fundingTier = fundingTier
         self.specialInstructions = specialInstructions
+        self.caregiverNotes = caregiverNotes
         self.vitals = vitals
         self.careTasks = careTasks
     }
@@ -291,12 +300,15 @@ public struct Booking: Codable, Identifiable, Hashable {
         self.scheduledDate = (try? c.decodeIfPresent(String.self, forKey: .scheduledDate)) ?? "Today"
         self.scheduledTimeSlot = (try? c.decodeIfPresent(String.self, forKey: .scheduledTimeSlot)) ?? "10:00 AM - 4:00 PM"
         self.serviceAddress = (try? c.decodeIfPresent(String.self, forKey: .serviceAddress)) ?? "T.T.D. Colony, Tirupati"
+        self.beneficiaryLat = (try? c.decodeIfPresent(Double.self, forKey: .beneficiaryLat)) ?? 13.6288
+        self.beneficiaryLng = (try? c.decodeIfPresent(Double.self, forKey: .beneficiaryLng)) ?? 79.4192
         self.caregiverId = try? c.decodeIfPresent(String.self, forKey: .caregiverId)
         self.caregiverName = (try? c.decodeIfPresent(String.self, forKey: .caregiverName)) ?? "Anitha"
         self.caregiverEtaMinutes = try? c.decodeIfPresent(Int.self, forKey: .caregiverEtaMinutes)
         self.status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? "In Progress"
         self.fundingTier = (try? c.decodeIfPresent(String.self, forKey: .fundingTier)) ?? (try? c.decodeIfPresent(String.self, forKey: .fundingType)) ?? "Trust Sponsored (100%)"
         self.specialInstructions = try? c.decodeIfPresent(String.self, forKey: .specialInstructions)
+        self.caregiverNotes = try? c.decodeIfPresent(String.self, forKey: .caregiverNotes)
         self.vitals = try? c.decodeIfPresent(VitalsLog.self, forKey: .vitals)
         self.careTasks = try? c.decodeIfPresent([CareTask].self, forKey: .careTasks)
     }
@@ -313,18 +325,21 @@ public struct Booking: Codable, Identifiable, Hashable {
         try c.encode(scheduledDate, forKey: .scheduledDate)
         try c.encode(scheduledTimeSlot, forKey: .scheduledTimeSlot)
         try c.encode(serviceAddress, forKey: .serviceAddress)
+        try c.encode(beneficiaryLat, forKey: .beneficiaryLat)
+        try c.encode(beneficiaryLng, forKey: .beneficiaryLng)
         try c.encodeIfPresent(caregiverId, forKey: .caregiverId)
         try c.encode(caregiverName, forKey: .caregiverName)
         try c.encodeIfPresent(caregiverEtaMinutes, forKey: .caregiverEtaMinutes)
         try c.encode(status, forKey: .status)
         try c.encode(fundingTier, forKey: .fundingTier)
         try c.encodeIfPresent(specialInstructions, forKey: .specialInstructions)
+        try c.encodeIfPresent(caregiverNotes, forKey: .caregiverNotes)
         try c.encodeIfPresent(vitals, forKey: .vitals)
         try c.encodeIfPresent(careTasks, forKey: .careTasks)
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, bookingNumber, beneficiaryId, beneficiaryName, beneficiaryAge, guardianPhone, serviceName, scheduledDate, scheduledTimeSlot, serviceAddress, caregiverId, caregiverName, caregiverEtaMinutes, status, specialInstructions, vitals, careTasks
+        case id, bookingNumber, beneficiaryId, beneficiaryName, beneficiaryAge, guardianPhone, serviceName, scheduledDate, scheduledTimeSlot, serviceAddress, beneficiaryLat, beneficiaryLng, caregiverId, caregiverName, caregiverEtaMinutes, status, specialInstructions, caregiverNotes, vitals, careTasks
         case fundingTier, fundingType
     }
 }

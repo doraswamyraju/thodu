@@ -19,6 +19,7 @@ public struct BeneficiaryNavigationDrawer: View {
         onTabSelected: @escaping (BeneficiaryNavTab) -> Void,
         onSelectBeneficiary: @escaping (Beneficiary) -> Void,
         onAddNewLovedOne: @escaping () -> Void = {},
+        onSwitchRole: (() -> Void)? = nil,
         onLogoutClick: @escaping () -> Void,
         onCloseDrawer: @escaping () -> Void
     ) {
@@ -29,9 +30,12 @@ public struct BeneficiaryNavigationDrawer: View {
         self.onTabSelected = onTabSelected
         self.onSelectBeneficiary = onSelectBeneficiary
         self.onAddNewLovedOne = onAddNewLovedOne
+        self.onSwitchRole = onSwitchRole
         self.onLogoutClick = onLogoutClick
         self.onCloseDrawer = onCloseDrawer
     }
+
+    public var onSwitchRole: (() -> Void)? = nil
 
     private let menuItems: [BeneficiaryNavTab] = [.TODAY, .BOOKINGS, .HEALTH, .PROFILE]
 
@@ -206,6 +210,32 @@ public struct BeneficiaryNavigationDrawer: View {
                 .background(Color.white.opacity(0.08))
                 .cornerRadius(12)
                 .padding(.horizontal, 16)
+
+                // Switch to Caregiver Portal
+                if let switchRole = onSwitchRole {
+                    Button(action: {
+                        onCloseDrawer()
+                        switchRole()
+                    }) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "cross.case.fill")
+                                .font(.system(size: 15))
+                                .foregroundColor(Color(hex: "A7F3D0"))
+                            Text("Caregiver Portal")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(Color(hex: "A7F3D0"))
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 11))
+                                .foregroundColor(Color(hex: "A7F3D0").opacity(0.7))
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.white.opacity(0.08))
+                        .cornerRadius(10)
+                    }
+                    .padding(.horizontal, 12)
+                }
 
                 // Logout
                 Button(action: {

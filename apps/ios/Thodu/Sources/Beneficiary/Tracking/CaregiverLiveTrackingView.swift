@@ -298,3 +298,4 @@ public struct CaregiverLiveTrackingView: View {
             .offset(y: -8)
     }
 }
+

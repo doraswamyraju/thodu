@@ -1171,13 +1171,15 @@ app.patch('/api/v1/bookings/:id', (req: Request, res: Response) => {
   const bk = bookings.find(b => b.id === id);
   if (!bk) return res.status(404).json({ error: 'Booking not found' });
 
-  const { scheduledDate, scheduledTimeSlot, serviceAddress, status, caregiverNotes, specialInstructions, fundingType } = req.body;
+  const { scheduledDate, scheduledTimeSlot, serviceAddress, status, caregiverNotes, specialInstructions, fundingType, checklistCompleted, vitals } = req.body;
   if (scheduledDate !== undefined) bk.scheduledDate = scheduledDate;
   if (scheduledTimeSlot !== undefined) bk.scheduledTimeSlot = scheduledTimeSlot;
   if (serviceAddress !== undefined) bk.serviceAddress = serviceAddress;
   if (status !== undefined) bk.status = status;
   if (caregiverNotes !== undefined) bk.caregiverNotes = caregiverNotes;
   if (fundingType !== undefined) bk.fundingType = fundingType;
+  if (checklistCompleted !== undefined) bk.checklistCompleted = checklistCompleted;
+  if (vitals !== undefined) bk.vitals = vitals;
 
   auditLogs.unshift({
     id: 'aud-' + Date.now(),

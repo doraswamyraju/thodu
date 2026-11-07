@@ -12,13 +12,19 @@
 		0CC1FFB6028C15552A5E2007 /* BeneficiaryBottomNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D862EB5E142C65722B7A6DD0 /* BeneficiaryBottomNavBar.swift */; };
 		12A4ACA8A5A6B2E277C280C0 /* BottomTirupatiArtworkIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */; };
 		1EEE4DB8ACEC07E9C6A03F54 /* GoogleOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F49971354CB2E9D1A655C3 /* GoogleOAuthManager.swift */; };
+		2593DEC8397BA6F0470A7606 /* CaregiverDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD37AD8CFAE993E1C5BA149B /* CaregiverDashboardView.swift */; };
 		2B48BDC966B6423C470BEF51 /* AddBeneficiaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B261B4DA0C3F50112129E22A /* AddBeneficiaryView.swift */; };
+		34B4D6FD3DBA6EFFEDD44B52 /* CaregiverProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF728B4F44A5D58205AFAB16 /* CaregiverProfileView.swift */; };
+		363BF086C36E49CFA8327D57 /* CaregiverBottomNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE002A11B3DD86570A6A648 /* CaregiverBottomNavBar.swift */; };
 		3FE15E4275AFDA8CE3D5EDBA /* BeneficiaryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FC0119B98BAD7A4FF6A434 /* BeneficiaryModels.swift */; };
+		4022E0E5FA51EA75DB4634B7 /* CaregiverEarningsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F233EFF4ACCD473970AFE87 /* CaregiverEarningsView.swift */; };
 		452CF4279BA3AC27901364BD /* BeneficiaryBannersCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80ED1DD88E0F0059FEB49B6 /* BeneficiaryBannersCarousel.swift */; };
 		4C2236FF46A2B38AA635CE30 /* GoogleSignInButtonIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */; };
 		4C35718423DDBE74FE5D1F0F /* Color+Thodu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */; };
 		590A72C10C6D9020CF76C2A2 /* login_hero_elder_care.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EC038689740DC6267B2A8388 /* login_hero_elder_care.jpg */; };
+		6555E20FE60E24C0490FA301 /* CaregiverScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 439709DB99AFD06CE1AF31B2 /* CaregiverScheduleView.swift */; };
 		687B308B62EB1035ABC5761D /* TodayTasksListCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AFC2A9A7815A14C452D279 /* TodayTasksListCard.swift */; };
+		68C24ABD9D1D3F74CBF0E8A4 /* CaregiverModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F0116AE596C2D1A04C48EF /* CaregiverModels.swift */; };
 		76AD4AFB54E85E46296B4FC6 /* MyBookingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F080DCF64BF47A3BAF40801 /* MyBookingsScreen.swift */; };
 		77E4943B09FCAA1CD00BF5F1 /* NotificationsBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C61C0918AB8231060582029 /* NotificationsBottomSheet.swift */; };
 		7CB2E62AB6DBF337A425F3A7 /* BeneficiaryTopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD0715FE45889206B0EE385 /* BeneficiaryTopBar.swift */; };
@@ -32,11 +38,14 @@
 		A3966FFBEA05255C65CE59C4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 74BC855402788FFE4EA3BA69 /* GoogleService-Info.plist */; };
 		A52754228D0A1636889A6416 /* BeneficiaryProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE26B221A2FDC6F520F69E0 /* BeneficiaryProfileCard.swift */; };
 		ACBB7B094D8CE713FFEC4A04 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F086B750F181AAC427DCE7 /* LoginView.swift */; };
+		BD1D73FFB3205FF4AEDDC926 /* CaregiverTopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091D32649A7C8D0D2DECFA4F /* CaregiverTopBar.swift */; };
 		BFAC000B52BAF622E88ACEF8 /* AppleSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */; };
 		C4D79D502C030992213B2EB4 /* BeneficiarySubsidyTierCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3F12EB7D929B84E8557EFD /* BeneficiarySubsidyTierCard.swift */; };
+		C8929277A744E855CA255C84 /* CaregiverActiveDutyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90AB3D9ED42568CA692083E0 /* CaregiverActiveDutyView.swift */; };
 		CB319C7B218175866E666DBF /* FamilyDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */; };
 		CBDB77EC383030F37354D8F9 /* TodayCaregiverDispatchCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCEF4CC92A4FFC354993408 /* TodayCaregiverDispatchCard.swift */; };
 		CDA3D089D32CCDBDA3BFD7A5 /* thodu_logo_vertical.png in Resources */ = {isa = PBXBuildFile; fileRef = 530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */; };
+		DAE59F9EC2002F7BA2784684 /* CaregiverTodayTabContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6B6111BFDCE1BEF2972A71 /* CaregiverTodayTabContent.swift */; };
 		DF474AFA9BDD7E5D0268C833 /* GoogleGLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6780AC89B8D62C4AD501B /* GoogleGLogo.swift */; };
 		E571467162A70AB4AB354302 /* BookServiceScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C74CF85B5CF160D9EFB47 /* BookServiceScreen.swift */; };
 		E7449E52BAE41AA2B42A17ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D489D9917E58A976316EC5DD /* Assets.xcassets */; };
@@ -50,13 +59,17 @@
 
 /* Begin PBXFileReference section */
 		06AFC2A9A7815A14C452D279 /* TodayTasksListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTasksListCard.swift; sourceTree = "<group>"; };
+		091D32649A7C8D0D2DECFA4F /* CaregiverTopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverTopBar.swift; sourceTree = "<group>"; };
 		0AD0715FE45889206B0EE385 /* BeneficiaryTopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryTopBar.swift; sourceTree = "<group>"; };
+		0F233EFF4ACCD473970AFE87 /* CaregiverEarningsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverEarningsView.swift; sourceTree = "<group>"; };
 		2784D4989317368138BE7120 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2C61C0918AB8231060582029 /* NotificationsBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsBottomSheet.swift; sourceTree = "<group>"; };
 		2DE26B221A2FDC6F520F69E0 /* BeneficiaryProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryProfileCard.swift; sourceTree = "<group>"; };
+		2E6B6111BFDCE1BEF2972A71 /* CaregiverTodayTabContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverTodayTabContent.swift; sourceTree = "<group>"; };
 		2F080DCF64BF47A3BAF40801 /* MyBookingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyBookingsScreen.swift; sourceTree = "<group>"; };
 		2F5B352DCC7ED995F93AEDD5 /* CaregiverLiveTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverLiveTrackingView.swift; sourceTree = "<group>"; };
 		3F5B38486FE2A52831B9E54B /* ThoduApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduApiClient.swift; sourceTree = "<group>"; };
+		439709DB99AFD06CE1AF31B2 /* CaregiverScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverScheduleView.swift; sourceTree = "<group>"; };
 		510027DF9B8D536473595944 /* BeneficiaryProfileHeaderCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryProfileHeaderCard.swift; sourceTree = "<group>"; };
 		530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = thodu_logo_vertical.png; sourceTree = "<group>"; };
 		61A8279A26C9599E5657AF46 /* Thodu.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Thodu.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -71,28 +84,41 @@
 		81630BBC47FCB67A3B5075A1 /* ThoduAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduAvatarView.swift; sourceTree = "<group>"; };
 		8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Thodu.swift"; sourceTree = "<group>"; };
 		8DF8EE35B3DDF64935EDB454 /* BeneficiarySosCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiarySosCard.swift; sourceTree = "<group>"; };
+		90AB3D9ED42568CA692083E0 /* CaregiverActiveDutyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverActiveDutyView.swift; sourceTree = "<group>"; };
 		934346904963B76D48ED3734 /* BeneficiaryDispatchVitalsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryDispatchVitalsCard.swift; sourceTree = "<group>"; };
 		97FC0119B98BAD7A4FF6A434 /* BeneficiaryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryModels.swift; sourceTree = "<group>"; };
 		991946C859E8C0F8311E7C69 /* BeneficiaryNavigationDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryNavigationDrawer.swift; sourceTree = "<group>"; };
+		9FE002A11B3DD86570A6A648 /* CaregiverBottomNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverBottomNavBar.swift; sourceTree = "<group>"; };
 		A23C9B7435EE286DA285C904 /* BeneficiaryBookCareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryBookCareSheet.swift; sourceTree = "<group>"; };
 		A324FF74A5069BEA492C3799 /* ThoduApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduApp.swift; sourceTree = "<group>"; };
 		A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInButtonIOS.swift; sourceTree = "<group>"; };
 		AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomTirupatiArtworkIOS.swift; sourceTree = "<group>"; };
 		B261B4DA0C3F50112129E22A /* AddBeneficiaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBeneficiaryView.swift; sourceTree = "<group>"; };
 		B70960BE914F2FA20D2D8AA9 /* TasksAndMedicationCardsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksAndMedicationCardsRow.swift; sourceTree = "<group>"; };
+		BD37AD8CFAE993E1C5BA149B /* CaregiverDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverDashboardView.swift; sourceTree = "<group>"; };
 		C7BE0A916A77226EF20223F1 /* BeneficiaryHealthDossierCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryHealthDossierCard.swift; sourceTree = "<group>"; };
 		D489D9917E58A976316EC5DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D862EB5E142C65722B7A6DD0 /* BeneficiaryBottomNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryBottomNavBar.swift; sourceTree = "<group>"; };
 		D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyDashboardView.swift; sourceTree = "<group>"; };
 		DF3F12EB7D929B84E8557EFD /* BeneficiarySubsidyTierCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiarySubsidyTierCard.swift; sourceTree = "<group>"; };
+		E1F0116AE596C2D1A04C48EF /* CaregiverModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverModels.swift; sourceTree = "<group>"; };
 		E7F086B750F181AAC427DCE7 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		E80ED1DD88E0F0059FEB49B6 /* BeneficiaryBannersCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryBannersCarousel.swift; sourceTree = "<group>"; };
 		EC038689740DC6267B2A8388 /* login_hero_elder_care.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = login_hero_elder_care.jpg; sourceTree = "<group>"; };
 		F0F49971354CB2E9D1A655C3 /* GoogleOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleOAuthManager.swift; sourceTree = "<group>"; };
 		FBCEF4CC92A4FFC354993408 /* TodayCaregiverDispatchCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayCaregiverDispatchCard.swift; sourceTree = "<group>"; };
+		FF728B4F44A5D58205AFAB16 /* CaregiverProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverProfileView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		0423AAC3CF310ADAB750B620 /* Schedule */ = {
+			isa = PBXGroup;
+			children = (
+				439709DB99AFD06CE1AF31B2 /* CaregiverScheduleView.swift */,
+			);
+			path = Schedule;
+			sourceTree = "<group>";
+		};
 		1CD60A5BDE70FBEC9A6CD6B5 /* Today */ = {
 			isa = PBXGroup;
 			children = (
@@ -166,12 +192,34 @@
 			);
 			sourceTree = "<group>";
 		};
+		87B735AD94241F2E156B8E2B /* Earnings */ = {
+			isa = PBXGroup;
+			children = (
+				0F233EFF4ACCD473970AFE87 /* CaregiverEarningsView.swift */,
+			);
+			path = Earnings;
+			sourceTree = "<group>";
+		};
 		8BEE952EC4EE6DE2346CE2E3 /* Subsidies */ = {
 			isa = PBXGroup;
 			children = (
 				DF3F12EB7D929B84E8557EFD /* BeneficiarySubsidyTierCard.swift */,
 			);
 			path = Subsidies;
+			sourceTree = "<group>";
+		};
+		9A50C1B5EC9FAB620828EB41 /* Caregiver */ = {
+			isa = PBXGroup;
+			children = (
+				BD37AD8CFAE993E1C5BA149B /* CaregiverDashboardView.swift */,
+				D26F3300EA373B2DA27DB6F0 /* Duty */,
+				87B735AD94241F2E156B8E2B /* Earnings */,
+				B00ED1FC5415DEDA9CC0E9A4 /* Navigation */,
+				EDBFF08C38A481C38D999958 /* Profile */,
+				0423AAC3CF310ADAB750B620 /* Schedule */,
+				ECCC1B4CAC18186DAE480F69 /* Today */,
+			);
+			path = Caregiver;
 			sourceTree = "<group>";
 		};
 		9C7D53AC044DC117334977D0 /* Assets */ = {
@@ -197,6 +245,7 @@
 			children = (
 				7FE59F0AE8C61E37F4C94B09 /* AuthModels.swift */,
 				97FC0119B98BAD7A4FF6A434 /* BeneficiaryModels.swift */,
+				E1F0116AE596C2D1A04C48EF /* CaregiverModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -207,6 +256,15 @@
 				D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		B00ED1FC5415DEDA9CC0E9A4 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				9FE002A11B3DD86570A6A648 /* CaregiverBottomNavBar.swift */,
+				091D32649A7C8D0D2DECFA4F /* CaregiverTopBar.swift */,
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 		B9B0258F13A13A06E4304A08 /* Bookings */ = {
@@ -237,12 +295,21 @@
 				9C7D53AC044DC117334977D0 /* Assets */,
 				EFFFD543442A70246ECBDD04 /* Auth */,
 				39A1BEBABBFDA3EDEED4895D /* Beneficiary */,
+				9A50C1B5EC9FAB620828EB41 /* Caregiver */,
 				A6ECF0CBECE803282CA2018B /* Models */,
 				C9C690A2365B90190E3CAAAB /* Network */,
 				A3A26AED44A5042D2AA1EDF1 /* Theme */,
 				AACADBEC681A4C173C1751B2 /* Views */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		D26F3300EA373B2DA27DB6F0 /* Duty */ = {
+			isa = PBXGroup;
+			children = (
+				90AB3D9ED42568CA692083E0 /* CaregiverActiveDutyView.swift */,
+			);
+			path = Duty;
 			sourceTree = "<group>";
 		};
 		D8C319D60583196D00476354 /* SOS */ = {
@@ -275,6 +342,22 @@
 			isa = PBXGroup;
 			children = (
 				2DE26B221A2FDC6F520F69E0 /* BeneficiaryProfileCard.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		ECCC1B4CAC18186DAE480F69 /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				2E6B6111BFDCE1BEF2972A71 /* CaregiverTodayTabContent.swift */,
+			);
+			path = Today;
+			sourceTree = "<group>";
+		};
+		EDBFF08C38A481C38D999958 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				FF728B4F44A5D58205AFAB16 /* CaregiverProfileView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -386,7 +469,16 @@
 				E571467162A70AB4AB354302 /* BookServiceScreen.swift in Sources */,
 				12A4ACA8A5A6B2E277C280C0 /* BottomTirupatiArtworkIOS.swift in Sources */,
 				EA4A981119D3666D7C6C0C45 /* CareServicesCatalogCard.swift in Sources */,
+				C8929277A744E855CA255C84 /* CaregiverActiveDutyView.swift in Sources */,
+				363BF086C36E49CFA8327D57 /* CaregiverBottomNavBar.swift in Sources */,
+				2593DEC8397BA6F0470A7606 /* CaregiverDashboardView.swift in Sources */,
+				4022E0E5FA51EA75DB4634B7 /* CaregiverEarningsView.swift in Sources */,
 				9064A3903D28C5784114E390 /* CaregiverLiveTrackingView.swift in Sources */,
+				68C24ABD9D1D3F74CBF0E8A4 /* CaregiverModels.swift in Sources */,
+				34B4D6FD3DBA6EFFEDD44B52 /* CaregiverProfileView.swift in Sources */,
+				6555E20FE60E24C0490FA301 /* CaregiverScheduleView.swift in Sources */,
+				DAE59F9EC2002F7BA2784684 /* CaregiverTodayTabContent.swift in Sources */,
+				BD1D73FFB3205FF4AEDDC926 /* CaregiverTopBar.swift in Sources */,
 				4C35718423DDBE74FE5D1F0F /* Color+Thodu.swift in Sources */,
 				CB319C7B218175866E666DBF /* FamilyDashboardView.swift in Sources */,
 				DF474AFA9BDD7E5D0268C833 /* GoogleGLogo.swift in Sources */,

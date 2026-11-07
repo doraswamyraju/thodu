@@ -361,3 +361,4 @@ public struct AddBeneficiaryView: View {
         }
     }
 }
+
