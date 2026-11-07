@@ -61,10 +61,21 @@ public enum GoogleOAuthError: LocalizedError {
 public final class GoogleOAuthManager: NSObject {
     public static let shared = GoogleOAuthManager()
     
-    // Server / Web Client ID from google-services.json
-    public static let clientId = "814572872575-a6av64egoid154idv7f6kj78829fb5pv.apps.googleusercontent.com"
-    public static let customRedirectScheme = "com.thodu.app"
-    public static let redirectUri = "\(customRedirectScheme):/oauth2redirect"
+    // Google Cloud OAuth Client ID
+    // IMPORTANT: Google OAuth 2.0 strictly requires an 'iOS' application type client ID for native apps.
+    // Web client IDs reject custom schemes with: "Custom scheme URIs are not allowed for 'WEB' client type."
+    public static var clientId = "814572872575-a6av64egoid154idv7f6kj78829fb5pv.apps.googleusercontent.com"
+    
+    /// Computes the official reverse client ID redirect scheme per Google RFC 8252 specs
+    /// e.g. "com.googleusercontent.apps.814572872575-a6av64egoid154idv7f6kj78829fb5pv"
+    public static var reverseClientScheme: String {
+        let prefix = clientId.replacingOccurrences(of: ".apps.googleusercontent.com", with: "")
+        return "com.googleusercontent.apps.\(prefix)"
+    }
+    
+    public static var redirectUri: String {
+        return "\(reverseClientScheme):/oauth2redirect"
+    }
     
     private var currentSession: ASWebAuthenticationSession?
     
@@ -110,7 +121,7 @@ public final class GoogleOAuthManager: NSObject {
         let callbackUrl: URL = try await withCheckedThrowingContinuation { continuation in
             let session = ASWebAuthenticationSession(
                 url: authUrl,
-                callbackURLScheme: Self.customRedirectScheme
+                callbackURLScheme: Self.reverseClientScheme
             ) { callbackUrl, error in
                 self.currentSession = nil
                 
@@ -328,3 +339,4 @@ enum PKCEHelper {
             .trimmingCharacters(in: CharacterSet(charactersIn: "="))
     }
 }
+

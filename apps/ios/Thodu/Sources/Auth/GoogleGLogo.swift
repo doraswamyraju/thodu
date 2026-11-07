@@ -16,3 +16,4 @@ public struct GoogleGLogo: View {
             .frame(width: size, height: size)
     }
 }
+
