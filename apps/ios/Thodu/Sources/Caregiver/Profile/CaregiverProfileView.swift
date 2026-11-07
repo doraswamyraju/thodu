@@ -248,3 +248,4 @@ public struct CaregiverProfileView: View {
         .cornerRadius(10)
     }
 }
+

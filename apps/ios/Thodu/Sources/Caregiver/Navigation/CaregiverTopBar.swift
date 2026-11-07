@@ -150,3 +150,4 @@ public struct CaregiverTopBar: View {
         }
     }
 }
+

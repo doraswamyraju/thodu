@@ -270,3 +270,4 @@ public struct CaregiverTodayTabContent: View {
         .background(Color(hex: "F8FAF9").ignoresSafeArea())
     }
 }
+
