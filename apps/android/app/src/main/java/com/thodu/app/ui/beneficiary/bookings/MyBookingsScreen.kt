@@ -668,3 +668,4 @@ private fun getBookingVisual(name: String): Triple<ImageVector, Color, Color> {
         else -> Triple(Icons.Default.AccessibilityNew, Color(0xFFE8F5E9), Color(0xFF16A34A))
     }
 }
+
