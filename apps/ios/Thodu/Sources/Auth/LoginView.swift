@@ -57,24 +57,19 @@ public struct LoginView: View {
                         
                         // Main Login Content
                         VStack(spacing: 16) {
-                            // Logo representation
-                            VStack(spacing: 4) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "heart.circle.fill")
-                                        .font(.system(size: 28))
-                                        .foregroundColor(Color(hex: "D81B60"))
-                                    Text("Thodu")
-                                        .font(.system(size: 32, weight: .bold))
-                                        .foregroundColor(Color(hex: "0B5D3B"))
+                            // Official Thodu Brand Logo
+                            Group {
+                                if let uiImage = UIImage(contentsOfFile: Bundle.main.path(forResource: "thodu_logo_vertical", ofType: "png") ?? "") {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFit()
+                                } else {
+                                    Image("thodu_logo_vertical")
+                                        .resizable()
+                                        .scaledToFit()
                                 }
-                                Text("ELDER CARE SERVICES")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .tracking(2.0)
-                                    .foregroundColor(Color(hex: "B45309"))
-                                Text("Sri Divyang Seva Kendram Trust")
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(Color(hex: "4B5563"))
                             }
+                            .frame(height: 95)
                             .offset(y: -15)
                             
                             // Pill badge

@@ -17,6 +17,7 @@
 		BFAC000B52BAF622E88ACEF8 /* AppleSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */; };
 		CB319C7B218175866E666DBF /* FamilyDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */; };
 		CDA3D089D32CCDBDA3BFD7A5 /* thodu_logo_vertical.png in Resources */ = {isa = PBXBuildFile; fileRef = 530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */; };
+		E7449E52BAE41AA2B42A17ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D489D9917E58A976316EC5DD /* Assets.xcassets */; };
 		E79F8643C33A1DEA016E9056 /* ThoduApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5B38486FE2A52831B9E54B /* ThoduApiClient.swift */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 		A324FF74A5069BEA492C3799 /* ThoduApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduApp.swift; sourceTree = "<group>"; };
 		A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInButtonIOS.swift; sourceTree = "<group>"; };
 		AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomTirupatiArtworkIOS.swift; sourceTree = "<group>"; };
+		D489D9917E58A976316EC5DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyDashboardView.swift; sourceTree = "<group>"; };
 		E7F086B750F181AAC427DCE7 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		EC038689740DC6267B2A8388 /* login_hero_elder_care.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = login_hero_elder_care.jpg; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 		D21FDB34535F5D0A29B20972 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				D489D9917E58A976316EC5DD /* Assets.xcassets */,
 				A324FF74A5069BEA492C3799 /* ThoduApp.swift */,
 				9C7D53AC044DC117334977D0 /* Assets */,
 				EFFFD543442A70246ECBDD04 /* Auth */,
@@ -177,6 +180,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E7449E52BAE41AA2B42A17ED /* Assets.xcassets in Resources */,
 				590A72C10C6D9020CF76C2A2 /* login_hero_elder_care.jpg in Resources */,
 				CDA3D089D32CCDBDA3BFD7A5 /* thodu_logo_vertical.png in Resources */,
 			);
