@@ -208,3 +208,4 @@ public struct BeneficiaryNavigationDrawer: View {
         .frame(width: 290)
     }
 }
+

@@ -84,3 +84,4 @@ public struct BeneficiarySubsidyTierCard: View {
         .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
     }
 }
+

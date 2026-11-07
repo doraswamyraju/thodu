@@ -50,3 +50,4 @@ public struct BeneficiaryBottomNavBar: View {
         }
     }
 }
+

@@ -418,3 +418,4 @@ public struct AppNotification: Identifiable {
     public let type: NotificationType
     public var isRead: Bool
 }
+

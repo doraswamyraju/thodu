@@ -228,43 +228,19 @@ public struct LoginView: View {
                             }
                             .padding(.vertical, 4)
                             
-                            // Split 2-Column Buttons for iOS: Google & Apple side-by-side
-                            HStack(spacing: 12) {
-                                // Google Button
-                                Button(action: { performOAuth(provider: "GOOGLE") }) {
-                                    HStack(spacing: 8) {
-                                        Text("G")
-                                            .font(.system(size: 16, weight: .black))
-                                            .foregroundColor(Color(hex: "4285F4"))
-                                        Text("Google")
-                                            .font(.system(size: 14, weight: .bold))
-                                            .foregroundColor(Color(hex: "1F2937"))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 48)
-                                    .background(Color.white)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color(hex: "D1D5DB"), lineWidth: 1)
-                                    )
-                                    .cornerRadius(12)
-                                }
-                                
-                                // Apple Button
-                                Button(action: { performOAuth(provider: "APPLE") }) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "applelogo")
-                                            .font(.system(size: 16))
-                                            .foregroundColor(.white)
-                                        Text("Apple")
-                                            .font(.system(size: 14, weight: .bold))
-                                            .foregroundColor(.white)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 48)
-                                    .background(Color.black)
-                                    .cornerRadius(12)
-                                }
+                            // Google Sign-In Button (RFC 8252 + Google Identity Branding Guidelines)
+                            GoogleSignInButtonIOS(
+                                isLoading: isLoadingGoogle,
+                                text: "Continue with Google"
+                            ) {
+                                handleGoogleLogin()
+                            }
+                            
+                            // Apple Sign-In Button
+                            AppleSignInButton(
+                                isLoading: isLoadingApple
+                            ) {
+                                handleAppleLogin()
                             }
                             
                             // Live database registered accounts switcher
@@ -286,7 +262,7 @@ public struct LoginView: View {
                                             Button(action: {
                                                 selectedRole = u.role
                                                 credentialText = u.email
-                                                performOAuth(provider: "GOOGLE", emailOverride: u.email, nameOverride: u.name)
+                                                handleDatabaseAccountSwitch(user: u)
                                             }) {
                                                 HStack(spacing: 10) {
                                                     Circle()
@@ -370,44 +346,100 @@ public struct LoginView: View {
     
     private func handleBiometricLogin() {
         if let first = existingUsers.first {
-            performOAuth(provider: "GOOGLE", emailOverride: first.email, nameOverride: first.name)
+            handleDatabaseAccountSwitch(user: first)
         } else {
-            performOAuth(provider: "GOOGLE")
+            handleGoogleLogin()
         }
     }
     
-    private func performOAuth(provider: String, emailOverride: String? = nil, nameOverride: String? = nil) {
-        isLoading = true
+    /// Native RFC 8252 Google OAuth 2.0 Login with PKCE
+    private func handleGoogleLogin() {
+        isLoadingGoogle = true
         errorMessage = nil
         Task {
             do {
-                let email = emailOverride ?? (
-                    selectedRole == "BENEFICIARY" ? "anita.sharma@example.com" :
-                    selectedRole == "CAREGIVER" ? "anitha.care@example.com" :
-                    selectedRole == "FREELANCER" ? "suresh.kumar@example.com" : "raju@thodu.sriddha.com"
-                )
-                let name = nameOverride ?? (
-                    selectedRole == "BENEFICIARY" ? "Anita Sharma" :
-                    selectedRole == "CAREGIVER" ? "Anitha" :
-                    selectedRole == "FREELANCER" ? "Suresh Kumar" : "Raju Kumar"
-                )
+                let session = try await GoogleOAuthManager.shared.signIn()
                 
                 let req = OAuthLoginRequest(
-                    provider: provider,
-                    email: email,
-                    name: name,
+                    provider: "GOOGLE",
+                    email: session.email,
+                    name: session.displayName,
                     role: selectedRole,
-                    idToken: "ios_\(provider.lowercased())_\(Date().timeIntervalSince1970)"
+                    photoUrl: session.photoUrl,
+                    idToken: session.idToken
                 )
                 let (user, _) = try await ThoduApiClient.shared.loginWithOAuth(request: req)
                 await MainActor.run {
-                    isLoading = false
+                    isLoadingGoogle = false
+                    onLoginSuccess(user)
+                }
+            } catch let error as GoogleOAuthError {
+                await MainActor.run {
+                    isLoadingGoogle = false
+                    if case .cancelled = error {
+                        return
+                    }
+                    errorMessage = error.localizedDescription
+                }
+            } catch {
+                await MainActor.run {
+                    isLoadingGoogle = false
+                    errorMessage = "Google login failed: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+    
+    private func handleAppleLogin() {
+        isLoadingApple = true
+        errorMessage = nil
+        Task {
+            do {
+                let email = selectedRole == "BENEFICIARY" ? "apple.beneficiary@example.com" : "apple.user@example.com"
+                let name = selectedRole == "BENEFICIARY" ? "Anita Sharma" : "Thodu User"
+                let req = OAuthLoginRequest(
+                    provider: "APPLE",
+                    email: email,
+                    name: name,
+                    role: selectedRole,
+                    idToken: "apple_identity_\(Date().timeIntervalSince1970)"
+                )
+                let (user, _) = try await ThoduApiClient.shared.loginWithOAuth(request: req)
+                await MainActor.run {
+                    isLoadingApple = false
                     onLoginSuccess(user)
                 }
             } catch {
                 await MainActor.run {
+                    isLoadingApple = false
+                    errorMessage = "Apple authentication failed: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+    
+    private func handleDatabaseAccountSwitch(user: AppUser) {
+        isLoading = true
+        errorMessage = nil
+        Task {
+            do {
+                let req = OAuthLoginRequest(
+                    provider: user.provider ?? "GOOGLE",
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                    photoUrl: user.avatarUrl,
+                    idToken: "quick_switch_\(Date().timeIntervalSince1970)"
+                )
+                let (appUser, _) = try await ThoduApiClient.shared.loginWithOAuth(request: req)
+                await MainActor.run {
                     isLoading = false
-                    errorMessage = "Authentication failed: \(error.localizedDescription)"
+                    onLoginSuccess(appUser)
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = "Switch failed: \(error.localizedDescription)"
                 }
             }
         }

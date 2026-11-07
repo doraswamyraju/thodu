@@ -100,3 +100,4 @@ public struct NotificationsBottomSheet: View {
         }
     }
 }
+

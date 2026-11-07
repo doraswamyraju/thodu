@@ -87,3 +87,4 @@ public struct VitalMetricBox: View {
         .cornerRadius(10)
     }
 }
+

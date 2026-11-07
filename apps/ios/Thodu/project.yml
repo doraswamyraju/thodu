@@ -9,6 +9,20 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: Sources
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: Thodu
+        CFBundleURLTypes:
+          - CFBundleURLName: com.thodu.app
+            CFBundleURLSchemes:
+              - com.thodu.app
+              - com.googleusercontent.apps.814572872575-a6av64egoid154idv7f6kj78829fb5pv
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSCameraUsageDescription: "Thodu uses camera for verification"
+        NSFaceIDUsageDescription: "Thodu uses Face ID for authentication"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thodu.app
@@ -16,12 +30,6 @@ targets:
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "5.0"
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: "Thodu"
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
-        INFOPLIST_KEY_NSCameraUsageDescription: "Thodu uses camera for verification"
-        INFOPLIST_KEY_NSFaceIDUsageDescription: "Thodu uses Face ID for authentication"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: UDYR7AUVZ7

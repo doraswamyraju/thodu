@@ -11,6 +11,7 @@
 		05CA95FD65BD996205A2B2A5 /* BeneficiaryBookCareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23C9B7435EE286DA285C904 /* BeneficiaryBookCareSheet.swift */; };
 		0CC1FFB6028C15552A5E2007 /* BeneficiaryBottomNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D862EB5E142C65722B7A6DD0 /* BeneficiaryBottomNavBar.swift */; };
 		12A4ACA8A5A6B2E277C280C0 /* BottomTirupatiArtworkIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */; };
+		1EEE4DB8ACEC07E9C6A03F54 /* GoogleOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F49971354CB2E9D1A655C3 /* GoogleOAuthManager.swift */; };
 		3FE15E4275AFDA8CE3D5EDBA /* BeneficiaryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FC0119B98BAD7A4FF6A434 /* BeneficiaryModels.swift */; };
 		452CF4279BA3AC27901364BD /* BeneficiaryBannersCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80ED1DD88E0F0059FEB49B6 /* BeneficiaryBannersCarousel.swift */; };
 		4C2236FF46A2B38AA635CE30 /* GoogleSignInButtonIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */; };
@@ -33,6 +34,7 @@
 		CB319C7B218175866E666DBF /* FamilyDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */; };
 		CBDB77EC383030F37354D8F9 /* TodayCaregiverDispatchCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCEF4CC92A4FFC354993408 /* TodayCaregiverDispatchCard.swift */; };
 		CDA3D089D32CCDBDA3BFD7A5 /* thodu_logo_vertical.png in Resources */ = {isa = PBXBuildFile; fileRef = 530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */; };
+		DF474AFA9BDD7E5D0268C833 /* GoogleGLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6780AC89B8D62C4AD501B /* GoogleGLogo.swift */; };
 		E571467162A70AB4AB354302 /* BookServiceScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C74CF85B5CF160D9EFB47 /* BookServiceScreen.swift */; };
 		E7449E52BAE41AA2B42A17ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D489D9917E58A976316EC5DD /* Assets.xcassets */; };
 		E79F8643C33A1DEA016E9056 /* ThoduApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5B38486FE2A52831B9E54B /* ThoduApiClient.swift */; };
@@ -45,6 +47,7 @@
 /* Begin PBXFileReference section */
 		06AFC2A9A7815A14C452D279 /* TodayTasksListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTasksListCard.swift; sourceTree = "<group>"; };
 		0AD0715FE45889206B0EE385 /* BeneficiaryTopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryTopBar.swift; sourceTree = "<group>"; };
+		2784D4989317368138BE7120 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2C61C0918AB8231060582029 /* NotificationsBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsBottomSheet.swift; sourceTree = "<group>"; };
 		2DE26B221A2FDC6F520F69E0 /* BeneficiaryProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryProfileCard.swift; sourceTree = "<group>"; };
 		2F080DCF64BF47A3BAF40801 /* MyBookingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyBookingsScreen.swift; sourceTree = "<group>"; };
@@ -52,6 +55,7 @@
 		510027DF9B8D536473595944 /* BeneficiaryProfileHeaderCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryProfileHeaderCard.swift; sourceTree = "<group>"; };
 		530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = thodu_logo_vertical.png; sourceTree = "<group>"; };
 		61A8279A26C9599E5657AF46 /* Thodu.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Thodu.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		63C6780AC89B8D62C4AD501B /* GoogleGLogo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleGLogo.swift; sourceTree = "<group>"; };
 		6437DB439607A23DAFBE83AE /* BeneficiaryTodayTabContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryTodayTabContent.swift; sourceTree = "<group>"; };
 		650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInButton.swift; sourceTree = "<group>"; };
 		65D532B8EE95F5048100D62D /* BeneficiaryDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryDashboardView.swift; sourceTree = "<group>"; };
@@ -76,6 +80,7 @@
 		E7F086B750F181AAC427DCE7 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		E80ED1DD88E0F0059FEB49B6 /* BeneficiaryBannersCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryBannersCarousel.swift; sourceTree = "<group>"; };
 		EC038689740DC6267B2A8388 /* login_hero_elder_care.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = login_hero_elder_care.jpg; sourceTree = "<group>"; };
+		F0F49971354CB2E9D1A655C3 /* GoogleOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleOAuthManager.swift; sourceTree = "<group>"; };
 		FBCEF4CC92A4FFC354993408 /* TodayCaregiverDispatchCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayCaregiverDispatchCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -199,6 +204,7 @@
 			isa = PBXGroup;
 			children = (
 				D489D9917E58A976316EC5DD /* Assets.xcassets */,
+				2784D4989317368138BE7120 /* Info.plist */,
 				A324FF74A5069BEA492C3799 /* ThoduApp.swift */,
 				9C7D53AC044DC117334977D0 /* Assets */,
 				EFFFD543442A70246ECBDD04 /* Auth */,
@@ -250,6 +256,8 @@
 			children = (
 				650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */,
 				AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */,
+				63C6780AC89B8D62C4AD501B /* GoogleGLogo.swift */,
+				F0F49971354CB2E9D1A655C3 /* GoogleOAuthManager.swift */,
 				A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */,
 				E7F086B750F181AAC427DCE7 /* LoginView.swift */,
 			);
@@ -350,6 +358,8 @@
 				EA4A981119D3666D7C6C0C45 /* CareServicesCatalogCard.swift in Sources */,
 				4C35718423DDBE74FE5D1F0F /* Color+Thodu.swift in Sources */,
 				CB319C7B218175866E666DBF /* FamilyDashboardView.swift in Sources */,
+				DF474AFA9BDD7E5D0268C833 /* GoogleGLogo.swift in Sources */,
+				1EEE4DB8ACEC07E9C6A03F54 /* GoogleOAuthManager.swift in Sources */,
 				4C2236FF46A2B38AA635CE30 /* GoogleSignInButtonIOS.swift in Sources */,
 				ACBB7B094D8CE713FFEC4A04 /* LoginView.swift in Sources */,
 				76AD4AFB54E85E46296B4FC6 /* MyBookingsScreen.swift in Sources */,
@@ -373,12 +383,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UDYR7AUVZ7;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Thodu;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Thodu uses camera for verification";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Thodu uses Face ID for authentication";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = Sources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -401,12 +406,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UDYR7AUVZ7;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Thodu;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Thodu uses camera for verification";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Thodu uses Face ID for authentication";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = Sources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
