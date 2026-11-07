@@ -6,6 +6,7 @@ public struct BeneficiaryTodayTabContent: View {
     public let services: [CareService]
     public let onBookCareClick: () -> Void
     public let onSelectServiceToBook: (CareService?) -> Void
+    public let onLiveTrackingClick: () -> Void
     public let onNotificationCenterClick: () -> Void
     public let onProfileClick: () -> Void
 
@@ -15,6 +16,7 @@ public struct BeneficiaryTodayTabContent: View {
         services: [CareService],
         onBookCareClick: @escaping () -> Void,
         onSelectServiceToBook: @escaping (CareService?) -> Void,
+        onLiveTrackingClick: @escaping () -> Void = {},
         onNotificationCenterClick: @escaping () -> Void = {},
         onProfileClick: @escaping () -> Void = {}
     ) {
@@ -23,6 +25,7 @@ public struct BeneficiaryTodayTabContent: View {
         self.services = services
         self.onBookCareClick = onBookCareClick
         self.onSelectServiceToBook = onSelectServiceToBook
+        self.onLiveTrackingClick = onLiveTrackingClick
         self.onNotificationCenterClick = onNotificationCenterClick
         self.onProfileClick = onProfileClick
     }
@@ -43,7 +46,7 @@ public struct BeneficiaryTodayTabContent: View {
             // 3. Today's Caregiver Dispatch & Live Status Card
             TodayCaregiverDispatchCard(
                 activeBooking: activeBooking,
-                onLiveTrackingClick: onBookCareClick,
+                onLiveTrackingClick: onLiveTrackingClick,
                 onBookCareClick: onBookCareClick
             )
 

@@ -263,55 +263,66 @@ public struct BookServiceScreen: View {
                     }
                 }
 
-                // STEP 5: Trust Subsidy Calculation Banner
+                // STEP 5: Pricing Breakdown & Payment Summary
                 VStack(spacing: 8) {
                     HStack {
-                        Image(systemName: "shield.fill")
+                        Image(systemName: "creditcard.fill")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(hex: "15803D"))
-                        Text("Sri Divyang Seva Kendram Trust Subsidy")
+                            .foregroundColor(Color(hex: "0D5C3A"))
+                        Text("Transparent Pricing Summary")
                             .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(Color(hex: "15803D"))
+                            .foregroundColor(Color(hex: "0D5C3A"))
                         Spacer()
                     }
 
-                    Divider().background(Color(hex: "BBF7D0"))
+                    Divider().background(Color(hex: "E2E8F0"))
 
                     HStack {
                         Text("Standard Service Fee:")
                             .font(.system(size: 12))
                             .foregroundColor(Color(hex: "475569"))
                         Spacer()
-                        Text("₹600.00")
+                        Text("₹499.00")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(Color(hex: "475569"))
                     }
 
                     HStack {
-                        Text("Trust Grant Subsidy (100%):")
+                        Text("Platform & Care Coordination:")
                             .font(.system(size: 12))
-                            .foregroundColor(Color(hex: "15803D"))
+                            .foregroundColor(Color(hex: "475569"))
                         Spacer()
-                        Text("- ₹600.00")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(Color(hex: "15803D"))
+                        Text("₹49.00")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(Color(hex: "475569"))
                     }
 
-                    Divider().background(Color(hex: "BBF7D0"))
+                    Divider().background(Color(hex: "E2E8F0"))
 
                     HStack {
                         Text("Total Amount Payable:")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(Color(hex: "0F3E26"))
                         Spacer()
-                        Text("₹0.00 (Fully Covered)")
-                            .font(.system(size: 14, weight: .black))
-                            .foregroundColor(Color(hex: "15803D"))
+                        Text("₹548.00")
+                            .font(.system(size: 15, weight: .black))
+                            .foregroundColor(Color(hex: "0D5C3A"))
                     }
+                    
+                    HStack {
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "15803D"))
+                        Text("Pay via UPI / Card or Cash upon attendant arrival")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "64748B"))
+                        Spacer()
+                    }
+                    .padding(.top, 2)
                 }
                 .padding(14)
-                .background(Color(hex: "F0FDF4"))
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(hex: "BBF7D0"), lineWidth: 1))
+                .background(Color.white)
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(hex: "E2E8F0"), lineWidth: 1))
                 .cornerRadius(14)
 
                 if let err = errorMessage {
@@ -379,7 +390,7 @@ public struct BookServiceScreen: View {
             serviceAddress: addressText,
             guardianPhone: phoneText,
             specialInstructions: instructionsText.isEmpty ? nil : instructionsText,
-            fundingTier: "Trust Sponsored (100%)"
+            fundingTier: "Family Self-Funded"
         )
 
         Task {

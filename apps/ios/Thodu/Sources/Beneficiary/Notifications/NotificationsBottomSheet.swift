@@ -6,7 +6,7 @@ public struct NotificationsBottomSheet: View {
     @State private var notifications: [AppNotification] = [
         AppNotification(id: "n1", title: "Caregiver Dispatched", description: "Anitha is on the way for Household Support visit (ETA: ~18 mins).", timestamp: "10:00 AM", type: .DISPATCH, isRead: false),
         AppNotification(id: "n2", title: "Clinical Vitals Recorded", description: "Blood pressure recorded: 124/82 mmHg, Pulse: 74 bpm, Sugar: 110 mg/dL.", timestamp: "09:15 AM", type: .VITALS, isRead: false),
-        AppNotification(id: "n3", title: "Trust Grant 100% Approved", description: "Sri Divyang Seva Kendram Trust approved 100% home care subsidy for Saraswathi Amma.", timestamp: "Yesterday", type: .SUBSIDY, isRead: true),
+        AppNotification(id: "n3", title: "Care Plan Activated", description: "Comprehensive in-home care plan is active with dedicated attendant support.", timestamp: "Yesterday", type: .SYSTEM, isRead: true),
         AppNotification(id: "n4", title: "Evening Medication Reminder", description: "Amlodipine 5mg & Metformin 500mg due with dinner at 8:00 PM.", timestamp: "Yesterday", type: .MEDICATION, isRead: true)
     ]
 

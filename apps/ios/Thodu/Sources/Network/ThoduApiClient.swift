@@ -73,6 +73,28 @@ public final class ThoduApiClient {
         return decoded.beneficiaries
     }
 
+    public func createBeneficiary(beneficiary: Beneficiary) async throws -> Beneficiary {
+        guard let url = URL(string: "\(baseURL)/api/v1/beneficiaries") else {
+            throw URLError(.badURL)
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.httpBody = try JSONEncoder().encode(beneficiary)
+
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+
+        let decoded = try JSONDecoder().decode(CreateBeneficiaryResponse.self, from: data)
+        guard decoded.success, let created = decoded.beneficiary else {
+            throw NSError(domain: "BeneficiaryError", code: 400, userInfo: [NSLocalizedDescriptionKey: decoded.message ?? "Failed to create beneficiary"])
+        }
+        return created
+    }
+
     public func fetchBookings() async throws -> [Booking] {
         guard let url = URL(string: "\(baseURL)/api/v1/bookings") else {
             throw URLError(.badURL)

@@ -16,6 +16,8 @@ public struct BeneficiaryDashboardView: View {
     @State private var selectedServiceForBooking: CareService? = nil
     @State private var showNotificationsSheet = false
     @State private var showSosConfirmation = false
+    @State private var showCaregiverLiveTracking = false
+    @State private var showAddBeneficiaryScreen = false
 
     public init(currentUser: AppUser, onLogout: @escaping () -> Void) {
         self.currentUser = currentUser
@@ -57,7 +59,7 @@ public struct BeneficiaryDashboardView: View {
                         currentTab = .PROFILE
                     },
                     onAddNewLovedOneClick: {
-                        showBookServiceScreen = true
+                        showAddBeneficiaryScreen = true
                     }
                 )
 
@@ -91,6 +93,9 @@ public struct BeneficiaryDashboardView: View {
                                         selectedServiceForBooking = srv
                                         showBookServiceScreen = true
                                     },
+                                    onLiveTrackingClick: {
+                                        showCaregiverLiveTracking = true
+                                    },
                                     onNotificationCenterClick: {
                                         showNotificationsSheet = true
                                     },
@@ -108,7 +113,7 @@ public struct BeneficiaryDashboardView: View {
                                     showBookServiceScreen = true
                                 },
                                 onLiveTrackingClick: { _ in
-                                    currentTab = .TODAY
+                                    showCaregiverLiveTracking = true
                                 },
                                 onCallSupportClick: {
                                     if let url = URL(string: "tel://18008463876"), UIApplication.shared.canOpenURL(url) {
@@ -134,17 +139,6 @@ public struct BeneficiaryDashboardView: View {
                             BeneficiaryDispatchVitalsCard(
                                 activeBooking: activeBooking
                             )
-
-                        case .SUBSIDIES:
-                            if let ben = selectedBeneficiary {
-                                BeneficiarySubsidyTierCard(
-                                    beneficiary: ben
-                                )
-                                BeneficiaryProfileCard(
-                                    beneficiary: ben,
-                                    onBookCareClick: { showBookCareSheet = true }
-                                )
-                            }
 
                         case .PROFILE:
                             if let ben = selectedBeneficiary {
@@ -241,6 +235,9 @@ public struct BeneficiaryDashboardView: View {
                         onSelectBeneficiary: { ben in
                             selectedBeneficiary = ben
                         },
+                        onAddNewLovedOne: {
+                            showAddBeneficiaryScreen = true
+                        },
                         onLogoutClick: onLogout,
                         onCloseDrawer: {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -286,6 +283,27 @@ public struct BeneficiaryDashboardView: View {
                 }
             )
         }
+        .fullScreenCover(isPresented: $showCaregiverLiveTracking) {
+            if let booking = activeBooking {
+                CaregiverLiveTrackingView(
+                    booking: booking,
+                    beneficiary: selectedBeneficiary,
+                    onDismiss: { showCaregiverLiveTracking = false }
+                )
+            }
+        }
+        .sheet(isPresented: $showAddBeneficiaryScreen) {
+            AddBeneficiaryView(
+                currentUser: currentUser,
+                onDismiss: { showAddBeneficiaryScreen = false },
+                onCreated: { newBen in
+                    self.beneficiaries.insert(newBen, at: 0)
+                    self.selectedBeneficiary = newBen
+                    self.showAddBeneficiaryScreen = false
+                    self.loadData()
+                }
+            )
+        }
         .alert("Emergency SOS Alert", isPresented: $showSosConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("CONFIRM SOS", role: .destructive) {
@@ -304,7 +322,7 @@ public struct BeneficiaryDashboardView: View {
                 }
             }
         } message: {
-            Text("This will immediately transmit your emergency coordinates and notify Sri Divyang Seva Kendram Trust responders and ambulance dispatch.")
+            Text("This will immediately transmit your emergency coordinates and alert Thodu rapid emergency responders and ambulance dispatch.")
         }
     }
 

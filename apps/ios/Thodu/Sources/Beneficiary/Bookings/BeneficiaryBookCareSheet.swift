@@ -139,7 +139,7 @@ public struct BeneficiaryBookCareSheet: View {
             serviceAddress: beneficiary.address,
             guardianPhone: beneficiary.primaryContact,
             specialInstructions: instructions.isEmpty ? nil : instructions,
-            fundingTier: beneficiary.subsidyTier ?? "Trust Sponsored"
+            fundingTier: "Family Self-Funded"
         )
 
         Task {

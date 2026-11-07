@@ -60,3 +60,4 @@ public struct ThoduAvatarView: View {
         }
     }
 }
+

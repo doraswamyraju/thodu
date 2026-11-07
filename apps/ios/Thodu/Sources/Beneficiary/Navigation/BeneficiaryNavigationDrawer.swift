@@ -7,6 +7,7 @@ public struct BeneficiaryNavigationDrawer: View {
     public let currentTab: BeneficiaryNavTab
     public let onTabSelected: (BeneficiaryNavTab) -> Void
     public let onSelectBeneficiary: (Beneficiary) -> Void
+    public let onAddNewLovedOne: () -> Void
     public let onLogoutClick: () -> Void
     public let onCloseDrawer: () -> Void
 
@@ -17,6 +18,7 @@ public struct BeneficiaryNavigationDrawer: View {
         currentTab: BeneficiaryNavTab,
         onTabSelected: @escaping (BeneficiaryNavTab) -> Void,
         onSelectBeneficiary: @escaping (Beneficiary) -> Void,
+        onAddNewLovedOne: @escaping () -> Void = {},
         onLogoutClick: @escaping () -> Void,
         onCloseDrawer: @escaping () -> Void
     ) {
@@ -26,11 +28,12 @@ public struct BeneficiaryNavigationDrawer: View {
         self.currentTab = currentTab
         self.onTabSelected = onTabSelected
         self.onSelectBeneficiary = onSelectBeneficiary
+        self.onAddNewLovedOne = onAddNewLovedOne
         self.onLogoutClick = onLogoutClick
         self.onCloseDrawer = onCloseDrawer
     }
 
-    private let menuItems: [BeneficiaryNavTab] = [.TODAY, .BOOKINGS, .HEALTH, .SUBSIDIES, .PROFILE]
+    private let menuItems: [BeneficiaryNavTab] = [.TODAY, .BOOKINGS, .HEALTH, .PROFILE]
 
     public var body: some View {
         ZStack(alignment: .leading) {
@@ -133,6 +136,23 @@ public struct BeneficiaryNavigationDrawer: View {
                         }
                         .padding(.horizontal, 12)
                     }
+
+                    Button(action: {
+                        onCloseDrawer()
+                        onAddNewLovedOne()
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(Color(hex: "4ADE80"))
+                            Text("Add New Loved One")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(Color(hex: "4ADE80"))
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                    }
+                    .padding(.horizontal, 12)
                 }
 
                 Divider().background(Color.white.opacity(0.15))
@@ -173,7 +193,7 @@ public struct BeneficiaryNavigationDrawer: View {
                     HStack(spacing: 6) {
                         Image(systemName: "phone.badge.waveform.fill")
                             .foregroundColor(Color(hex: "FDE047"))
-                        Text("24/7 Trust Helpline")
+                        Text("24/7 Care & SOS Helpline")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(.white)
                     }

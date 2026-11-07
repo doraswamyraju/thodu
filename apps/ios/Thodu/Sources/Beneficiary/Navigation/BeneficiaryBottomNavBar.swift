@@ -12,7 +12,7 @@ public struct BeneficiaryBottomNavBar: View {
         self.onTabSelected = onTabSelected
     }
 
-    private let tabs: [BeneficiaryNavTab] = [.TODAY, .BOOKINGS, .HEALTH, .SUBSIDIES, .PROFILE]
+    private let tabs: [BeneficiaryNavTab] = [.TODAY, .BOOKINGS, .HEALTH, .PROFILE]
 
     public var body: some View {
         VStack(spacing: 0) {

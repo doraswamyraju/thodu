@@ -137,6 +137,12 @@ public struct BeneficiariesResponse: Codable {
     public let beneficiaries: [Beneficiary]
 }
 
+public struct CreateBeneficiaryResponse: Codable {
+    public let success: Bool
+    public let beneficiary: Beneficiary?
+    public let message: String?
+}
+
 // MARK: - Booking & Vitals Models
 public struct VitalsLog: Codable, Hashable {
     public let bloodPressure: String?
@@ -441,7 +447,6 @@ public enum BeneficiaryNavTab: String, CaseIterable, Identifiable {
     case TODAY = "Today"
     case BOOKINGS = "Bookings"
     case HEALTH = "Health"
-    case SUBSIDIES = "Grants"
     case PROFILE = "Profile"
 
     public var id: String { rawValue }
@@ -451,7 +456,6 @@ public enum BeneficiaryNavTab: String, CaseIterable, Identifiable {
         case .TODAY: return "heart.fill"
         case .BOOKINGS: return "calendar"
         case .HEALTH: return "cross.case.fill"
-        case .SUBSIDIES: return "shield.fill"
         case .PROFILE: return "person.fill"
         }
     }
@@ -518,14 +522,14 @@ public enum NotificationType {
     case DISPATCH
     case VITALS
     case MEDICATION
-    case SUBSIDY
+    case SYSTEM
 
     public var iconName: String {
         switch self {
         case .DISPATCH: return "figure.walk"
         case .VITALS: return "waveform.path.ecg"
         case .MEDICATION: return "pills.fill"
-        case .SUBSIDY: return "shield.fill"
+        case .SYSTEM: return "bell.badge.fill"
         }
     }
 
@@ -534,7 +538,7 @@ public enum NotificationType {
         case .DISPATCH: return Color(hex: "0D5C3A")
         case .VITALS: return Color(hex: "2563EB")
         case .MEDICATION: return Color(hex: "E11D48")
-        case .SUBSIDY: return Color(hex: "D97706")
+        case .SYSTEM: return Color(hex: "0D5C3A")
         }
     }
 }

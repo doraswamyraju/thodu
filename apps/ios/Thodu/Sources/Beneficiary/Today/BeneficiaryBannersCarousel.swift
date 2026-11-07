@@ -10,11 +10,11 @@ public struct BeneficiaryBannersCarousel: View {
     public let banners: [PromoBanner] = [
         PromoBanner(
             id: "b1",
-            tag: "TRUST GRANT PARTNERSHIP",
-            title: "Up to 100% Care Subsidy",
-            subtitle: "Sri Divyang Seva Kendram Trust covers home care for eligible elders & BPL cardholders",
-            ctaText: "Apply Now",
-            iconName: "hands.sparkles.fill",
+            tag: "VERIFIED ELDER CARE",
+            title: "Tirupati's Trusted Home Attendants",
+            subtitle: "Background-verified, compassionate caregivers for companionship, mobility & household care",
+            ctaText: "Book Caregiver",
+            iconName: "heart.text.square.fill",
             gradientColors: [Color(hex: "064E3B"), Color(hex: "047857"), Color(hex: "059669")],
             accentColor: Color(hex: "FDE047")
         ),

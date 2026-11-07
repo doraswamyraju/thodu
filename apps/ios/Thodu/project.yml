@@ -23,6 +23,8 @@ targets:
           - UIInterfaceOrientationPortrait
         NSCameraUsageDescription: "Thodu uses camera for verification"
         NSFaceIDUsageDescription: "Thodu uses Face ID for authentication"
+        NSLocationWhenInUseUsageDescription: "Thodu uses your location to pinpoint your loved one's residence for caregiver dispatch and live emergency tracking."
+        NSLocationAlwaysAndWhenInUseUsageDescription: "Thodu uses your location to pinpoint your loved one's residence for caregiver dispatch and live emergency tracking."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thodu.app

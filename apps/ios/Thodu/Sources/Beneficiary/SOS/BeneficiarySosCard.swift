@@ -25,7 +25,7 @@ public struct BeneficiarySosCard: View {
                 Spacer()
             }
 
-            Text("Instantly alert Trust crisis coordinators, ambulance dispatch, and emergency contacts with your live GPS location.")
+            Text("Instantly alert emergency response coordinators, ambulance dispatch, and family contacts with your live GPS location.")
                 .font(.system(size: 11.5))
                 .foregroundColor(Color(hex: "7F1D1D").opacity(0.9))
                 .lineSpacing(2)
@@ -34,7 +34,7 @@ public struct BeneficiarySosCard: View {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(Color(hex: "15803D"))
-                    Text("Emergency SOS Triggered! Trust coordinators alerted.")
+                    Text("Emergency SOS Triggered! Response coordinators alerted.")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(Color(hex: "15803D"))
                 }

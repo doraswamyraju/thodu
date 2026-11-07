@@ -36,6 +36,10 @@
 	<string>Thodu uses camera for verification</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Thodu uses Face ID for authentication</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Thodu uses your location to pinpoint your loved one's residence for caregiver dispatch and live emergency tracking.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Thodu uses your location to pinpoint your loved one's residence for caregiver dispatch and live emergency tracking.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
