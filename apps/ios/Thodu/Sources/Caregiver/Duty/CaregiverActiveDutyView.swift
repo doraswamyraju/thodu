@@ -1,4 +1,6 @@
 import SwiftUI
+import MapKit
+import CoreLocation
 
 public struct CaregiverActiveDutyView: View {
     public let caregiver: Caregiver
@@ -7,6 +9,7 @@ public struct CaregiverActiveDutyView: View {
     public var onTriggerSos: (String) async -> Void
     public var onCompleteVisit: (Booking, [String: String], [CaregiverChecklistItem], String) async -> Void
     
+    @ObservedObject private var locationManager = CaregiverLocationManager.shared
     @State private var bp: String = "120/80"
     @State private var pulse: String = "74 bpm"
     @State private var spo2: String = "98%"
@@ -143,6 +146,85 @@ public struct CaregiverActiveDutyView: View {
                 .cornerRadius(18)
                 .overlay(
                     RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color(hex: "E5E9E6"), lineWidth: 1)
+                )
+                
+                // 1.5 BENEFICIARY LIVE MAP & NAVIGATION CARD
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(Color(hex: "16A34A"))
+                                .frame(width: 7, height: 7)
+                            Text("BENEFICIARY RESIDENCE LOCATION")
+                                .font(.system(size: 10, weight: .black))
+                                .foregroundColor(Color(hex: "166534"))
+                        }
+                        Spacer()
+                        if let dist = locationManager.distanceKm(to: visit.beneficiaryLat, longitude: visit.beneficiaryLng) {
+                            Text(String(format: "%.1f km away", dist))
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(Color(hex: "0284C7"))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color(hex: "E0F2FE"))
+                                .cornerRadius(6)
+                        }
+                    }
+                    
+                    ZStack(alignment: .bottomTrailing) {
+                        Map {
+                            Annotation(visit.beneficiaryName, coordinate: CLLocationCoordinate2D(latitude: visit.beneficiaryLat, longitude: visit.beneficiaryLng)) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(hex: "16A34A").opacity(0.25))
+                                        .frame(width: 44, height: 44)
+                                    Circle()
+                                        .fill(Color(hex: "0B5D3B"))
+                                        .frame(width: 26, height: 26)
+                                    Image(systemName: "house.fill")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            if let userCoord = locationManager.userLocation {
+                                Annotation("You (Caregiver)", coordinate: userCoord) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(hex: "0284C7").opacity(0.3))
+                                            .frame(width: 36, height: 36)
+                                        Circle()
+                                            .fill(Color(hex: "0284C7"))
+                                            .frame(width: 16, height: 16)
+                                    }
+                                }
+                            }
+                        }
+                        .frame(height: 160)
+                        .cornerRadius(12)
+                        
+                        if let mapsUrl = URL(string: "http://maps.apple.com/?daddr=\(visit.beneficiaryLat),\(visit.beneficiaryLng)") {
+                            Link(destination: mapsUrl) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                                    Text("Turn-by-turn Navigation")
+                                        .font(.system(size: 11, weight: .bold))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color(hex: "0B5D3B"))
+                                .cornerRadius(8)
+                            }
+                            .padding(8)
+                        }
+                    }
+                }
+                .padding(14)
+                .background(Color.white)
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
                         .stroke(Color(hex: "E5E9E6"), lineWidth: 1)
                 )
                 

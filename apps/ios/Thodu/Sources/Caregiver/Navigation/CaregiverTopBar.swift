@@ -3,60 +3,54 @@ import SwiftUI
 public struct CaregiverTopBar: View {
     public let caregiver: Caregiver
     public let availability: String
+    public var onMenuTap: () -> Void
     public var onAvailabilityChanged: (String) -> Void
     public var onNotificationTap: () -> Void
-    public var onLogoutTap: () -> Void
     
     public init(
         caregiver: Caregiver,
         availability: String,
+        onMenuTap: @escaping () -> Void,
         onAvailabilityChanged: @escaping (String) -> Void,
-        onNotificationTap: @escaping () -> Void,
-        onLogoutTap: @escaping () -> Void
+        onNotificationTap: @escaping () -> Void
     ) {
         self.caregiver = caregiver
         self.availability = availability
+        self.onMenuTap = onMenuTap
         self.onAvailabilityChanged = onAvailabilityChanged
         self.onNotificationTap = onNotificationTap
-        self.onLogoutTap = onLogoutTap
     }
     
     public var body: some View {
         HStack(spacing: 12) {
-            // Brand Logo & Sub-tag
-            VStack(alignment: .leading, spacing: 1) {
-                HStack(spacing: 6) {
-                    Image("thodu_topbar_logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 24)
-                    
-                    Text("STAFF")
-                        .font(.system(size: 9, weight: .black))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color(hex: "047857"))
-                        .cornerRadius(4)
-                }
-                
-                Text(caregiver.zone)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(Color(hex: "688273"))
+            // Hamburger Menu Button to open sidebar
+            Button(action: onMenuTap) {
+                Image(systemName: "line.3.horizontal")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(Color(hex: "1F2937"))
+                    .frame(width: 36, height: 36)
+                    .background(Color(hex: "F3F4F6"))
+                    .clipShape(Circle())
             }
+            
+            // Clean Brand Logo (NO "STAFF" word)
+            Image("thodu_topbar_logo")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 26)
             
             Spacer()
             
-            // Availability Menu Pill
+            // Availability Status Menu Pill
             Menu {
                 Button(action: { onAvailabilityChanged("Available") }) {
-                    Label("Available", systemImage: "checkmark.circle.fill")
+                    Label("Available for Shifts", systemImage: "checkmark.circle.fill")
                 }
                 Button(action: { onAvailabilityChanged("On Duty") }) {
-                    Label("On Duty", systemImage: "play.circle.fill")
+                    Label("Currently On Duty", systemImage: "play.circle.fill")
                 }
                 Button(action: { onAvailabilityChanged("Off Duty") }) {
-                    Label("Off Duty", systemImage: "moon.fill")
+                    Label("Off Duty / Break", systemImage: "moon.fill")
                 }
             } label: {
                 HStack(spacing: 5) {
@@ -67,7 +61,7 @@ public struct CaregiverTopBar: View {
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(statusTextColor)
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 8, weight: .bold))
                         .foregroundColor(statusTextColor)
                 }
                 .padding(.horizontal, 9)
@@ -84,7 +78,7 @@ public struct CaregiverTopBar: View {
             Button(action: onNotificationTap) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "bell.fill")
-                        .font(.system(size: 16))
+                        .font(.system(size: 15))
                         .foregroundColor(Color(hex: "374151"))
                     
                     Circle()
@@ -95,16 +89,6 @@ public struct CaregiverTopBar: View {
                 .frame(width: 34, height: 34)
                 .background(Color(hex: "F3F4F6"))
                 .clipShape(Circle())
-            }
-            
-            // Logout Button
-            Button(action: onLogoutTap) {
-                Image(systemName: "rectangle.portrait.and.arrow.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Color(hex: "DC2626"))
-                    .frame(width: 34, height: 34)
-                    .background(Color(hex: "FEE2E2"))
-                    .clipShape(Circle())
             }
         }
         .padding(.horizontal, 16)
@@ -150,4 +134,3 @@ public struct CaregiverTopBar: View {
         }
     }
 }
-
