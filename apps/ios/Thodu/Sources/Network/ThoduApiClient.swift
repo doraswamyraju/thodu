@@ -18,7 +18,7 @@ public final class ThoduApiClient {
             throw URLError(.badServerResponse)
         }
         
-        let decoded = try JSONDecoder().decode(UsersListResponse.self, data: data)
+        let decoded = try JSONDecoder().decode(UsersListResponse.self, from: data)
         return decoded.users
     }
     
@@ -37,7 +37,7 @@ public final class ThoduApiClient {
             throw URLError(.badServerResponse)
         }
         
-        let decoded = try JSONDecoder().decode(OAuthLoginResponse.self, data: data)
+        let decoded = try JSONDecoder().decode(OAuthLoginResponse.self, from: data)
         guard decoded.success, let user = decoded.user, let token = decoded.token else {
             throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: decoded.message ?? "Authentication failed"])
         }

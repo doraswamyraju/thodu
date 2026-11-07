@@ -1,0 +1,407 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		02C7E95F00E1B222DC353642 /* ThoduApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A324FF74A5069BEA492C3799 /* ThoduApp.swift */; };
+		12A4ACA8A5A6B2E277C280C0 /* BottomTirupatiArtworkIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */; };
+		4C2236FF46A2B38AA635CE30 /* GoogleSignInButtonIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */; };
+		4C35718423DDBE74FE5D1F0F /* Color+Thodu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */; };
+		590A72C10C6D9020CF76C2A2 /* login_hero_elder_care.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EC038689740DC6267B2A8388 /* login_hero_elder_care.jpg */; };
+		9057F1019583923D64AD8E57 /* AuthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE59F0AE8C61E37F4C94B09 /* AuthModels.swift */; };
+		ACBB7B094D8CE713FFEC4A04 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F086B750F181AAC427DCE7 /* LoginView.swift */; };
+		BFAC000B52BAF622E88ACEF8 /* AppleSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */; };
+		CB319C7B218175866E666DBF /* FamilyDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */; };
+		CDA3D089D32CCDBDA3BFD7A5 /* thodu_logo_vertical.png in Resources */ = {isa = PBXBuildFile; fileRef = 530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */; };
+		E79F8643C33A1DEA016E9056 /* ThoduApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5B38486FE2A52831B9E54B /* ThoduApiClient.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		3F5B38486FE2A52831B9E54B /* ThoduApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduApiClient.swift; sourceTree = "<group>"; };
+		530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = thodu_logo_vertical.png; sourceTree = "<group>"; };
+		61A8279A26C9599E5657AF46 /* Thodu.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Thodu.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInButton.swift; sourceTree = "<group>"; };
+		7FE59F0AE8C61E37F4C94B09 /* AuthModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModels.swift; sourceTree = "<group>"; };
+		8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Thodu.swift"; sourceTree = "<group>"; };
+		A324FF74A5069BEA492C3799 /* ThoduApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThoduApp.swift; sourceTree = "<group>"; };
+		A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInButtonIOS.swift; sourceTree = "<group>"; };
+		AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomTirupatiArtworkIOS.swift; sourceTree = "<group>"; };
+		D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyDashboardView.swift; sourceTree = "<group>"; };
+		E7F086B750F181AAC427DCE7 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		EC038689740DC6267B2A8388 /* login_hero_elder_care.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = login_hero_elder_care.jpg; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		6E3199D6105AB55A8CCFA1B9 = {
+			isa = PBXGroup;
+			children = (
+				D21FDB34535F5D0A29B20972 /* Sources */,
+				E11494C42156681881AC5984 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9C7D53AC044DC117334977D0 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				EC038689740DC6267B2A8388 /* login_hero_elder_care.jpg */,
+				530D91929D3FC3B57D890E09 /* thodu_logo_vertical.png */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		A3A26AED44A5042D2AA1EDF1 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		A6ECF0CBECE803282CA2018B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				7FE59F0AE8C61E37F4C94B09 /* AuthModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AACADBEC681A4C173C1751B2 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D8671CDCBA24350BB44FCC2C /* FamilyDashboardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C9C690A2365B90190E3CAAAB /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				3F5B38486FE2A52831B9E54B /* ThoduApiClient.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		D21FDB34535F5D0A29B20972 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				A324FF74A5069BEA492C3799 /* ThoduApp.swift */,
+				9C7D53AC044DC117334977D0 /* Assets */,
+				EFFFD543442A70246ECBDD04 /* Auth */,
+				A6ECF0CBECE803282CA2018B /* Models */,
+				C9C690A2365B90190E3CAAAB /* Network */,
+				A3A26AED44A5042D2AA1EDF1 /* Theme */,
+				AACADBEC681A4C173C1751B2 /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		E11494C42156681881AC5984 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				61A8279A26C9599E5657AF46 /* Thodu.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EFFFD543442A70246ECBDD04 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */,
+				AA7F7FFFE67905DD1A415910 /* BottomTirupatiArtworkIOS.swift */,
+				A8DFF7148139644367BE25F1 /* GoogleSignInButtonIOS.swift */,
+				E7F086B750F181AAC427DCE7 /* LoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5F539A33118E1004EDB2A88B /* Thodu */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 20571AFC934487AB95781103 /* Build configuration list for PBXNativeTarget "Thodu" */;
+			buildPhases = (
+				76735D83F2DB3DE872FD7EBD /* Sources */,
+				6F459C79B1BEB64E1C659DC9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Thodu;
+			packageProductDependencies = (
+			);
+			productName = Thodu;
+			productReference = 61A8279A26C9599E5657AF46 /* Thodu.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CF18395AE0C4EA17BB72FF72 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					5F539A33118E1004EDB2A88B = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 3D989522903870BC6B728F8C /* Build configuration list for PBXProject "Thodu" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 6E3199D6105AB55A8CCFA1B9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E11494C42156681881AC5984 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5F539A33118E1004EDB2A88B /* Thodu */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6F459C79B1BEB64E1C659DC9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				590A72C10C6D9020CF76C2A2 /* login_hero_elder_care.jpg in Resources */,
+				CDA3D089D32CCDBDA3BFD7A5 /* thodu_logo_vertical.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		76735D83F2DB3DE872FD7EBD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BFAC000B52BAF622E88ACEF8 /* AppleSignInButton.swift in Sources */,
+				9057F1019583923D64AD8E57 /* AuthModels.swift in Sources */,
+				12A4ACA8A5A6B2E277C280C0 /* BottomTirupatiArtworkIOS.swift in Sources */,
+				4C35718423DDBE74FE5D1F0F /* Color+Thodu.swift in Sources */,
+				CB319C7B218175866E666DBF /* FamilyDashboardView.swift in Sources */,
+				4C2236FF46A2B38AA635CE30 /* GoogleSignInButtonIOS.swift in Sources */,
+				ACBB7B094D8CE713FFEC4A04 /* LoginView.swift in Sources */,
+				E79F8643C33A1DEA016E9056 /* ThoduApiClient.swift in Sources */,
+				02C7E95F00E1B222DC353642 /* ThoduApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		213392269A202ECBE1FCABF8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Thodu;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Thodu uses camera for verification";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Thodu uses Face ID for authentication";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thodu.app;
+				PRODUCT_NAME = Thodu;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		456369EFB81CD7A59A375775 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Thodu;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Thodu uses camera for verification";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Thodu uses Face ID for authentication";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thodu.app;
+				PRODUCT_NAME = Thodu;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DC20BE68669DD579D77A44F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		E4AEC0F0FCAA6BA36ED15C58 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		20571AFC934487AB95781103 /* Build configuration list for PBXNativeTarget "Thodu" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				456369EFB81CD7A59A375775 /* Debug */,
+				213392269A202ECBE1FCABF8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3D989522903870BC6B728F8C /* Build configuration list for PBXProject "Thodu" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DC20BE68669DD579D77A44F6 /* Debug */,
+				E4AEC0F0FCAA6BA36ED15C58 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CF18395AE0C4EA17BB72FF72 /* Project object */;
+}
