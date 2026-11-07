@@ -27,6 +27,7 @@
 		8F7CA7065403AD556FD9DD90 /* BeneficiarySosCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF8EE35B3DDF64935EDB454 /* BeneficiarySosCard.swift */; };
 		9057F1019583923D64AD8E57 /* AuthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE59F0AE8C61E37F4C94B09 /* AuthModels.swift */; };
 		9F5BCD9302C58175011EA8B9 /* BeneficiaryDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D532B8EE95F5048100D62D /* BeneficiaryDashboardView.swift */; };
+		A3966FFBEA05255C65CE59C4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 74BC855402788FFE4EA3BA69 /* GoogleService-Info.plist */; };
 		A52754228D0A1636889A6416 /* BeneficiaryProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE26B221A2FDC6F520F69E0 /* BeneficiaryProfileCard.swift */; };
 		ACBB7B094D8CE713FFEC4A04 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F086B750F181AAC427DCE7 /* LoginView.swift */; };
 		BFAC000B52BAF622E88ACEF8 /* AppleSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */; };
@@ -60,6 +61,7 @@
 		650B3D79F3960DCCD19362EE /* AppleSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInButton.swift; sourceTree = "<group>"; };
 		65D532B8EE95F5048100D62D /* BeneficiaryDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryDashboardView.swift; sourceTree = "<group>"; };
 		69B3A7296AC8522DF3358716 /* CareServicesCatalogCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareServicesCatalogCard.swift; sourceTree = "<group>"; };
+		74BC855402788FFE4EA3BA69 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7FE59F0AE8C61E37F4C94B09 /* AuthModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModels.swift; sourceTree = "<group>"; };
 		813C74CF85B5CF160D9EFB47 /* BookServiceScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookServiceScreen.swift; sourceTree = "<group>"; };
 		8818A3AEB951E3B25F19F214 /* Color+Thodu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Thodu.swift"; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				D489D9917E58A976316EC5DD /* Assets.xcassets */,
+				74BC855402788FFE4EA3BA69 /* GoogleService-Info.plist */,
 				2784D4989317368138BE7120 /* Info.plist */,
 				A324FF74A5069BEA492C3799 /* ThoduApp.swift */,
 				9C7D53AC044DC117334977D0 /* Assets */,
@@ -325,6 +328,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E7449E52BAE41AA2B42A17ED /* Assets.xcassets in Resources */,
+				A3966FFBEA05255C65CE59C4 /* GoogleService-Info.plist in Resources */,
 				590A72C10C6D9020CF76C2A2 /* login_hero_elder_care.jpg in Resources */,
 				CDA3D089D32CCDBDA3BFD7A5 /* thodu_logo_vertical.png in Resources */,
 			);

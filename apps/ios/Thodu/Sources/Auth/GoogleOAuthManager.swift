@@ -61,10 +61,15 @@ public enum GoogleOAuthError: LocalizedError {
 public final class GoogleOAuthManager: NSObject {
     public static let shared = GoogleOAuthManager()
     
-    // Google Cloud OAuth Client ID
-    // IMPORTANT: Google OAuth 2.0 strictly requires an 'iOS' application type client ID for native apps.
-    // Web client IDs reject custom schemes with: "Custom scheme URIs are not allowed for 'WEB' client type."
-    public static var clientId = "814572872575-a6av64egoid154idv7f6kj78829fb5pv.apps.googleusercontent.com"
+    // Official Google Cloud OAuth iOS Client ID
+    public static var clientId: String = {
+        if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let dict = NSDictionary(contentsOfFile: path),
+           let cid = dict["CLIENT_ID"] as? String, !cid.isEmpty {
+            return cid
+        }
+        return "814572872575-bdse43grh3kv1lv0umqaqo58qg684e9i.apps.googleusercontent.com"
+    }()
     
     /// Computes the official reverse client ID redirect scheme per Google RFC 8252 specs
     /// e.g. "com.googleusercontent.apps.814572872575-a6av64egoid154idv7f6kj78829fb5pv"

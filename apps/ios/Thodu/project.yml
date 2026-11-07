@@ -17,7 +17,7 @@ targets:
           - CFBundleURLName: com.thodu.app
             CFBundleURLSchemes:
               - com.thodu.app
-              - com.googleusercontent.apps.814572872575-a6av64egoid154idv7f6kj78829fb5pv
+              - com.googleusercontent.apps.814572872575-bdse43grh3kv1lv0umqaqo58qg684e9i
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
